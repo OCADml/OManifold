@@ -1,0 +1,5 @@
+(library
+ (name omanifold_test)
+ (inline_tests)
+ (libraries omanifold)
+ (preprocess (pps ppx_inline_test)))

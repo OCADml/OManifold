@@ -1,0 +1,137 @@
+(library
+ (name omanifold_c)
+ (public_name omanifold.c)
+ (wrapped false)
+ (modules Manifold_c_generated_functions)
+ (libraries ctypes manifold_c_function_descriptions)
+ (foreign_stubs
+  (language c)
+  (names c_generated_functions)
+  (include_dirs
+   vendor/manifold
+   vendor/manifold/src
+   vendor/manifold/bindings
+   vendor/manifold/bindings/c
+   vendor/manifold/test
+   vendor/manifold/test/meshIO))
+ (foreign_archives manifold manifoldc)
+ (c_library_flags (-lstdc++)))
+
+; Build Manifold vendor
+
+(rule
+ (targets
+  libmanifoldc.a
+  dllmanifoldc%{ext_dll}
+  libcollider.a
+  dllcollider%{ext_dll}
+  libmanifold.a
+  dllmanifold%{ext_dll}
+  libpolygon.a
+  dllpolygon%{ext_dll}
+  libutilities.a
+  dllutilities%{ext_dll}
+  libmeshIO.a
+  dllmeshIO%{ext_dll})
+ (deps
+  (source_tree vendor/manifold))
+ (action
+  (progn
+   (ignore-outputs
+    (chdir
+     vendor/manifold/build
+     (progn
+      (bash
+       "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make ")
+      (bash
+       "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make"))))
+   (bash "cp vendor/manifold/build/bindings/c/libmanifoldc.a .")
+   ;
+   (bash "cp vendor/manifold/build/src/collider/libcollider.a .") ;
+   (bash "cp vendor/manifold/build/src/manifold/libmanifold.a .") ;
+   (bash "cp vendor/manifold/build/src/polygon/libpolygon.a .") ;
+   (bash "cp vendor/manifold/build/src/utilities/libutilities.a .") ;
+   (bash "cp vendor/manifold/build/test/meshIO/libmeshIO.a .")
+   (bash
+    "cp vendor/manifold/build/bindings/c/libmanifoldc.so dllmanifoldc.so")
+   ;
+   (bash
+    "cp vendor/manifold/build/src/collider/libcollider.so dllcollider.so")
+   ;
+   (bash
+    "cp vendor/manifold/build/src/manifold/libmanifold.so dllmanifold.so")
+   ;
+   (bash "cp vendor/manifold/build/src/polygon/libpolygon.so dllpolygon.so")
+   ;
+   (bash
+    "cp vendor/manifold/build/src/utilities/libutilities.so dllutilities.so")
+   ;
+   (bash "cp vendor/manifold/build/test/meshIO/libmeshIO.so dllmeshIO.so"))))
+
+; Type bindings (Manifold_c_generated_types).
+
+(library
+ (name manifold_c_type_descriptions)
+ (public_name omanifold.c_type_descriptions)
+ (modules Manifold_c_type_descriptions)
+ (libraries ctypes))
+
+(executable
+ (name generate_types_start)
+ (modules Generate_types_start)
+ (foreign_archives manifoldc)
+ (libraries ctypes.stubs manifold_c_type_descriptions))
+
+(rule
+ (with-stdout-to
+  generate_types_step_2.c
+  (run ./generate_types_start.exe)))
+
+(rule
+ (targets generate_types_step_2.exe)
+ (deps
+  (:c generate_types_step_2.c)
+  (source_tree vendor)
+  (file libmanifold.a))
+ (action
+  (bash
+   "%{cc} %{c} -I '%{lib:ctypes:.}' -I %{ocaml_where} -I vendor/manifold/bindings/c/include -I vendor/manifold/bindings -aI vendor/helpers -o %{targets}")))
+
+(rule
+ (with-stdout-to
+  manifold_c_generated_types.ml
+  (run ./generate_types_step_2.exe)))
+
+; Function bindings.
+
+(library
+ (name manifold_c_function_descriptions)
+ (public_name omanifold.c_function_descriptions)
+ (flags
+  (:standard -w -9-16-27))
+ (wrapped false)
+ (modules
+  Manifold_c_generated_types
+  Manifold_c_function_descriptions
+  Manifold_c_types)
+ (libraries ctypes manifold_c_type_descriptions))
+
+(executable
+ (name generate_c_functions)
+ (modules Generate_c_functions)
+ (libraries ctypes.stubs manifold_c_function_descriptions))
+
+(executable
+ (name generate_ml_functions)
+ (modules Generate_ml_functions)
+ (libraries ctypes.stubs manifold_c_function_descriptions))
+
+(rule
+ (with-stdout-to
+  c_generated_functions.c
+  (run ./generate_c_functions.exe manifold_stub)))
+
+(rule
+ (with-stdout-to
+  manifold_c_generated_functions.ml
+  (run ./generate_ml_functions.exe manifold_stub)))
