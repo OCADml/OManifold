@@ -5,10 +5,11 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
 
   let manifold_size = foreign "manifold_manifold_size" (void @-> returning size_t)
 
-  let simple_polygon_size =
-    foreign "manifold_simple_polygon_size" (void @-> returning size_t)
+  (* FIXME: these functions have actually not been implemented in manifoldc.cpp *)
+  (* let simple_polygon_size = *)
+  (*   foreign "manifold_simple_polygon_size" (void @-> returning size_t) *)
 
-  let polygons_size = foreign "manifold_polygons_size" (void @-> returning size_t)
+  (* let polygons_size = foreign "manifold_polygons_size" (void @-> returning size_t) *)
 
   let manifold_pair_size =
     foreign "manifold_manifold_pair_size" (void @-> returning size_t)
@@ -29,11 +30,11 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
   let delete_manifold =
     foreign "manifold_delete_manifold" (ptr Manifold.t @-> returning void)
 
-  let delete_simple_polygon =
-    foreign "manifold_delete_simple_polygon" (ptr SimplePolygon.t @-> returning void)
+  (* let delete_simple_polygon = *)
+  (*   foreign "manifold_delete_simple_polygon" (ptr SimplePolygon.t @-> returning void) *)
 
-  let delete_polygons =
-    foreign "manifold_delete_polygons" (ptr Polygons.t @-> returning void)
+  (* let delete_polygons = *)
+  (*   foreign "manifold_delete_polygons" (ptr Polygons.t @-> returning void) *)
 
   let delete_mesh = foreign "manifold_delete_mesh" (ptr Mesh.t @-> returning void)
   let delete_meshgl = foreign "manifold_delete_meshgl" (ptr MeshGL.t @-> returning void)

@@ -7,14 +7,73 @@
  (foreign_stubs
   (language c)
   (names c_generated_functions)
-  (include_dirs vendor/manifold/bindings/c/include))
- (foreign_archives manifoldc)
- (c_library_flags (-lstdc++)))
+  (include_dirs
+   vendor/manifold/bindings/c/include
+   ; vendor/manifold/src/collider/include
+   ; vendor/manifold/src/manifold/include
+   ; vendor/manifold/src/polygon/include
+   ; vendor/manifold/src/utilities/include
+   ; vendor/manifold/src/sdf/include
+   ; vendor/manifold/test/meshIO/include
+   ; vendor/manifold/src/third_party/graphlite/include
+   ; vendor/manifold/src/third_party/glm
+   ))
+ (foreign_archives
+  manifoldc
+  ; collider
+  manifold
+  utilities
+  meshIO
+  polygon
+  graphlite)
+ ; (foreign_archives manifoldc)
+ (c_library_flags
+  (-lstdc++ -lassimp)))
+
+; NOTE:
+; add_compile_options(-fPIC) added to toplevel CMakeLists
+; collider.h and .cpp moved into manifold source directory
+; libraries added to the link list for manifoldc (not sure if necessary, need to test)
+;
 
 ; Build Manifold vendor
 
+; (rule
+;  (targets libmanifoldc.a dllmanifoldc%{ext_dll})
+;  (deps
+;   (source_tree vendor/manifold))
+;  (action
+;   (progn
+;    (ignore-outputs
+;     (chdir
+;      vendor/manifold/build
+;      (progn
+;       (bash
+;        "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make ")
+;       (bash
+;        "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make"))))
+;    (bash "cp vendor/manifold/build/bindings/c/libmanifoldc.a .")
+;    (bash
+;     "cp vendor/manifold/build/bindings/c/libmanifoldc.so dllmanifoldc.so")
+; )))
+
 (rule
- (targets libmanifoldc.a dllmanifoldc%{ext_dll})
+ ; (targets libmanifoldc.a dllmanifoldc%{ext_dll})
+ (targets
+  libmanifoldc.a
+  dllmanifoldc%{ext_dll}
+  ; libcollider.a
+  ; dllcollider%{ext_dll}
+  libmanifold.a
+  dllmanifold%{ext_dll}
+  libpolygon.a
+  dllpolygon%{ext_dll}
+  libutilities.a
+  dllutilities%{ext_dll}
+  libmeshIO.a
+  dllmeshIO%{ext_dll}
+  libgraphlite.a
+  dllgraphlite%{ext_dll})
  (deps
   (source_tree vendor/manifold))
  (action
@@ -24,12 +83,55 @@
      vendor/manifold/build
      (progn
       (bash
-       "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make ")
+       "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make ")
       (bash
-       "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make"))))
+       "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DMANIFOLD_EXPORT=ON -DCBIND=ON .. && make"))))
    (bash "cp vendor/manifold/build/bindings/c/libmanifoldc.a .")
+   ; (bash "cp vendor/manifold/build/src/collider/libcollider.a .") ;
+   (bash "cp vendor/manifold/build/src/manifold/libmanifold.a .") ;
+   (bash "cp vendor/manifold/build/src/polygon/libpolygon.a .") ;
+   (bash "cp vendor/manifold/build/src/utilities/libutilities.a .") ;
+   (bash "cp vendor/manifold/build/test/meshIO/libmeshIO.a .")
    (bash
-    "cp vendor/manifold/build/bindings/c/libmanifoldc.so dllmanifoldc.so"))))
+    "cp vendor/manifold/build/src/third_party/graphlite/libgraphlite.a .")
+   (bash
+    "cp vendor/manifold/build/bindings/c/libmanifoldc.so dllmanifoldc.so")
+   ; (bash
+   ;  "cp vendor/manifold/build/src/collider/libcollider.so dllcollider.so")
+   (bash
+    "cp vendor/manifold/build/src/manifold/libmanifold.so dllmanifold.so")
+   (bash "cp vendor/manifold/build/src/polygon/libpolygon.so dllpolygon.so")
+   (bash
+    "cp vendor/manifold/build/src/utilities/libutilities.so dllutilities.so")
+   (bash "cp vendor/manifold/build/test/meshIO/libmeshIO.so dllmeshIO.so")
+   (bash
+    "cp vendor/manifold/build/src/third_party/graphlite/libgraphlite.so dllgraphlite.so"))))
+
+; (action
+;  (no-infer
+;   (progn
+;    (ignore-outputs
+;     (chdir
+;      vendor/manifold/build
+;      (progn
+;       (run
+;        cmake
+;        -DCMAKE_BUILD_TYPE=Release
+;        -DBUILD_SHARED_LIBS=ON
+;        -DMANIFOLD_EXPORT=ON
+;        -DCBIND=ON
+;        ..)
+;       (run make)
+;       (run
+;        cmake
+;        -DCMAKE_BUILD_TYPE=Release
+;        -DBUILD_SHARED_LIBS=OFF
+;        -DMANIFOLD_EXPORT=ON
+;        -DCBIND=ON
+;        ..)
+;       (run make))))
+;    (copy vendor/manifold/build/bindings/c/libmanifoldc.a libmanifoldc.a)
+;    (copy vendor/manifold/build/bindings/c/libmanifoldc.so dllmanifoldc.so)))))
 
 ; Type bindings (Manifold_c_generated_types).
 
@@ -59,6 +161,18 @@
  (action
   (bash
    "%{cc} %{c} -I '%{lib:ctypes:.}' -I %{ocaml_where} -I vendor/manifold/bindings/c/include -o %{targets}")))
+
+; (run
+;  %{cc}
+;  %{c}
+;  -I
+;  '%{lib:ctypes:.}'
+;  -I
+;  %{ocaml_where}
+;  -I
+;  vendor/manifold/bindings/c/include
+;  -o
+;  %{targets})))
 
 (rule
  (with-stdout-to
