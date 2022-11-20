@@ -3,7 +3,7 @@
  (public_name omanifold.c)
  (wrapped false)
  (modules Manifold_c_generated_functions)
- (libraries ctypes manifold_c_function_descriptions)
+ (libraries ctypes ctypes.foreign manifold_c_function_descriptions)
  (foreign_stubs
   (language c)
   (names c_generated_functions)
@@ -37,7 +37,8 @@
         -DBUILD_SHARED_LIBS=ON
         -DMANIFOLD_EXPORT=ON
         -DCBIND=ON
-        -MANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
+        -DMANIFOLD_USE_CUDA=ON ; TODO: need to set this depending on options/availability
+        -DMANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
         ..)
        (run make)
        (run
@@ -46,7 +47,8 @@
         -DBUILD_SHARED_LIBS=OFF
         -DMANIFOLD_EXPORT=ON
         -DCBIND=ON
-        -MANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
+        -DMANIFOLD_USE_CUDA=ON ; TODO: need to set this depending on options/availability
+        -DMANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
         ..)
        (run make))))
     (copy vendor/manifold/build/bindings/c/libmanifoldc.a libmanifoldc.a)
