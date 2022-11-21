@@ -1,4 +1,4 @@
 (library
  (name omanifold)
  (public_name omanifold)
- (libraries OCADml omanifold.c))
+ (libraries OCADml ctypes.foreign omanifold.c))

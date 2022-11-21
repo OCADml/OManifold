@@ -1,6 +1,6 @@
 module Descriptions (F : Cstubs.Types.TYPE) = struct
-  open! Ctypes
-  open! F
+  open Ctypes
+  open F
 
   module Status = struct
     let no_error = constant "NO_ERROR" int64_t

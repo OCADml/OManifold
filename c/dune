@@ -10,7 +10,7 @@
   (include_dirs vendor/manifold/bindings/c/include))
  (foreign_archives manifoldc manifold meshIO)
  (c_library_flags
-  (-lstdc++ -lassimp)))
+  (-lstdc++ -lassimp -fopenmp -L/opt/cuda/lib64 -lcuda -lcudart)))
 
 ; Build Manifold vendor
 
@@ -116,7 +116,7 @@
   Manifold_c_generated_types
   Manifold_c_function_descriptions
   Manifold_c_types)
- (libraries ctypes manifold_c_type_descriptions))
+ (libraries ctypes ctypes.foreign manifold_c_type_descriptions))
 
 (executable
  (name generate_c_functions)

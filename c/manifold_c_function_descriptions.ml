@@ -1,7 +1,11 @@
+module Sdf_dyn =
+  (val Foreign.dynamic_funptr Ctypes.(float @-> float @-> float @-> returning float))
+
 module Descriptions (F : Ctypes.FOREIGN) = struct
   open! Ctypes
   open! F
   open! Manifold_c_types
+  module Sdf_dyn = Sdf_dyn
 
   (* Polygons *)
 
@@ -61,23 +65,43 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
       @-> ptr Vec4.t
       @-> returning (ptr Mesh.t) )
 
-  (* ManifoldMesh *manifold_get_mesh(void *mem, ManifoldManifold *m); *)
-  (* ManifoldMeshGL *manifold_get_meshgl(void *mem, ManifoldManifold *m); *)
+  let manifold_get_mesh =
+    foreign "manifold_get_mesh" (ptr void @-> ptr Manifold.t @-> returning (ptr Mesh.t))
+
+  let manifold_get_meshgl =
+    foreign
+      "manifold_get_meshgl"
+      (ptr void @-> ptr Manifold.t @-> returning (ptr MeshGL.t))
 
   (* Mesh Info  *)
 
-  (* ManifoldManifold *manifold_as_original(void *mem, ManifoldManifold *m); *)
-  (* int manifold_original_id(ManifoldManifold *m); *)
-  (* ManifoldMeshRelation *manifold_get_mesh_relation(void *mem, *)
-  (*                                                  ManifoldManifold *m); *)
-  (* size_t manifold_mesh_relation_barycentric_length(ManifoldMeshRelation *m); *)
-  (* ManifoldVec3 *manifold_mesh_relation_barycentric(void *mem, *)
-  (*                                                  ManifoldMeshRelation *m); *)
+  let manifold_get_mesh_relation =
+    foreign
+      "manifold_get_mesh_relation"
+      (ptr void @-> ptr Manifold.t @-> returning (ptr MeshRelation.t))
 
-  (* size_t manifold_mesh_vert_length(ManifoldMesh *m); *)
-  (* size_t manifold_mesh_tri_length(ManifoldMesh *m); *)
-  (* size_t manifold_mesh_normal_length(ManifoldMesh *m); *)
-  (* size_t manifold_mesh_tangent_length(ManifoldMesh *m); *)
+  let manifold_mesh_relation_barycentric_length =
+    foreign
+      "manifold_mesh_relation_barycentric_length"
+      (ptr MeshRelation.t @-> returning size_t)
+
+  let manifold_mesh_relation_barycentric =
+    foreign
+      "manifold_mesh_relation_barycentric"
+      (ptr void @-> ptr MeshRelation.t @-> returning (ptr Vec3.t))
+
+  let manifold_mesh_vert_length =
+    foreign "manifold_mesh_vert_length" (ptr Mesh.t @-> returning size_t)
+
+  let manifold_mesh_tri_length =
+    foreign "manifold_mesh_tri_length" (ptr Mesh.t @-> returning size_t)
+
+  let manifold_mesh_normal_length =
+    foreign "manifold_mesh_normal_length" (ptr Mesh.t @-> returning size_t)
+
+  let manifold_mesh_tangent_length =
+    foreign "manifold_mesh_tangent_length" (ptr Mesh.t @-> returning size_t)
+
   (* ManifoldVec3 *manifold_mesh_vert_pos(void *mem, ManifoldMesh *m); *)
   (* ManifoldIVec3 *manifold_mesh_tri_verts(void *mem, ManifoldMesh *m); *)
   (* ManifoldVec3 *manifold_mesh_vert_normal(void *mem, ManifoldMesh *m); *)
@@ -169,6 +193,8 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_decompose"
       (ptr void @-> ptr Manifold.t @-> size_t @-> returning (ptr Manifold.t))
+
+  (* ManifoldManifold *manifold_as_original(void *mem, ManifoldManifold *m); *)
 
   (* Booleans *)
 
@@ -283,25 +309,60 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
       (ptr void @-> ptr Manifold.t @-> int @-> returning (ptr Manifold.t))
 
   (* Manifold Mutation *)
-  (* void manifold_set_min_circular_angle(ManifoldManifold *m, float degrees); *)
-  (* void manifold_set_min_circular_edge_length(ManifoldManifold *m, float length); *)
-  (* void manifold_set_circular_segments(ManifoldManifold *m, int number); *)
+
+  let manifold_set_min_circular_angle =
+    foreign "manifold_set_min_circular_angle" (ptr Manifold.t @-> float @-> returning void)
+
+  let manifold_set_min_circular_edge_length =
+    foreign
+      "manifold_set_min_circular_edge_length"
+      (ptr Manifold.t @-> float @-> returning void)
+
+  let manifold_set_circular_segments =
+    foreign "manifold_set_circular_segments" (ptr Manifold.t @-> int @-> returning void)
 
   (* Manifold Info *)
-  (* int manifold_is_empty(ManifoldManifold *m); *)
-  (* ManifoldError manifold_status(ManifoldManifold *m); *)
-  (* int manifold_num_vert(ManifoldManifold *m); *)
-  (* int manifold_num_edge(ManifoldManifold *m); *)
-  (* int manifold_num_tri(ManifoldManifold *m); *)
-  (* ManifoldBox *manifold_bounding_box(void *mem, ManifoldManifold *m); *)
-  (* float manifold_precision(ManifoldManifold *m); *)
-  (* int manifold_genus(ManifoldManifold *m); *)
-  (* ManifoldCurvature *manifold_get_curvature(void *mem, ManifoldManifold *m); *)
-  (* ManifoldCurvatureBounds manifold_curvature_bounds(ManifoldCurvature *curv); *)
-  (* size_t manifold_curvature_vert_length(ManifoldCurvature *curv); *)
-  (* float *manifold_curvature_vert_mean(void *mem, ManifoldCurvature *curv); *)
-  (* float *manifold_curvature_vert_gaussian(void *mem, ManifoldCurvature *curv); *)
-  (* int manifold_get_circular_segments(ManifoldManifold *m, float radius); *)
+
+  let manifold_is_empty = foreign "manifold_is_empty" (ptr Manifold.t @-> returning int)
+  let manifold_status = foreign "manifold_status" (ptr Manifold.t @-> returning Status.t)
+  let manifold_num_vert = foreign "manifold_num_vert" (ptr Manifold.t @-> returning int)
+  let manifold_num_edge = foreign "manifold_num_edge" (ptr Manifold.t @-> returning int)
+  let manifold_num_tri = foreign "manifold_num_tri" (ptr Manifold.t @-> returning int)
+
+  let manifold_bounding_box =
+    foreign "manifold_bounding_box" (ptr void @-> ptr Manifold.t @-> returning (ptr Box.t))
+
+  let manifold_precision =
+    foreign "manifold_precision" (ptr Manifold.t @-> returning float)
+
+  let manifold_genus = foreign "manifold_genus" (ptr Manifold.t @-> returning int)
+
+  let manifold_get_curvature =
+    foreign
+      "manifold_get_curvature"
+      (ptr void @-> ptr Manifold.t @-> returning (ptr Curvature.t))
+
+  let manifold_curvature_bounds =
+    foreign "manifold_curvature_bounds" (ptr Curvature.t @-> returning CurvatureBounds.t)
+
+  let manifold_curvature_vert_length =
+    foreign "manifold_curvature_vert_length" (ptr Curvature.t @-> returning size_t)
+
+  let manifold_curvature_vert_mean =
+    foreign
+      "manifold_curvature_vert_mean"
+      (ptr void @-> ptr Curvature.t @-> returning (ptr float))
+
+  let manifold_curvature_vert_gaussian =
+    foreign
+      "manifold_curvature_vert_gaussian"
+      (ptr void @-> ptr Curvature.t @-> returning (ptr float))
+
+  let manifold_get_circular_segments =
+    foreign "manifold_get_circular_segments" (ptr Manifold.t @-> float @-> returning int)
+
+  let manifold_original_id =
+    foreign "manifold_original_id" (ptr Manifold.t @-> returning int)
 
   (* Bounding Box *)
 
@@ -317,28 +378,72 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
       @-> float
       @-> returning (ptr Box.t) )
 
-  (* ManifoldBox *manifold_box(void *mem, float x1, float y1, float z1, float x2, *)
-  (*                           float y2, float z2); *)
-  (* ManifoldVec3 manifold_box_min(ManifoldBox *b); *)
-  (* ManifoldVec3 manifold_box_max(ManifoldBox *b); *)
-  (* ManifoldVec3 manifold_box_dimensions(ManifoldBox *b); *)
-  (* ManifoldVec3 manifold_box_center(ManifoldBox *b); *)
-  (* float manifold_box_scale(ManifoldBox *b); *)
-  (* int manifold_box_contains_pt(ManifoldBox *b, float x, float y, float z); *)
-  (* int manifold_box_contains_box(ManifoldBox *a, ManifoldBox *b); *)
-  (* void manifold_box_include_pt(ManifoldBox *b, float x, float y, float z); *)
-  (* ManifoldBox *manifold_box_union(void *mem, ManifoldBox *a, ManifoldBox *b); *)
-  (* ManifoldBox *manifold_box_transform(void *mem, ManifoldBox *b, float x1, *)
-  (*                                     float y1, float z1, float x2, float y2, *)
-  (*                                     float z2, float x3, float y3, float z3, *)
-  (*                                     float x4, float y4, float z4); *)
-  (* ManifoldBox *manifold_box_translate(void *mem, ManifoldBox *b, float x, float y, *)
-  (*                                     float z); *)
-  (* ManifoldBox *manifold_box_mul(void *mem, ManifoldBox *b, float x, float y, *)
-  (*                               float z); *)
-  (* int manifold_box_does_overlap_pt(ManifoldBox *b, float x, float y, float z); *)
-  (* int manifold_box_does_overlap_box(ManifoldBox *a, ManifoldBox *b); *)
-  (* int manifold_box_is_finite(ManifoldBox *b); *)
+  let manifold_box_min = foreign "manifold_box_min" (ptr Box.t @-> returning Vec3.t)
+  let manifold_box_max = foreign "manifold_box_max" (ptr Box.t @-> returning Vec3.t)
+
+  let manifold_box_dimensions =
+    foreign "manifold_box_dimensions" (ptr Box.t @-> returning Vec3.t)
+
+  let manifold_box_center = foreign "manifold_box_center" (ptr Box.t @-> returning Vec3.t)
+  let manifold_box_scale = foreign "manifold_box_scale" (ptr Box.t @-> returning float)
+
+  let manifold_box_contains_pt =
+    foreign
+      "manifold_box_contains_pt"
+      (ptr Box.t @-> float @-> float @-> float @-> returning int)
+
+  let manifold_box_contains_box =
+    foreign "manifold_box_contains_box" (ptr Box.t @-> ptr Box.t @-> returning int)
+
+  let manifold_box_include_pt =
+    foreign
+      "manifold_box_include_pt"
+      (ptr Box.t @-> float @-> float @-> float @-> returning void)
+
+  let manifold_box_union =
+    foreign
+      "manifold_box_union"
+      (ptr void @-> ptr Box.t @-> ptr Box.t @-> returning (ptr Box.t))
+
+  let manifold_box_transform =
+    foreign
+      "manifold_box_transform"
+      ( ptr void
+      @-> ptr Box.t
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> returning (ptr Box.t) )
+
+  let manifold_box_translate =
+    foreign
+      "manifold_box_translate"
+      (ptr void @-> ptr Box.t @-> float @-> float @-> float @-> returning (ptr Box.t))
+
+  let manifold_box_mul =
+    foreign
+      "manifold_box_mul"
+      (ptr void @-> ptr Box.t @-> float @-> float @-> float @-> returning (ptr Box.t))
+
+  let manifold_box_does_overlap_pt =
+    foreign
+      "manifold_box_does_overlap_pt"
+      (ptr Box.t @-> float @-> float @-> float @-> returning int)
+
+  let manifold_box_does_overlap_box =
+    foreign "manifold_box_does_overlap_box" (ptr Box.t @-> ptr Box.t @-> returning int)
+
+  let manifold_box_is_finite =
+    foreign "manifold_box_is_finite" (ptr Box.t @-> returning int)
 
   (* SDF *)
 
@@ -349,27 +454,48 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
       "manifold_level_set"
       ( ptr void
       @-> static_funptr sdf_t
+      (* @-> Foreign.funptr ~runtime_lock:false sdf_t *)
+      (* @-> Sdf_dyn.t *)
       @-> ptr Box.t
       @-> float
       @-> float
       @-> returning (ptr Mesh.t) )
 
   (* Export *)
-  (* ManifoldMaterial *manifold_material(void *mem); *)
-  (* void manifold_material_set_roughness(ManifoldMaterial *mat, float roughness); *)
-  (* void manifold_material_set_metalness(ManifoldMaterial *mat, float metalness); *)
-  (* void manifold_material_set_color(ManifoldMaterial *mat, ManifoldVec4 color); *)
-  (* void manifold_material_set_vert_color(ManifoldMaterial *mat, *)
-  (*                                       ManifoldVec4 *vert_color, size_t n_vert); *)
+  let manifold_material =
+    foreign "manifold_material" (ptr void @-> returning (ptr Material.t))
 
-  (* ManifoldExportOptions *manifold_export_options(void *mem); *)
+  let manifold_material_set_roughness =
+    foreign "manifold_material_set_roughness" (ptr Material.t @-> float @-> returning void)
 
-  (* void manifold_export_options_set_faceted(ManifoldExportOptions *options, *)
-  (*                                          int faceted); *)
-  (* void manifold_export_options_set_material(ManifoldExportOptions *options, *)
-  (*                                           ManifoldMaterial *mat); *)
-  (* void manifold_export_mesh(char *filename, ManifoldMesh *mesh, *)
-  (*                           ManifoldExportOptions *options); *)
+  let manifold_material_set_metalness =
+    foreign "manifold_material_set_metalness" (ptr Material.t @-> float @-> returning void)
+
+  let manifold_material_set_color =
+    foreign "manifold_material_set_color" (ptr Material.t @-> Vec4.t @-> returning void)
+
+  let manifold_material_set_vert_color =
+    foreign
+      "manifold_material_set_vert_color"
+      (ptr Material.t @-> ptr Vec4.t @-> size_t @-> returning void)
+
+  let manifold_export_options =
+    foreign "manifold_export_options" (ptr void @-> returning (ptr ExportOptions.t))
+
+  let manifold_export_options_set_faceted =
+    foreign
+      "manifold_export_options_set_faceted"
+      (ptr ExportOptions.t @-> int @-> returning void)
+
+  let manifold_export_options_set_material =
+    foreign
+      "manifold_export_options_set_material"
+      (ptr ExportOptions.t @-> ptr Material.t @-> returning void)
+
+  let manifold_export_mesh =
+    foreign
+      "manifold_export_mesh"
+      (ptr char @-> ptr Mesh.t @-> ptr ExportOptions.t @-> returning void)
 
   (* Sizes for allocation *)
 
@@ -395,6 +521,36 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
 
   let export_options_size =
     foreign "manifold_export_options_size" (void @-> returning size_t)
+
+  (* Destruction *)
+
+  let destruct_manifold =
+    foreign "manifold_destruct_manifold" (ptr Manifold.t @-> returning void)
+
+  let destruct_simple_polygon =
+    foreign "manifold_destruct_simple_polygon" (ptr SimplePolygon.t @-> returning void)
+
+  let destruct_polygons =
+    foreign "manifold_destruct_polygons" (ptr Polygons.t @-> returning void)
+
+  let destruct_mesh = foreign "manifold_destruct_mesh" (ptr Mesh.t @-> returning void)
+
+  let destruct_meshgl =
+    foreign "manifold_destruct_meshgl" (ptr MeshGL.t @-> returning void)
+
+  let destruct_box = foreign "manifold_destruct_box" (ptr Box.t @-> returning void)
+
+  let destruct_curvature =
+    foreign "manifold_destruct_curvature" (ptr Curvature.t @-> returning void)
+
+  let destruct_mesh_relation =
+    foreign "manifold_destruct_mesh_relation" (ptr MeshRelation.t @-> returning void)
+
+  let destruct_material =
+    foreign "manifold_destruct_material" (ptr Material.t @-> returning void)
+
+  let destruct_export_options =
+    foreign "manifold_destruct_export_options" (ptr ExportOptions.t @-> returning void)
 
   (* Deletion / Free *)
 
