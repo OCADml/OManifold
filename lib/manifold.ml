@@ -45,6 +45,8 @@ let get_circular_segments t r = C.Funcs.manifold_get_circular_segments t r
 
 (* ManifoldCurvature *manifold_get_curvature(void *mem, ManifoldManifold *m); *)
 
+(* Shapes *)
+
 let tetrahedron () =
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_tetrahedron buf in
@@ -76,6 +78,8 @@ let of_mmesh m =
   let _ = C.Funcs.manifold_of_mesh buf m in
   t
 
+(* 2D to 3D *)
+
 let extrude ?(slices = 16) ?(twist = 0.) ?(scale = v2 1. 1.) ~height:h polys =
   (* TODO: take list of paths and build the polygons type within? Or just
     preemptively have a Polygons module in anticipation of more going in there
@@ -91,6 +95,8 @@ let revolve ?(fn = 32) polys =
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_revolve buf polys fn in
   t
+
+(* Booleans *)
 
 let add a b =
   let buf, t = alloc () in
@@ -142,6 +148,8 @@ let trim_by_plane ({ a; b; c; d } : Plane.t) t =
   let _ = C.Funcs.manifold_trim_by_plane buf t a b c d in
   trimmed
 
+(* Transformations *)
+
 let warp f t =
   let buf, warped = alloc () in
   let f x y z = Conv.vec3_of_v3 (f (v3 x y z)) in
@@ -156,15 +164,59 @@ let translate { x; y; z } t =
   let _ = C.Funcs.manifold_translate buf t x y z in
   translated
 
-let rotate { x; y; z } t =
-  let buf, rotated = alloc () in
-  let _ = C.Funcs.manifold_rotate buf t x y z in
-  rotated
+let[@inline] xtrans x t = translate (v3 x 0. 0.) t
+let[@inline] ytrans y t = translate (v3 0. y 0.) t
+let[@inline] ztrans z t = translate (v3 0. 0. z) t
+
+let rotate ?about { x; y; z } t =
+  let rot t =
+    let buf, rotated = alloc () in
+    let _ = C.Funcs.manifold_rotate buf t x y z in
+    rotated
+  in
+  match about with
+  | None -> rot t
+  | Some p -> translate (V3.neg p) t |> rot |> translate p
+
+let[@inline] xrot x t = rotate (v3 x 0. 0.) t
+let[@inline] yrot y t = rotate (v3 0. y 0.) t
+let[@inline] zrot z t = rotate (v3 0. 0. z) t
+
+let affine (a : Affine3.t) t =
+  let buf, transformed = alloc () in
+  let _ =
+    C.Funcs.manifold_transform
+      buf
+      t
+      a.r0c0
+      a.r1c0
+      a.r2c0
+      a.r0c1
+      a.r1c1
+      a.r2c1
+      a.r0c2
+      a.r1c2
+      a.r2c2
+      a.r0c3
+      a.r1c3
+      a.r2c3
+  in
+  transformed
+
+let quaternion ?about q t =
+  let a = Quaternion.to_affine q in
+  match about with
+  | None -> affine a t
+  | Some p -> translate (V3.neg p) t |> affine a |> translate p
 
 let scale { x; y; z } t =
   let buf, scaled = alloc () in
   let _ = C.Funcs.manifold_scale buf t x y z in
   scaled
+
+let[@inline] xscale x t = scale (v3 x 1. 1.) t
+let[@inline] yscale y t = scale (v3 1. y 1.) t
+let[@inline] zscale z t = scale (v3 1. 1. z) t
 
 let refine n t =
   let buf, refined = alloc () in
