@@ -33,7 +33,13 @@ let%test "sdf" =
   (* let bb_max = v3 (rad *. 2.) (rad *. 2.) (rad *. 2.) in *)
   let bb_max = v3 10. 10. 10. in
   (* let f = Sdf.cube ~radius:1. (v3 5. 5. 5.) *)
-  let f = Sdf.torus (v2 5. 1.)
+  (* let f = Sdf.torus (v2 5. 1.) *)
+  let f =
+    Sdf.cylinder ~height:5. 4.
+    |> Sdf.round 2.
+    |> Sdf.quaternion (Quaternion.make (v3 1. 0. 0.) (Float.pi /. 2.))
+    |> Sdf.elongate (v3 0. 0. 4.)
+    |> Sdf.union ~smooth:1. (Sdf.scale 2.5 @@ Sdf.cube (v3 4. 4. 2.))
   (* let f = Sdf.sphere rad *)
   and box = Box.make bb_max (V3.neg bb_max) in
   let mesh = Sdf.level_set ~box f in
