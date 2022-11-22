@@ -11,13 +11,11 @@ module Opts = struct
 
   let make ?faceted ?material () =
     let buf, t = alloc () in
-    let _ = C.Funcs.manifold_export_options buf in
-    Option.iter
-      (fun b -> C.Funcs.manifold_export_options_set_faceted t (Bool.to_int b))
-      faceted;
-    Option.iter (fun m -> C.Funcs.manifold_export_options_set_material t m) material;
+    let _ = C.Funcs.export_options buf in
+    Option.iter (fun b -> C.Funcs.export_options_set_faceted t (Bool.to_int b)) faceted;
+    Option.iter (fun m -> C.Funcs.export_options_set_material t m) material;
     t
 end
 
 let export_mesh ?(opts = Opts.make ()) path mesh =
-  C.Funcs.manifold_export_mesh (Conv.string_to_ptr Ctypes_static.char path) mesh opts
+  C.Funcs.export_mesh (Conv.string_to_ptr Ctypes_static.char path) mesh opts

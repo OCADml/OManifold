@@ -29,10 +29,12 @@ let%test "warp" =
   | _ -> false
 
 let%test "sdf" =
-  let rad = 15. in
-  let bb_max = v3 (rad *. 2.) (rad *. 2.) (rad *. 2.) in
-  let f { x; y; z } = 15. -. Float.sqrt ((x *. x) +. (y *. y) +. (z *. z))
-  (* let f x y z = rad -. Float.sqrt ((x *. x) +. (y *. y) +. (z *. z)) *)
+  (* let rad = 15. in *)
+  (* let bb_max = v3 (rad *. 2.) (rad *. 2.) (rad *. 2.) in *)
+  let bb_max = v3 10. 10. 10. in
+  (* let f = Sdf.cube ~radius:1. (v3 5. 5. 5.) *)
+  let f = Sdf.torus (v2 5. 1.)
+  (* let f = Sdf.sphere rad *)
   and box = Box.make bb_max (V3.neg bb_max) in
   let mesh = Sdf.level_set ~box f in
   Export.export_mesh "sdf_mesh.stl" mesh;

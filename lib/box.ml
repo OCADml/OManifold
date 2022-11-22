@@ -13,10 +13,10 @@ let alloc () =
 
 let make (p1 : v3) (p2 : v3) =
   let buf, t = alloc () in
-  let _ = C.Funcs.manifold_box buf p1.x p1.y p1.z p2.x p2.y p2.z in
+  let _ = C.Funcs.box buf p1.x p1.y p1.z p2.x p2.y p2.z in
   t
 
 let of_bbox bb = make bb.V3.min bb.max
-let min t = vec3_to_v3 @@ C.Funcs.manifold_box_min t
-let max t = vec3_to_v3 @@ C.Funcs.manifold_box_max t
-let center t = vec3_to_v3 @@ C.Funcs.manifold_box_center t
+let min t = vec3_to_v3 @@ C.Funcs.box_min t
+let max t = vec3_to_v3 @@ C.Funcs.box_max t
+let center t = vec3_to_v3 @@ C.Funcs.box_center t
