@@ -42,7 +42,7 @@ let%test "sdf" =
     |> Sdf.union ~smooth:1. (Sdf.scale 2.5 @@ Sdf.cube (v3 4. 4. 2.))
   (* let f = Sdf.sphere rad *)
   and box = Box.make bb_max (V3.neg bb_max) in
-  let mesh = Sdf.level_set ~box f in
+  let mesh = Sdf.to_mmesh ~box f in
   Export.export_mesh "sdf_mesh.stl" mesh;
   ignore (f, box);
   ignore mesh;

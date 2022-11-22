@@ -82,7 +82,7 @@ let intersection ?smooth a b =
       let h = Math.clamp ~min:0. ~max:1. ((0.5 +. (0.5 *. (da -. db))) /. k) in
       Math.lerp da db h -. (k *. h *. (1. -. h))
 
-let level_set ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
+let to_mmesh ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
   let sdf x y z = sdf (v3 x y z) in
   let buf, mesh = MMesh.alloc ()
   and f =
