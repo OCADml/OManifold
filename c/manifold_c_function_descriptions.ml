@@ -152,6 +152,11 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
 
   (* Manifold Shapes / Constructors *)
 
+  let manifold_empty = foreign "manifold_empty" (ptr void @-> returning (ptr Manifold.t))
+
+  let manifold_copy =
+    foreign "manifold_copy" (ptr void @-> ptr Manifold.t @-> returning (ptr Manifold.t))
+
   let manifold_tetrahedron =
     foreign "manifold_tetrahedron" (ptr void @-> returning (ptr Manifold.t))
 

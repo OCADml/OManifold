@@ -4,15 +4,15 @@ open Omanifold
 let%test "uncollected" =
   let tet = Manifold.tetrahedron () in
   Gc.full_major ();
-  let tet2 = Manifold.union tet (Manifold.tetrahedron ()) in
+  let tet2 = Manifold.add tet (Manifold.tetrahedron ()) in
   Gc.full_major ();
-  let f = Manifold.(union (union tet (tetrahedron ()))) in
+  let f = Manifold.(add (add tet (tetrahedron ()))) in
   Gc.full_major ();
-  let a = f (Manifold.union tet tet2) in
+  let a = f (Manifold.add tet tet2) in
   Gc.full_major ();
-  let b = f Manifold.(union (f a) (f (union (tetrahedron ()) tet))) in
+  let b = f Manifold.(add (f a) (f (add (tetrahedron ()) tet))) in
   Gc.full_major ();
-  let c = Manifold.union (f b) a in
+  let c = Manifold.add (f b) a in
   ignore c;
   true
 
