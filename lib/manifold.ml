@@ -21,12 +21,10 @@ module Status = struct
     | TriPropertiesOutOfBounds -> "TRI_PROPERTIES_OUT_OF_BOUNDS"
 end
 
-let size = C.Funcs.manifold_size () |> size_to_int
-let destruct m = C.Funcs.destruct_manifold m
-
 type t = C.Types.Manifold.t Ctypes_static.ptr
 
-let pair_to_tup p = C.Types.ManifoldPair.(Ctypes.getf p first, Ctypes.getf p second)
+let size = C.Funcs.manifold_size () |> size_to_int
+let destruct t = C.Funcs.destruct_manifold t
 
 let alloc () =
   let finalise = Mem.finaliser C.Types.Manifold.t destruct in
