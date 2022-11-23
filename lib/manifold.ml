@@ -45,6 +45,8 @@ let genus t = C.Funcs.manifold_genus t
 let get_circular_segments t r = C.Funcs.manifold_get_circular_segments t r
 
 (* ManifoldCurvature *manifold_get_curvature(void *mem, ManifoldManifold *m); *)
+(* ManifoldMeshRelation *manifold_get_mesh_relation(void *mem, *)
+(*                                                  ManifoldManifold *m); *)
 
 (* Shapes *)
 

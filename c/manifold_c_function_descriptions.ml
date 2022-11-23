@@ -86,6 +86,16 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_mesh_relation_barycentric"
       (ptr void @-> ptr MeshRelation.t @-> returning (ptr Vec3.t))
 
+  let mesh_relation_tri_bary_length =
+    foreign
+      "manifold_mesh_relation_tri_bary_length"
+      (ptr MeshRelation.t @-> returning size_t)
+
+  let mesh_relation_tri_bary =
+    foreign
+      "manifold_mesh_relation_tri_bary"
+      (ptr void @-> ptr MeshRelation.t @-> returning (ptr BaryRef.t))
+
   let mesh_vert_length =
     foreign "manifold_mesh_vert_length" (ptr Mesh.t @-> returning size_t)
 
