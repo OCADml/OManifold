@@ -1,5 +1,5 @@
 open OCADml
-open Omanifold
+open OManifold
 
 let no_error m =
   match Manifold.status m with

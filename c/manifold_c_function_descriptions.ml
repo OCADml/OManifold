@@ -1,11 +1,7 @@
-module Sdf_dyn =
-  (val Foreign.dynamic_funptr Ctypes.(float @-> float @-> float @-> returning float))
-
-module Descriptions (F : Ctypes.FOREIGN) = struct
-  open! Ctypes
-  open! F
-  open! Manifold_c_types
-  module Sdf_dyn = Sdf_dyn
+module Functions (F : Ctypes.FOREIGN) = struct
+  open Ctypes
+  open F
+  open Manifold_c_types
 
   (* Polygons *)
 
@@ -492,8 +488,6 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
       "manifold_level_set"
       ( ptr void
       @-> static_funptr sdf_t
-      (* @-> Foreign.funptr ~runtime_lock:false ~thread_registration:true sdf_t *)
-      (* @-> Sdf_dyn.t *)
       @-> ptr Box.t
       @-> float
       @-> float

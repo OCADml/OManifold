@@ -1,4 +1,4 @@
-module Descriptions (F : Cstubs.Types.TYPE) = struct
+module Types (F : Cstubs.Types.TYPE) = struct
   open Ctypes
   open F
 

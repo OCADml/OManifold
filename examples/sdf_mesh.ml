@@ -1,5 +1,5 @@
 open OCADml
-open Omanifold
+open OManifold
 
 let () =
   let s = Manifold.sphere ~fn:64 10. in
@@ -25,7 +25,7 @@ let () =
     |> Sdf.union ~smooth:1. (Sdf.scale 2.5 @@ Sdf.cube (v3 4. 4. 2.))
   (* let f = Sdf.sphere 4.5 *)
   and box = Box.make bb_max (V3.neg bb_max) in
-  let mesh = Sdf.to_mmesh ~edge_length:0.5 ~box f in
+  let mesh = Sdf.to_mmesh ~edge_length:0.25 ~box f in
   let man = Manifold.of_mmesh mesh in
   print_endline (C.Types.Status.to_string (Manifold.status man));
   let mesh = Manifold.to_mmesh man in
