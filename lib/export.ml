@@ -1,3 +1,12 @@
+module Material = struct
+  (* ManifoldMaterial *manifold_material(void *mem); *)
+  (* void manifold_material_set_roughness(ManifoldMaterial *mat, float roughness); *)
+  (* void manifold_material_set_metalness(ManifoldMaterial *mat, float metalness); *)
+  (* void manifold_material_set_color(ManifoldMaterial *mat, ManifoldVec4 color); *)
+  (* void manifold_material_set_vert_color(ManifoldMaterial *mat, *)
+  (*                                       ManifoldVec4 *vert_color, size_t n_vert); *)
+end
+
 module Opts = struct
   type t = C.Types.ExportOptions.t Ctypes_static.ptr
 
