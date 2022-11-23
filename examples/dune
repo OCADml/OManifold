@@ -1,0 +1,21 @@
+(executables
+ (names sdf_mesh)
+ (libraries OCADml omanifold))
+
+(rule
+ (alias examples)
+ (deps
+  ; (sandbox always)
+  (:runner "helpers/runner.exe")
+  (:models
+   (glob_files "*.exe")))
+ ; (targets
+ ;  (dir "stls"))
+ ; (targets "sdf_mesh.stl")
+ ; (mode promote)
+ ; (action
+ ;  (chdir
+ ;   "stls"
+ ;   (run %{runner} %{models}))))
+ (action
+  (run %{runner} %{models})))

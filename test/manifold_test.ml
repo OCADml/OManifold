@@ -1,6 +1,11 @@
 open OCADml
 open Omanifold
 
+let no_error m =
+  match Manifold.status m with
+  | NoError -> true
+  | _ -> false
+
 let%test "uncollected" =
   let tet = Manifold.tetrahedron () in
   Gc.full_major ();
@@ -12,9 +17,7 @@ let%test "uncollected" =
   Gc.full_major ();
   let b = f Manifold.(add (f a) (f (add (tetrahedron ()) tet))) in
   Gc.full_major ();
-  let c = Manifold.add (f b) a in
-  ignore c;
-  true
+  no_error @@ Manifold.add (f b) a
 
 let%test "box" =
   let a = v3 0. 0. 0.
@@ -24,26 +27,4 @@ let%test "box" =
 
 let%test "warp" =
   let s = Manifold.sphere 10. in
-  match Manifold.status (Manifold.warp (V3.translate (v3 1. 1. 1.)) s) with
-  | NoError -> true
-  | _ -> false
-
-let%test "sdf" =
-  (* let rad = 15. in *)
-  (* let bb_max = v3 (rad *. 2.) (rad *. 2.) (rad *. 2.) in *)
-  let bb_max = v3 10. 10. 10. in
-  (* let f = Sdf.cube ~radius:1. (v3 5. 5. 5.) *)
-  (* let f = Sdf.torus (v2 5. 1.) *)
-  let f =
-    Sdf.cylinder ~height:5. 4.
-    |> Sdf.round 2.
-    |> Sdf.quaternion (Quaternion.make (v3 1. 0. 0.) (Float.pi /. 2.))
-    |> Sdf.elongate (v3 0. 0. 4.)
-    |> Sdf.union ~smooth:1. (Sdf.scale 2.5 @@ Sdf.cube (v3 4. 4. 2.))
-  (* let f = Sdf.sphere rad *)
-  and box = Box.make bb_max (V3.neg bb_max) in
-  let mesh = Sdf.to_mmesh ~box f in
-  Export.export_mesh "sdf_mesh.stl" mesh;
-  ignore (f, box);
-  ignore mesh;
-  true
+  no_error @@ Manifold.warp (V3.translate (v3 1. 1. 1.)) s

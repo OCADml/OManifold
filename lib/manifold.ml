@@ -1,5 +1,6 @@
 open OCADml
 open Conv
+module Status = C.Types.Status
 
 let size = C.Funcs.manifold_size () |> size_to_int
 let destruct m = C.Funcs.destruct_manifold m
@@ -76,6 +77,22 @@ let of_mmesh m =
   (* TODO: mesh properties type with optional provision *)
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_of_mesh buf m in
+  t
+
+let smooth ?(smoothness = []) m =
+  let open Ctypes in
+  let buf, t = alloc () in
+  let len = List.length smoothness in
+  let edge_idxs = CArray.make int len
+  and edge_ks = CArray.make float len in
+  List.iteri
+    (fun i (idx, s) ->
+      CArray.set edge_idxs i idx;
+      CArray.set edge_ks i s )
+    smoothness;
+  let idx_ptr = CArray.start edge_idxs
+  and k_ptr = CArray.start edge_ks in
+  let _ = C.Funcs.manifold_smooth buf m idx_ptr k_ptr (size_of_int len) in
   t
 
 (* 2D to 3D *)
@@ -222,3 +239,15 @@ let refine n t =
   let buf, refined = alloc () in
   let _ = C.Funcs.manifold_refine buf t n in
   refined
+
+let set_circular_segments t fn = C.Funcs.manifold_set_circular_segments t fn
+
+let set_min_circular_angle t fa =
+  C.Funcs.manifold_set_min_circular_angle t (Math.deg_of_rad fa)
+
+let set_min_circular_edge_length t fs = C.Funcs.manifold_set_min_circular_edge_length t fs
+
+let to_mmesh t =
+  let buf, mesh = MMesh.alloc () in
+  let _ = C.Funcs.manifold_get_mesh buf t in
+  mesh

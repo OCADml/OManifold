@@ -65,10 +65,10 @@ module Descriptions (F : Ctypes.FOREIGN) = struct
       @-> ptr Vec4.t
       @-> returning (ptr Mesh.t) )
 
-  let get_mesh =
+  let manifold_get_mesh =
     foreign "manifold_get_mesh" (ptr void @-> ptr Manifold.t @-> returning (ptr Mesh.t))
 
-  let get_meshgl =
+  let manifold_get_meshgl =
     foreign
       "manifold_get_meshgl"
       (ptr void @-> ptr Manifold.t @-> returning (ptr MeshGL.t))
