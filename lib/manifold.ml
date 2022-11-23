@@ -1,6 +1,25 @@
 open OCADml
 open Conv
-module Status = C.Types.Status
+
+module Status = struct
+  type t = C.Types.Status.t =
+    | NoError
+    | NonFiniteVertex
+    | NotManifold
+    | VertexIndexOutOfBounds
+    | PropertiesWrongLength
+    | TriPropertiesWrongLength
+    | TriPropertiesOutOfBounds
+
+  let to_string = function
+    | NoError -> "NO_ERROR"
+    | NonFiniteVertex -> "NON_FINITE_VERTEX"
+    | NotManifold -> "NOT_MANIFOLD"
+    | VertexIndexOutOfBounds -> "VERTEX_INDEX_OUT_OF_BOUNDS"
+    | PropertiesWrongLength -> "PROPERTIES_WRONG_LENGTH"
+    | TriPropertiesWrongLength -> "TRI_PROPERTIES_WRONG_LENGTH"
+    | TriPropertiesOutOfBounds -> "TRI_PROPERTIES_OUT_OF_BOUNDS"
+end
 
 let size = C.Funcs.manifold_size () |> size_to_int
 let destruct m = C.Funcs.destruct_manifold m

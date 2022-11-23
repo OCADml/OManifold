@@ -27,6 +27,6 @@ let () =
   and box = Box.make bb_max (V3.neg bb_max) in
   let mesh = Sdf.to_mmesh ~edge_length:0.25 ~box f in
   let man = Manifold.of_mmesh mesh in
-  print_endline (C.Types.Status.to_string (Manifold.status man));
+  print_endline Manifold.(Status.to_string (status man));
   let mesh = Manifold.to_mmesh man in
   Export.export_mesh "sdf_mesh.stl" mesh

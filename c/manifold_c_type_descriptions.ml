@@ -32,15 +32,6 @@ module Types (F : Cstubs.Types.TYPE) = struct
         ; TriPropertiesOutOfBounds, tri_properties_out_of_bounds
         ]
         ~unexpected:(fun _ -> assert false)
-
-    let to_string = function
-      | NoError -> "NO_ERROR"
-      | NonFiniteVertex -> "NON_FINITE_VERTEX"
-      | NotManifold -> "NOT_MANIFOLD"
-      | VertexIndexOutOfBounds -> "VERTEX_INDEX_OUT_OF_BOUNDS"
-      | PropertiesWrongLength -> "PROPERTIES_WRONG_LENGTH"
-      | TriPropertiesWrongLength -> "TRI_PROPERTIES_WRONG_LENGTH"
-      | TriPropertiesOutOfBounds -> "TRI_PROPERTIES_OUT_OF_BOUNDS"
   end
 
   module Manifold = struct
