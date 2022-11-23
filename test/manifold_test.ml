@@ -28,3 +28,16 @@ let%test "box" =
 let%test "warp" =
   let s = Manifold.sphere 10. in
   no_error @@ Manifold.warp (V3.translate (v3 1. 1. 1.)) s
+
+let%test "decompose_compose" =
+  let spheres = Manifold.(add (sphere 2.) (ztrans 5. (sphere 2.))) in
+  Gc.full_major ();
+  let decomp = Manifold.decompose spheres in
+  Gc.full_major ();
+  let shifted = List.map (Manifold.xtrans 5.) decomp in
+  Gc.full_major ();
+  let composed = Manifold.compose @@ (spheres :: shifted) in
+  Gc.full_major ();
+  let decomp = Manifold.decompose composed in
+  Gc.full_major ();
+  List.length decomp = 4

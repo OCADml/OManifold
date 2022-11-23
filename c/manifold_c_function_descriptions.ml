@@ -219,7 +219,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_compose =
     foreign
       "manifold_compose"
-      (ptr void @-> ptr Manifold.t @-> size_t @-> returning (ptr Manifold.t))
+      (ptr void @-> ptr (ptr Manifold.t) @-> size_t @-> returning (ptr Manifold.t))
 
   let manifold_decompose_length =
     foreign "manifold_decompose_length" (ptr Manifold.t @-> returning size_t)
@@ -227,7 +227,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_decompose =
     foreign
       "manifold_decompose"
-      (ptr void @-> ptr Manifold.t @-> size_t @-> returning (ptr Manifold.t))
+      (ptr (ptr void) @-> ptr Manifold.t @-> size_t @-> returning (ptr (ptr Manifold.t)))
 
   let manifold_as_original =
     foreign

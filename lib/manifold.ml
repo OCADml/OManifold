@@ -95,6 +95,27 @@ let smooth ?(smoothness = []) m =
   let _ = C.Funcs.manifold_smooth buf m idx_ptr k_ptr (size_of_int len) in
   t
 
+let compose ts =
+  let buf, t = alloc () in
+  let len = List.length ts in
+  let ms = Ctypes.(CArray.make (ptr C.Types.Manifold.t) len) in
+  List.iteri (fun i t -> Ctypes.CArray.set ms i t) ts;
+  let _ = C.Funcs.manifold_compose buf (Ctypes.CArray.start ms) (size_of_int len) in
+  t
+
+let decompose t =
+  let sz = C.Funcs.manifold_decompose_length t in
+  let len = size_to_int sz in
+  let bufs = Ctypes.(CArray.make (ptr void) len)
+  and ts = ref [] in
+  for i = 0 to len - 1 do
+    let buf, man = alloc () in
+    Ctypes.CArray.set bufs i buf;
+    ts := man :: !ts
+  done;
+  let _ = C.Funcs.manifold_decompose (Ctypes.CArray.start bufs) t sz in
+  !ts
+
 (* 2D to 3D *)
 
 let extrude ?(slices = 16) ?(twist = 0.) ?(scale = v2 1. 1.) ~height:h polys =
@@ -250,4 +271,9 @@ let set_min_circular_edge_length t fs = C.Funcs.manifold_set_min_circular_edge_l
 let to_mmesh t =
   let buf, mesh = MMesh.alloc () in
   let _ = C.Funcs.manifold_get_mesh buf t in
+  mesh
+
+let to_mmeshgl t =
+  let buf, mesh = MMeshGL.alloc () in
+  let _ = C.Funcs.manifold_get_meshgl buf t in
   mesh
