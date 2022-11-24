@@ -102,7 +102,11 @@ let of_mmesh m =
   (* TODO: mesh properties type with optional provision *)
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_of_mesh buf m in
-  t
+  match status t with
+  | NoError -> t
+  | e ->
+    failwith
+      (Printf.sprintf "Faiure to build Manifold from mesh: %s" (Status.to_string e))
 
 let smooth ?(smoothness = []) m =
   let open Ctypes in
@@ -182,17 +186,13 @@ let union = function
   | [ a; b ] -> add a b
   | a :: ts -> List.fold_left (fun t e -> add t e) a ts
 
-let difference = function
-  | [] -> empty ()
-  | [ a ] -> copy a
-  | [ a; b ] -> sub a b
-  | a :: ts -> List.fold_left (fun t e -> sub t e) a ts
+let difference t = function
+  | [] -> copy t
+  | ts -> List.fold_left (fun t e -> sub t e) t ts
 
-let intersection = function
-  | [] -> empty ()
-  | [ a ] -> copy a
-  | [ a; b ] -> intersect a b
-  | a :: ts -> List.fold_left (fun t e -> intersect t e) a ts
+let intersection t = function
+  | [] -> copy t
+  | ts -> List.fold_left (fun t e -> intersect t e) t ts
 
 let split a b =
   let buf1, first = alloc ()
@@ -231,7 +231,8 @@ let[@inline] xtrans x t = translate (v3 x 0. 0.) t
 let[@inline] ytrans y t = translate (v3 0. y 0.) t
 let[@inline] ztrans z t = translate (v3 0. 0. z) t
 
-let rotate ?about { x; y; z } t =
+let rotate ?about r t =
+  let { x; y; z } = V3.deg_of_rad r in
   let rot t =
     let buf, rotated = alloc () in
     let _ = C.Funcs.manifold_rotate buf t x y z in
@@ -271,6 +272,8 @@ let quaternion ?about q t =
   match about with
   | None -> affine a t
   | Some p -> translate (V3.neg p) t |> affine a |> translate p
+
+let axis_rotate ?about ax angle t = quaternion ?about (Quaternion.make ax angle) t
 
 let scale { x; y; z } t =
   let buf, scaled = alloc () in

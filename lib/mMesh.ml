@@ -96,8 +96,9 @@ let halfedge_tangents t =
   List.init len Ctypes.(fun i -> vec4_to_v4 !@(tangents +@ i))
 
 let of_mesh ?normals ?tangents (m : Mesh.t) =
-  let[@warning "-partial-match"] to_tri [ a; b; c ] = a, b, c
+  (* OCADml follows OpenSCAD winding convention, opposite to Manifold *)
+  let[@warning "-partial-match"] rev_tri [ a; b; c ] = c, b, a
   and m = Mesh.triangulate m in
-  make ?normals ?tangents (Mesh.points m) (List.map to_tri (Mesh.faces m))
+  make ?normals ?tangents (Mesh.points m) (List.rev_map rev_tri (Mesh.faces m))
 
 let to_mesh t = Mesh.make ~points:(points t) ~faces:(faces t)

@@ -190,8 +190,8 @@ module Manifold : sig
   val sub : t -> t -> t
   val intersect : t -> t -> t
   val union : t list -> t
-  val difference : t list -> t
-  val intersection : t list -> t
+  val difference : t -> t list -> t
+  val intersection : t -> t list -> t
   val split : t -> t -> t * t
   val split_by_plane : Plane.t -> t -> t * t
   val trim_by_plane : Plane.t -> t -> t
@@ -209,6 +209,7 @@ module Manifold : sig
   val zrot : float -> t -> t
   val affine : Affine3.t -> t -> t
   val quaternion : ?about:v3 -> Quaternion.t -> t -> t
+  val axis_rotate : ?about:v3 -> v3 -> float -> t -> t
   val scale : v3 -> t -> t
   val xscale : float -> t -> t
   val yscale : float -> t -> t
@@ -237,8 +238,8 @@ module Sdf : sig
 
   val translate : v3 -> t -> t
   val rotate : ?about:v3 -> v3 -> t -> t
-  val axis_rotate : ?about:v3 -> v3 -> float -> t -> t
   val quaternion : ?about:v3 -> Quaternion.t -> t -> t
+  val axis_rotate : ?about:v3 -> v3 -> float -> t -> t
   val scale : float -> t -> t
   val round : float -> t -> t
   val elongate : v3 -> t -> t
@@ -273,5 +274,6 @@ module Export : sig
     val make : ?faceted:bool -> ?material:Material.t -> unit -> t
   end
 
-  val export_mesh : ?opts:Opts.t -> string -> MMesh.t -> unit
+  val mmesh : ?opts:Opts.t -> string -> MMesh.t -> unit
+  val manifold : ?opts:Opts.t -> string -> Manifold.t -> unit
 end

@@ -1,5 +1,5 @@
 (executables
- (names sdf_mesh)
+ (names sdf_mesh hulling sweep morphs)
  (libraries OCADml OManifold))
 
 (rule
