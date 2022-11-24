@@ -296,3 +296,11 @@ let to_mmeshgl t =
   let buf, mesh = MMeshGL.alloc () in
   let _ = C.Funcs.manifold_get_meshgl buf t in
   mesh
+
+let points t = MMesh.points (to_mmesh t)
+let of_mesh ?normals ?tangents m = of_mmesh @@ MMesh.of_mesh ?normals ?tangents m
+let to_mesh t = MMesh.to_mesh @@ to_mmesh t
+
+let hull ts =
+  let ps = List.fold_left (fun ps t -> List.rev_append (points t) ps) [] ts in
+  of_mesh (Mesh.hull ps)
