@@ -13,6 +13,7 @@ let vec2_to_v2 v = v2 (getf v Vec2.x) (getf v Vec2.y)
 let vec3_to_v3 v = v3 (getf v Vec3.x) (getf v Vec3.y) (getf v Vec3.z)
 let vec4_to_v4 v = v4 (getf v Vec4.x) (getf v Vec4.y) (getf v Vec4.z) (getf v Vec4.w)
 let ivec3_to_tup v = getf v IVec3.x, getf v IVec3.y, getf v IVec3.z
+let ivec3_to_list v = [ getf v IVec3.x; getf v IVec3.y; getf v IVec3.z ]
 
 let vec2_of_v2 (v : v2) =
   let vec = make Vec2.t in

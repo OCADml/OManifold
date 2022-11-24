@@ -64,10 +64,16 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_get_mesh =
     foreign "manifold_get_mesh" (ptr void @-> ptr Manifold.t @-> returning (ptr Mesh.t))
 
+  let mesh_copy =
+    foreign "manifold_mesh_copy" (ptr void @-> ptr Mesh.t @-> returning (ptr Mesh.t))
+
   let manifold_get_meshgl =
     foreign
       "manifold_get_meshgl"
       (ptr void @-> ptr Manifold.t @-> returning (ptr MeshGL.t))
+
+  let meshgl_copy =
+    foreign "manifold_meshgl_copy" (ptr void @-> ptr MeshGL.t @-> returning (ptr MeshGL.t))
 
   (* Mesh Info  *)
 
