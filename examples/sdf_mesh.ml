@@ -5,11 +5,17 @@ let () =
   let s = Manifold.sphere ~fn:64 10. in
   (* NOTE: not doing anything, not sure if I misunderstand *)
   Manifold.set_circular_segments s 128;
-  print_endline (Manifold.get_circular_segments s 10. |> Int.to_string);
+  print_endline (Manifold.circular_segments s 10. |> Int.to_string);
   let s = Manifold.refine 2 s in
   let s = Manifold.copy s in
   let mesh = Manifold.to_mmesh s in
   Export.export_mesh "sphere.stl" mesh
+
+let () =
+  let s = Manifold.sphere 5. in
+  Manifold.(hull [ s; xtrans 10. s; ytrans 10. s; translate (v3 10. 10. 0.) s ])
+  |> Manifold.to_mmesh
+  |> Export.export_mesh "hulled.stl"
 
 let () =
   (* let rad = 15. in *)

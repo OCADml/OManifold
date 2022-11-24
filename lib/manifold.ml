@@ -59,11 +59,17 @@ let bounding_box t =
 
 let precision t = C.Funcs.manifold_precision t
 let genus t = C.Funcs.manifold_genus t
-let get_circular_segments t r = C.Funcs.manifold_get_circular_segments t r
+let circular_segments t r = C.Funcs.manifold_get_circular_segments t r
 
-(* ManifoldCurvature *manifold_get_curvature(void *mem, ManifoldManifold *m); *)
-(* ManifoldMeshRelation *manifold_get_mesh_relation(void *mem, *)
-(*                                                  ManifoldManifold *m); *)
+let curvature t =
+  let buf, curv = Curvature.alloc () in
+  let _ = C.Funcs.manifold_get_curvature buf t in
+  Curvature.of_ptr curv
+
+let mesh_relation t =
+  let buf, rel = MeshRelation.alloc () in
+  let _ = C.Funcs.manifold_get_mesh_relation buf t in
+  MeshRelation.of_ptr rel
 
 (* Shapes *)
 

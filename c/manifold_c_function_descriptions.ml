@@ -77,7 +77,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   (* Mesh Info  *)
 
-  let get_mesh_relation =
+  let manifold_get_mesh_relation =
     foreign
       "manifold_get_mesh_relation"
       (ptr void @-> ptr Manifold.t @-> returning (ptr MeshRelation.t))

@@ -1,10 +1,29 @@
 module Material = struct
-  (* ManifoldMaterial *manifold_material(void *mem); *)
-  (* void manifold_material_set_roughness(ManifoldMaterial *mat, float roughness); *)
-  (* void manifold_material_set_metalness(ManifoldMaterial *mat, float metalness); *)
-  (* void manifold_material_set_color(ManifoldMaterial *mat, ManifoldVec4 color); *)
-  (* void manifold_material_set_vert_color(ManifoldMaterial *mat, *)
-  (*                                       ManifoldVec4 *vert_color, size_t n_vert); *)
+  type t = C.Types.Material.t Ctypes_static.ptr
+
+  let size = C.Funcs.material_size () |> Conv.size_to_int
+  let destruct t = C.Funcs.destruct_material t
+
+  let alloc () =
+    let finalise = Mem.finaliser C.Types.Material.t destruct in
+    let buf = Mem.allocate_buf ~finalise size in
+    buf, Conv.voidp_coerce Ctypes_static.(ptr C.Types.Material.t) buf
+
+  let make ?roughness ?metalness ?color ?vert_color () =
+    let buf, t = alloc () in
+    let _ = C.Funcs.material buf in
+    Option.iter (fun r -> C.Funcs.material_set_roughness t r) roughness;
+    Option.iter (fun m -> C.Funcs.material_set_metalness t m) metalness;
+    Option.iter (fun c -> C.Funcs.material_set_color t c) color;
+    Option.iter
+      (fun vc ->
+        let len = List.length vc in
+        let sz = Conv.size_of_int len in
+        let a = Ctypes.CArray.make C.Types.Vec4.t len in
+        List.iteri (fun i c -> Ctypes.CArray.set a i c) vc;
+        C.Funcs.material_set_vert_color t (Ctypes.CArray.start a) sz )
+      vert_color;
+    t
 end
 
 module Opts = struct
