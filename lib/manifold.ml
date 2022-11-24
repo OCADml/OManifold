@@ -29,7 +29,7 @@ let destruct t = C.Funcs.destruct_manifold t
 let alloc () =
   let finalise = Mem.finaliser C.Types.Manifold.t destruct in
   let buf = Mem.allocate_buf ~finalise size in
-  buf, Ctypes.coerce Ctypes_static.(ptr void) Ctypes_static.(ptr C.Types.Manifold.t) buf
+  buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.Manifold.t) buf)
 
 let empty () =
   let buf, t = alloc () in

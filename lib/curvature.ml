@@ -40,7 +40,7 @@ let destruct t = C.Funcs.destruct_curvature t
 let alloc () =
   let finalise = Mem.finaliser C.Types.Curvature.t destruct in
   let buf = Mem.allocate_buf ~finalise size in
-  buf, Ctypes.coerce Ctypes_static.(ptr void) Ctypes_static.(ptr C.Types.Curvature.t) buf
+  buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.Curvature.t) buf)
 
 let bounds t = Bounds.of_struct (C.Funcs.curvature_bounds t)
 let vert_length t = C.Funcs.curvature_vert_length t

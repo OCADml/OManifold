@@ -1,3 +1,5 @@
+open Conv
+
 module Material = struct
   type t = C.Types.Material.t Ctypes_static.ptr
 
@@ -14,13 +16,13 @@ module Material = struct
     let _ = C.Funcs.material buf in
     Option.iter (fun r -> C.Funcs.material_set_roughness t r) roughness;
     Option.iter (fun m -> C.Funcs.material_set_metalness t m) metalness;
-    Option.iter (fun c -> C.Funcs.material_set_color t c) color;
+    Option.iter (fun c -> C.Funcs.material_set_color t (vec4_of_v4 c)) color;
     Option.iter
       (fun vc ->
         let len = List.length vc in
         let sz = Conv.size_of_int len in
         let a = Ctypes.CArray.make C.Types.Vec4.t len in
-        List.iteri (fun i c -> Ctypes.CArray.set a i c) vc;
+        List.iteri (fun i c -> Ctypes.CArray.set a i (vec4_of_v4 c)) vc;
         C.Funcs.material_set_vert_color t (Ctypes.CArray.start a) sz )
       vert_color;
     t
