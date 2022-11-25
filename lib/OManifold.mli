@@ -226,7 +226,23 @@ module Manifold : sig
   val set_min_circular_edge_length : t -> float -> unit
 end
 
-module Sdf : sig
+module Sdf2 : sig
+  type t = OCADml.v2 -> float
+
+  val circle : float -> v2 -> float
+  val square : v2 -> v2 -> float
+  val rhombus : v2 -> v2 -> float
+  val round : float -> t -> v2 -> float
+  val onion : float -> t -> v2 -> float
+  val extrude : height:float -> t -> v3 -> float
+
+  (** [revolve ~radius t]
+
+      Revolve the 2d signed distance field [t] around the x-axis from [radius] away. *)
+  val revolve : radius:float -> t -> v3 -> float
+end
+
+module Sdf3 : sig
   type t = v3 -> float
 
   (** {1 Shapes} *)
