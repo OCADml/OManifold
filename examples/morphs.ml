@@ -14,7 +14,7 @@ let () =
   and b = Poly2.ring ~fn:80 ~thickness:(v2 2. 2.) (v2 4. 4.) in
   Mesh.path_morph ~refine:2 ~caps ~path ~outer_map:`Tangent a b
   |> Manifold.of_mesh
-  |> Export.manifold "tangent_morph_sweep.stl"
+  |> Export.manifold "tangent_morph_sweep.glb"
 
 let man =
   let top =
@@ -30,4 +30,4 @@ let man =
   in
   Manifold.(add (ztrans 2. top) (ztrans (-2.) @@ xrot Float.pi top))
 
-let () = Export.manifold "eased_morph.stl" man
+let () = Export.manifold "eased_morph.glb" man

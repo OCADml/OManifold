@@ -9,7 +9,7 @@ let () =
   let s = Manifold.refine 2 s in
   let s = Manifold.copy s in
   let mesh = Manifold.to_mmesh s in
-  Export.mmesh "sphere.stl" mesh
+  Export.mmesh "sphere.glb" mesh
 
 let () =
   (* let rad = 15. in *)
@@ -29,4 +29,4 @@ let () =
   let man = Manifold.of_mmesh mesh in
   print_endline Manifold.(Status.to_string (status man));
   let mesh = Manifold.to_mmesh man in
-  Export.mmesh "sdf_mesh.stl" mesh
+  Export.mmesh "sdf_mesh.glb" mesh

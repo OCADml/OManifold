@@ -9,9 +9,9 @@
   (:models
    (glob_files "*.exe")))
  (targets
-  (dir "stls"))
+  (dir "models"))
  (mode promote)
  (action
   (chdir
-   "stls"
+   "models"
    (run %{runner} %{models}))))

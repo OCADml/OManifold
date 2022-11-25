@@ -58,11 +58,14 @@ module MMesh : sig
 
   val points : t -> v3 list
   val triangles : t -> (int * int * int) list
-  val faces : t -> int list list
   val normals : t -> v3 list
   val halfedge_tangents : t -> v4 list
 
-  (** {1 OCADml conversion} *)
+  (** {1 OCADml conversion}
+
+      To and from the OCADml [Mesh.t] type. As [Mesh.t] follows the OpenSCAD
+      winding convention, which is opposite to Manifold, the triangles/faces are
+      reversed. *)
 
   val of_mesh : ?normals:v3 list -> ?tangents:v4 list -> Mesh.t -> t
   val to_mesh : t -> Mesh.t

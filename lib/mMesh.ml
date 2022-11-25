@@ -81,7 +81,7 @@ let tri_verts of_ivec3 t =
   List.init len Ctypes.(fun i -> of_ivec3 !@(verts +@ i))
 
 let[@inline] triangles t = tri_verts ivec3_to_tup t
-let[@inline] faces t = tri_verts ivec3_to_list t
+let[@inline] faces t = tri_verts ivec3_to_list_rev t
 
 let normals t =
   let len = size_to_int @@ normal_length t in
