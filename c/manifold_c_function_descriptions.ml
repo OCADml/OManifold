@@ -13,7 +13,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let polygons =
     foreign
       "manifold_polygons"
-      (ptr void @-> ptr SimplePolygon.t @-> size_t @-> returning (ptr Polygons.t))
+      (ptr void @-> ptr (ptr SimplePolygon.t) @-> size_t @-> returning (ptr Polygons.t))
 
   (* Mesh Construction *)
 

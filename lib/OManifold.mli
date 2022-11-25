@@ -33,13 +33,12 @@ module MeshRelation : sig
     }
 end
 
-module PolyVert : sig
-  (* TODO: I think this should go in the Polygon module (TBD) *)
+module Polygons : sig
+  type t
 
-  type t =
-    { pos : v2
-    ; idx : int
-    }
+  val make : Path2.t list -> t
+  val of_poly2 : Poly2.t -> t
+  val of_poly2s : Poly2.t list -> t
 end
 
 module MMesh : sig
@@ -182,10 +181,10 @@ module Manifold : sig
     -> ?twist:float
     -> ?scale:v2
     -> height:float
-    -> Manifold_c_types.Polygons.t Ctypes_static.ptr
+    -> Polygons.t
     -> t
 
-  val revolve : ?fn:int -> Manifold_c_types.Polygons.t Ctypes_static.ptr -> t
+  val revolve : ?fn:int -> Polygons.t -> t
 
   (** {1 Booleans} *)
 

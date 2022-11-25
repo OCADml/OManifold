@@ -148,9 +148,6 @@ let decompose t =
 (* 2D to 3D *)
 
 let extrude ?(slices = 16) ?(twist = 0.) ?(scale = v2 1. 1.) ~height:h polys =
-  (* TODO: take list of paths and build the polygons type within? Or just
-    preemptively have a Polygons module in anticipation of more going in there
-    other than of_paths and of_poly2? *)
   let buf, t = alloc ()
   and tw = Math.deg_of_rad twist in
   (* TODO: no default for slices and calculate based on twist *)
@@ -158,7 +155,6 @@ let extrude ?(slices = 16) ?(twist = 0.) ?(scale = v2 1. 1.) ~height:h polys =
   t
 
 let revolve ?(fn = 32) polys =
-  (* TODO: see extrude *)
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_revolve buf polys fn in
   t
@@ -181,8 +177,8 @@ let intersect a b =
   t
 
 let union = function
-  | [] -> failwith "replace with manifold_empty"
-  | [ _a ] -> failwith "replace with manifold_copy"
+  | [] -> empty ()
+  | [ a ] -> copy a
   | [ a; b ] -> add a b
   | a :: ts -> List.fold_left (fun t e -> add t e) a ts
 

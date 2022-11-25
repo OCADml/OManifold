@@ -1,4 +1,5 @@
 module Manifold = Manifold
+module Polygons = Polygons
 module Sdf = Sdf
 module Box = Box
 module Export = Export

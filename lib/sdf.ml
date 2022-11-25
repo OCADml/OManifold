@@ -90,3 +90,6 @@ let to_mmesh ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
   in
   let _ = C.Funcs.level_set buf f box edge_length level in
   mesh
+
+let to_mesh ?level ?edge_length ~box sdf =
+  MMesh.to_mesh @@ to_mmesh ?level ?edge_length ~box sdf
