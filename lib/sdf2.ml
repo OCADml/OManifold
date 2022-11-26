@@ -36,8 +36,8 @@ let rounded_box ?(tl = 0.) ?(tr = 0.) ?(bl = 0.) ?(br = 0.) dims =
 let rhombus ?round dims =
   let dims =
     match round with
-    | None -> V2.(dims *$ 0.5)
-    | Some r -> v2 ((dims.x *. 0.5) -. r) ((dims.y *. 0.5) -. r)
+    | None -> V2.(dims /$ 2.)
+    | Some r -> v2 ((dims.x /. 2.) -. r) ((dims.y /. 2.) -. r)
   and ndot a b = (a.V2.x *. b.V2.x) -. (a.y *. b.y) in
   let f p =
     let p = v2 (Float.abs p.x) (Float.abs p.y) in
