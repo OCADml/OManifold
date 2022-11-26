@@ -27,7 +27,7 @@ let caps =
 let () =
   Mesh.path_extrude ~path ~caps poly
   |> Manifold.of_mesh
-  |> Export.manifold "rounded_polyhole_sweep.glb"
+  |> Export.manifold "rounded_polyhole_sweep.stl"
 
 let rounded_path =
   Path3.(
@@ -44,4 +44,4 @@ let () =
     |> Manifold.scale (v3 1.2 1. 1.)
     |> Manifold.translate (v3 20. (-4.) 0.)
   in
-  Export.manifold "chamfered_loop.glb" @@ Manifold.difference loop [ cut ]
+  Export.manifold "chamfered_loop.stl" @@ Manifold.difference loop [ cut ]

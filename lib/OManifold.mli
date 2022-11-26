@@ -229,17 +229,43 @@ end
 module Sdf2 : sig
   type t = OCADml.v2 -> float
 
-  val circle : float -> v2 -> float
-  val square : v2 -> v2 -> float
-  val rhombus : v2 -> v2 -> float
-  val round : float -> t -> v2 -> float
-  val onion : float -> t -> v2 -> float
-  val extrude : height:float -> t -> v3 -> float
+  (** {1 Shapes} *)
 
-  (** [revolve ~radius t]
+  val circle : float -> t
+  val square : ?round:float -> v2 -> t
+  val rounded_box : ?tl:float -> ?tr:float -> ?bl:float -> ?br:float -> v2 -> v2 -> float
+  val rhombus : ?round:float -> v2 -> t
 
-      Revolve the 2d signed distance field [t] around the x-axis from [radius] away. *)
-  val revolve : radius:float -> t -> v3 -> float
+  (** {1 Transformations} *)
+
+  val translate : v2 -> t -> t
+  val xtrans : float -> t -> t
+  val ytrans : float -> t -> t
+  val rotate : ?about:v2 -> float -> t -> t
+  val zrot : ?about:v2 -> float -> t -> t
+  val scale : float -> t -> t
+  val round : float -> t -> t
+  val onion : float -> t -> t
+
+  (** [elongate h]
+
+       Elongate the 2d sdf [t] by the xy distance vector [h]. Basically, the
+       field is split and moved apart by [h] in each dimension and connected. *)
+  val elongate : v2 -> t -> t
+
+  (** {1 2d to 3d} *)
+
+  (** [extrude ~height t]
+
+       Extrude the 2d signed distance field [t] into a 3d field extending
+       [height /. 2.] above and below the xy plane. *)
+  val extrude : height:float -> t -> Sdf3.t
+
+  (** [revolve ?offset t]
+
+       Revolve the 2d signed distance field [t] around the
+       y-axis. If provided [offset] translates [t] in x beforehand. *)
+  val revolve : ?offset:float -> t -> Sdf3.t
 end
 
 module Sdf3 : sig
@@ -255,11 +281,18 @@ module Sdf3 : sig
   (** {1 Transformations} *)
 
   val translate : v3 -> t -> t
+  val xtrans : float -> t -> t
+  val ytrans : float -> t -> t
+  val ztrans : float -> t -> t
   val rotate : ?about:v3 -> v3 -> t -> t
+  val xrot : ?about:v3 -> float -> t -> t
+  val yrot : ?about:v3 -> float -> t -> t
+  val zrot : ?about:v3 -> float -> t -> t
   val quaternion : ?about:v3 -> Quaternion.t -> t -> t
   val axis_rotate : ?about:v3 -> v3 -> float -> t -> t
   val scale : float -> t -> t
   val round : float -> t -> t
+  val onion : float -> t -> t
   val elongate : v3 -> t -> t
 
   (** {1 Booleans} *)
