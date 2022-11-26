@@ -233,7 +233,7 @@ module Sdf2 : sig
 
   val circle : float -> t
   val square : ?round:float -> v2 -> t
-  val rounded_box : ?tl:float -> ?tr:float -> ?bl:float -> ?br:float -> v2 -> v2 -> float
+  val rounded_box : ?tl:float -> ?tr:float -> ?bl:float -> ?br:float -> v2 -> t
   val rhombus : ?round:float -> v2 -> t
 
   (** {1 Transformations} *)
