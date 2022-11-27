@@ -4,8 +4,6 @@ open OManifold
 let () =
   let s = Manifold.sphere ~fn:64 10. in
   (* NOTE: not doing anything, not sure if I misunderstand *)
-  Manifold.set_circular_segments s 128;
-  print_endline (Manifold.circular_segments s 10. |> Int.to_string);
   let s = Manifold.refine 2 s in
   let s = Manifold.copy s in
   let mesh = Manifold.to_mmesh s in
