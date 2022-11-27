@@ -21,6 +21,16 @@ module Status = struct
     | TriPropertiesOutOfBounds -> "TRI_PROPERTIES_OUT_OF_BOUNDS"
 end
 
+module Id = struct
+  type t =
+    | Original of int
+    | Product
+
+  let to_int = function
+    | Original id -> id
+    | Product -> -1
+end
+
 type t = C.Types.Manifold.t Ctypes_static.ptr
 
 let size = C.Funcs.manifold_size () |> size_to_int
@@ -47,7 +57,12 @@ let as_original t =
   man
 
 let status t = C.Funcs.manifold_status t
-let original_id t = C.Funcs.manifold_original_id t
+
+let original_id t =
+  match C.Funcs.manifold_original_id t with
+  | -1 -> Id.Product
+  | id -> Original id
+
 let num_vert t = C.Funcs.manifold_num_vert t
 let num_edge t = C.Funcs.manifold_num_edge t
 let num_tri t = C.Funcs.manifold_num_tri t
@@ -59,7 +74,6 @@ let bounding_box t =
 
 let precision t = C.Funcs.manifold_precision t
 let genus t = C.Funcs.manifold_genus t
-let circular_segments t r = C.Funcs.manifold_get_circular_segments t r
 
 let curvature t =
   let buf, curv = Curvature.alloc () in
@@ -78,7 +92,7 @@ let tetrahedron () =
   let _ = C.Funcs.manifold_tetrahedron buf in
   t
 
-let sphere ?(fn = 32) rad =
+let sphere ?(fn = 0) rad =
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_sphere buf rad fn in
   t
@@ -88,12 +102,12 @@ let cube ?(center = false) { x; y; z } =
   let _ = C.Funcs.manifold_cube buf x y z (Bool.to_int center) in
   t
 
-let cylinder ?(center = false) ?(fn = 32) ~height r =
+let cylinder ?(center = false) ?(fn = 0) ~height r =
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_cylinder buf height r r fn (Bool.to_int center) in
   t
 
-let cone ?(center = false) ?(fn = 32) ~height r1 r2 =
+let cone ?(center = false) ?(fn = 0) ~height r1 r2 =
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_cylinder buf height r1 r2 fn (Bool.to_int center) in
   t
@@ -154,7 +168,7 @@ let extrude ?(slices = 16) ?(twist = 0.) ?(scale = v2 1. 1.) ~height:h polys =
   let _ = C.Funcs.manifold_extrude buf polys h slices tw scale.x scale.y in
   t
 
-let revolve ?(fn = 32) polys =
+let revolve ?(fn = 0) polys =
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_revolve buf polys fn in
   t
@@ -285,12 +299,13 @@ let refine n t =
   let _ = C.Funcs.manifold_refine buf t n in
   refined
 
-let set_circular_segments t fn = C.Funcs.manifold_set_circular_segments t fn
+let get_circular_segments r = C.Funcs.manifold_get_circular_segments r
+let set_circular_segments fn = C.Funcs.manifold_set_circular_segments fn
 
-let set_min_circular_angle t fa =
-  C.Funcs.manifold_set_min_circular_angle t (Math.deg_of_rad fa)
+let set_min_circular_angle fa =
+  C.Funcs.manifold_set_min_circular_angle (Math.deg_of_rad fa)
 
-let set_min_circular_edge_length t fs = C.Funcs.manifold_set_min_circular_edge_length t fs
+let set_min_circular_edge_length fs = C.Funcs.manifold_set_min_circular_edge_length fs
 
 let to_mmesh t =
   let buf, mesh = MMesh.alloc () in
@@ -303,7 +318,7 @@ let to_mmeshgl t =
   mesh
 
 let points t = MMesh.points (to_mmesh t)
-let of_mesh ?normals ?tangents m = of_mmesh @@ MMesh.of_mesh ?normals ?tangents m
+let of_mesh m = of_mmesh @@ MMesh.of_mesh m
 let to_mesh t = MMesh.to_mesh @@ to_mmesh t
 
 let hull ts =

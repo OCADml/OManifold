@@ -365,15 +365,13 @@ module Functions (F : Ctypes.FOREIGN) = struct
   (* Manifold Mutation *)
 
   let manifold_set_min_circular_angle =
-    foreign "manifold_set_min_circular_angle" (ptr Manifold.t @-> float @-> returning void)
+    foreign "manifold_set_min_circular_angle" (float @-> returning void)
 
   let manifold_set_min_circular_edge_length =
-    foreign
-      "manifold_set_min_circular_edge_length"
-      (ptr Manifold.t @-> float @-> returning void)
+    foreign "manifold_set_min_circular_edge_length" (float @-> returning void)
 
   let manifold_set_circular_segments =
-    foreign "manifold_set_circular_segments" (ptr Manifold.t @-> int @-> returning void)
+    foreign "manifold_set_circular_segments" (int @-> returning void)
 
   (* Manifold Info *)
 
@@ -413,7 +411,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
       (ptr void @-> ptr Curvature.t @-> returning (ptr float))
 
   let manifold_get_circular_segments =
-    foreign "manifold_get_circular_segments" (ptr Manifold.t @-> float @-> returning int)
+    foreign "manifold_get_circular_segments" (float @-> returning int)
 
   let manifold_original_id =
     foreign "manifold_original_id" (ptr Manifold.t @-> returning int)
