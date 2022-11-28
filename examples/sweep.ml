@@ -26,7 +26,7 @@ let caps =
 
 let () =
   Mesh.path_extrude ~path ~caps poly
-  |> Manifold.of_mesh
+  |> Manifold.of_mesh_exn
   |> Export.manifold "rounded_polyhole_sweep.stl"
 
 let rounded_path =
@@ -38,7 +38,8 @@ let rounded_path =
          (v3 (-25.) 25. 0. :: Path3.square (v2 50. 50.)))
 
 let () =
-  let loop = Manifold.of_mesh @@ Mesh.path_extrude ~caps:`Looped ~path:rounded_path poly
+  let loop =
+    Manifold.of_mesh_exn @@ Mesh.path_extrude ~caps:`Looped ~path:rounded_path poly
   and cut =
     Manifold.cylinder ~fn:50 ~center:true ~height:11. 5.
     |> Manifold.scale (v3 1.2 1. 1.)

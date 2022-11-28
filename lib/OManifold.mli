@@ -52,16 +52,30 @@ module Polygons : sig
 
   (** [of_poly2 poly]
 
-       Lift a 2d {!OCADml.Poly2.t} into a Manifold polygon set. *)
+       Lift a 2d {!OCADml.Poly2.t} into a manifold polygon set. *)
   val of_poly2 : Poly2.t -> t
 
   (** [of_poly2s polys]
 
-       Lump together a set of 2d {!OCADml.Poly2.t}s into a Manifold polygon set. *)
+       Lump together a set of 2d {!OCADml.Poly2.t}s into a manifold polygon set. *)
   val of_poly2s : Poly2.t list -> t
 end
 
 module MMesh : sig
+  (** Mesh properties which can optionally be provided to {!Manifold.of_mmesh}. *)
+  type properties =
+    { tris : (int * int * int) list (** Indices into props for each tri of the mesh *)
+    ; props : float list
+          (** Sets of property values, the length of which should be the largest
+                 index in [tris] times the length of [tolerances] (the number of properties).
+                 Think of it as a property matrix indexed as [idx * n_tolerances + tolerance_idx]. *)
+    ; tolerances : float list
+          (** Precision values. This is the amount of interpolation error allowed
+              before two neighouring triangles are considered not coplanar.
+              A good place to start is [1e-5] times the largest value you expect
+              this property to take. *)
+    }
+
   (** The 3-dimensional mesh representation of the Manifold library. *)
   type t
 
@@ -69,7 +83,7 @@ module MMesh : sig
 
   (** [make ?normals ?tangents points triangles]
 
-       Create a Manifold mesh from a set of [points], and [triangles]
+       Create a manifold mesh from a set of [points], and [triangles]
        represented as triples of indices into [points]. Vertex [normals] and
        half-edge [tangents] can optionally be provided. If so, they must be the
        same length as [points] and 3x the length of [triangles] respectively --
@@ -108,22 +122,22 @@ module MMesh : sig
   (** {1 OCADml conversion}
 
       To and from the OCADml [Mesh.t] type. As [Mesh.t] follows the OpenSCAD
-      winding convention (opposite to Manifold) the triangles/faces are
+      winding convention (opposite to manifold) the triangles/faces are
       reversed. *)
 
   (** [of_mesh m]
 
-       Create a Manifold mesh from the [OCADml.Mesh.t] [m].  *)
+       Create a manifold mesh from the [OCADml.Mesh.t] [m].  *)
   val of_mesh : Mesh.t -> t
 
   (** [to_mesh t]
 
-       Create an [OCADml.Mesh.t] from the Manifold mesh [t].  *)
+       Create an [OCADml.Mesh.t] from the manifold mesh [t].  *)
   val to_mesh : t -> Mesh.t
 end
 
 module MMeshGL : sig
-  (** A graphics library friendly representation of Manifold's {!MMesh.t}.
+  (** A graphics library friendly representation of manifold's {!MMesh.t}.
        Obtained solely via {!Manifold.to_mmeshgl} *)
   type t
 
@@ -234,33 +248,17 @@ module Box : sig
 
   (** [of_bbox b]
 
-       Construct a Manifold box from the bounds of the 3d OCADml bounding box [b]. *)
+       Construct a manifold box from the bounds of the 3d OCADml bounding box [b]. *)
   val of_bbox : V3.bbox -> t
 
   (** [to_bbox t]
 
-       Return the minimum and maximum bounds of the Manifold box [t] as an
+       Return the minimum and maximum bounds of the manifold box [t] as an
        OCADml bounding box. *)
   val to_bbox : t -> V3.bbox
 end
 
 module Manifold : sig
-  module Status : sig
-    type t = C.Types.Status.t =
-      | NoError
-      | NonFiniteVertex
-      | NotManifold
-      | VertexIndexOutOfBounds
-      | PropertiesWrongLength
-      | TriPropertiesWrongLength
-      | TriPropertiesOutOfBounds
-
-    (** [to_string t]
-
-        Retrieve the corresponding label of the Manifold library's Error enum. *)
-    val to_string : t -> string
-  end
-
   module Id : sig
     type t =
       | Original of int
@@ -268,10 +266,15 @@ module Manifold : sig
 
     (** [to_int t]
 
-          Return the plain integer ID. If the corresponding Manifold was a
+          Return the plain integer ID. If the corresponding manifold was a
           product, rather than an original, this returns [-1]. *)
     val to_int : t -> int
   end
+
+  type size =
+    { surface_area : float
+    ; volume : float
+    }
 
   type t
 
@@ -279,12 +282,12 @@ module Manifold : sig
 
   (** [empty ()]
 
-       Construct an empty Manifold. *)
+       Construct an empty manifold. *)
   val empty : unit -> t
 
   (** [copy t]
 
-       Return a copy of the Manifold [t]. *)
+       Return a copy of the manifold [t]. *)
   val copy : t -> t
 
   (** [as_original t]
@@ -298,38 +301,24 @@ module Manifold : sig
        This function also condenses all coplanar faces in the relation, and
        collapses those edges. If you want to have inconsistent properties across
        these faces, meaning you want to preserve some of these edges, you should
-       instead call GetMesh(), calculate your properties and use these to construct
+       instead use {!to_mmesh}, calculate your properties and use these to construct
        a new manifold. *)
   val as_original : t -> t
 
   (** [compose ts]
-       Constructs a new Manifold from a list of other Manifolds. This is a purely
+       Constructs a new manifold from a list of other manifolds. This is a purely
        topological operation, so care should be taken to avoid creating
        overlapping results. It is the inverse operation of {!decompose}. *)
   val compose : t list -> t
 
   (** [decompose t]
 
-       This operation returns a list of Manifolds that are topologically
+       This operation returns a list of manifolds that are topologically
        disconnected. If everything is connected, the result is singular copy of
        the original. It is the inverse operation of {!compose}. *)
   val decompose : t -> t list
 
   (** {1 Data Extraction} *)
-
-  (* TODO: with this doc in mind, I think I should just make result and exn
-    versions of the of_mmesh/of_mesh functions and exclude this and status from
-    the interface (just string result, so no need for user to convert it, or use
-   variant/polyvariant still ?). *)
-
-  (** [status t]
-       Returns the reason for an input Mesh producing an empty Manifold. This Status
-       only applies to Manifolds newly-created from an input {!MMesh.t} - once they are
-       combined into a new Manifold via operations, the status reverts to NO_ERROR,
-       simply processing the problem mesh as empty. Likewise, empty meshes may still
-       show NO_ERROR, for instance if they are small enough relative to their
-       precision to be collapsed to nothing. *)
-  val status : t -> Status.t
 
   (** [original_id t]
 
@@ -340,36 +329,33 @@ module Manifold : sig
 
   (** [num_vert t]
 
-       The number of vertices in the Manifold [t]. *)
+       The number of vertices in the manifold [t]. *)
   val num_vert : t -> int
 
   (** [num_edge t]
 
-       The number of edges in the Manifold [t]. *)
+       The number of edges in the manifold [t]. *)
   val num_edge : t -> int
 
   (** [num_tri t]
 
-       The number of triangles in the Manifold [t]. *)
+       The number of triangles in the manifold [t]. *)
   val num_tri : t -> int
 
   (** [bounding_box t]
 
-       Return the axis-aligned bounding box of all of the Manifold [t]'s
+       Return the axis-aligned bounding box of all of the manifold [t]'s
        vertices. *)
   val bounding_box : t -> Box.t
 
   (** [precision t]
-       Returns the precision of this Manifold's vertices, which tracks the
+       Returns the precision of this manifold's vertices, which tracks the
        approximate rounding error over all the transforms and operations that have
        led to this state. Any triangles that are colinear within this precision are
        considered degenerate and removed. This is the value of &epsilon; defining
-       {{:https://github.com/elalish/manifold/wiki/Manifold-Library#definition-of-%CE%B5-valid}
+       {{:https://github.com/elalish/manifold/wiki/manifold-Library#definition-of-%CE%B5-valid}
        &epsilon;-valid}. *)
   val precision : t -> float
-
-  (* TODO: properties *)
-  (* val properties : t -> Properties.t *)
 
   (** [genus t]
 
@@ -377,6 +363,11 @@ module Manifold : sig
        number of "handles". A sphere is 0, torus 1, etc. It is only meaningful
        for a single mesh, so it is best use {!decompose} first. *)
   val genus : t -> int
+
+  (** [size t]
+
+       The physical size (surface area and volume) of the manifold [t]. *)
+  val size : t -> size
 
   (** [curvature t]
 
@@ -408,7 +399,7 @@ module Manifold : sig
 
   (** [points t]
 
-       Retrieve the points making up the meshes of the Manifold [t]. *)
+       Retrieve the points making up the meshes of the manifold [t]. *)
   val points : t -> v3 list
 
   (** {1 Shapes} *)
@@ -421,8 +412,10 @@ module Manifold : sig
 
   (** {1 Mesh Conversions} *)
 
-  val of_mmesh : MMesh.t -> t
-  val of_mesh : Mesh.t -> t
+  val of_mmesh : ?properties:MMesh.properties -> MMesh.t -> (t, string) result
+  val of_mmesh_exn : ?properties:MMesh.properties -> MMesh.t -> t
+  val of_mesh : Mesh.t -> (t, string) result
+  val of_mesh_exn : Mesh.t -> t
   val smooth : ?smoothness:(int * float) list -> MMesh.t -> t
   val to_mmesh : t -> MMesh.t
   val to_mmeshgl : t -> MMeshGL.t
@@ -442,43 +435,172 @@ module Manifold : sig
 
   (** {1 Booleans} *)
 
+  (** [add a b]
+
+       Union (logical {b or}) the manifolds [a] and [b]. *)
   val add : t -> t -> t
-  val sub : t -> t -> t
-  val intersect : t -> t -> t
+
+  (** [union ts]
+
+       Union (logical {b or}) the list of manifolds [ts]. *)
   val union : t list -> t
+
+  (** [sub a b]
+
+       Subtract (logical {b and not}) the manifold [b] from the manifold [a]. *)
+  val sub : t -> t -> t
+
+  (** [difference t d]
+
+       Subtract (logical {b and not}) the list of manifolds [d] from the manifold [t]. *)
   val difference : t -> t list -> t
-  val intersection : t -> t list -> t
+
+  (** [intersection ts]
+
+       Compute the intersection (logical {b and}) of the manifolds [ts]. Only
+       the area which is common or shared by {b all } shapes are retained. If
+       [ts] is empty, an empty manifold {!t} will result. *)
+  val intersection : t list -> t
+
+  (** [split a b]
+
+       Splits the manifold [a] into two using the cutter manifold [b]. The
+       first result is the intersection, and the second is the difference. *)
   val split : t -> t -> t * t
+
+  (** [split_by_plane p t]
+
+       Splits the manifold [t] in two, one above the plane [p], and the other below. *)
   val split_by_plane : Plane.t -> t -> t * t
+
+  (** [trim_by_plane p t]
+
+       Cut away the portion of the manifold [t] lying below the plane [p]. *)
   val trim_by_plane : Plane.t -> t -> t
 
   (** {1 Transformations} *)
 
+  (** [translate p t]
+
+       Move [t] along the vector [p]. *)
   val translate : v3 -> t -> t
+
+  (** [xtrans x t]
+
+    Move [t] by the distance [x] along the x-axis. *)
   val xtrans : float -> t -> t
+
+  (** [ytrans y t]
+
+    Move [t] by the distance [y] along the y-axis. *)
   val ytrans : float -> t -> t
+
+  (** [ztrans z t]
+
+    Move [t] by the distance [z] along the z-axis. *)
   val ztrans : float -> t -> t
+
+  (** [rotate ?about r t]
+
+    Performs an Euler rotation (zyx). If it is provided, rotations are performed
+    around the point [about], otherwise rotation is about the origin. Angle(s)
+    [r] are in radians. *)
   val rotate : ?about:v3 -> v3 -> t -> t
+
+  (** [xrot ?about r t]
+
+    Rotate the manifold [t] around the x-axis through the origin (or the point
+    [about] if provided) by [r] (in radians). *)
   val xrot : float -> t -> t
+
+  (** [yrot ?about r t]
+
+    Rotate the manifold [t] around the y-axis through the origin (or the point
+    [about] if provided) by [r] (in radians). *)
   val yrot : float -> t -> t
+
+  (** [zrot ?about r t]
+
+    Rotate the manifold [t] around the z-axis through the origin (or the point
+    [about] if provided) by [r] (in radians). *)
   val zrot : float -> t -> t
+
+  (** [affine m t]
+
+    Transform the manifold [t] with the affine transformation matrix [m]. *)
   val affine : Affine3.t -> t -> t
+
+  (** [quaternion ?about q t]
+
+    Applys the quaternion rotation [q] around the origin (or the point [about]
+    if provided) to [t]. *)
   val quaternion : ?about:v3 -> Quaternion.t -> t -> t
+
+  (** [axis_rotate ?about ax r t]
+
+    Rotates [t] about the arbitrary axis [ax] through the origin (or the point
+    [about] if provided) by the angle [r] (in radians). *)
   val axis_rotate : ?about:v3 -> v3 -> float -> t -> t
+
+  (** [warp f t]
+
+       Map over the vertices of the manifold [t] with the function [f], allowing
+       their positions to be updated arbitrarily, but note that the topology is
+       unchanged. It is easy to create a function that warps a geometrically valid
+       object into one which overlaps, but that is not checked here, so it is up to
+       the user to choose their function with discretion. *)
   val warp : (v3 -> v3) -> t -> t
+
+  (** [scale factors t]
+
+    Scales [t] by the given [factors] in xyz. *)
   val scale : v3 -> t -> t
+
+  (** [xscale s t]
+
+    Scales [t] by the factor [s] in the x-dimension. *)
   val xscale : float -> t -> t
+
+  (** [yscale s t]
+
+    Scales [t] by the factor [s] in the y-dimension. *)
   val yscale : float -> t -> t
+
+  (** [zscale s t]
+
+    Scales [t] by the factor [s] in the z-dimension. *)
   val zscale : float -> t -> t
+
+  (** [refine n t]
+
+       Increase the density of the meshes in [t] by splitting every edge into
+       [n] pieces. For instance, with [n = 2], each triangle will be split into 4
+       triangles. These will all be coplanar (and will not be immediately collapsed)
+       unless the contained {!MMesh.t} within has {!MMesh.halfedge_tangents}
+       specified (e.g. from the {!smooth} constructor), in which case the new
+       vertices will be moved to the interpolated surface according to their
+       barycentric coordinates. *)
   val refine : int -> t -> t
-  val hull : t list -> t
+
+  (** [hull ts]
+
+       Create a convex hull that encloses all of the vertices of the manifolds
+       in [ts]. Note that this operation comes from OCADml and is not guaranteed
+       to produce a valid manifold. *)
+  val hull : t list -> (t, string) result
+
+  (** [hull_exn ts]
+
+       Same as {!hull}, but a [Failure] is raised if the resulting mesh does
+       not describe a valid manifold. *)
+  val hull_exn : t list -> t
 
   (** {1 Quality Globals} *)
 
-  (** [get_circular_segments t r]
+  (** [get_circular_segments r]
 
        Determine how many segment there would be in a circle with radius [r],
-       based on the governing parameters (set by {!set_circular_segments},
+       based on the global quality parameters (set by {!set_circular_segments},
        {!set_min_circular_angle}, and {!set_min_circular_edge_length}). *)
   val get_circular_segments : float -> int
 

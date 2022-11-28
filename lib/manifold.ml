@@ -31,6 +31,11 @@ module Id = struct
     | Product -> -1
 end
 
+type size =
+  { surface_area : float
+  ; volume : float
+  }
+
 type t = C.Types.Manifold.t Ctypes_static.ptr
 
 let size = C.Funcs.manifold_size () |> size_to_int
@@ -75,6 +80,12 @@ let bounding_box t =
 let precision t = C.Funcs.manifold_precision t
 let genus t = C.Funcs.manifold_genus t
 
+let size t =
+  let s = C.Funcs.manifold_get_properties t in
+  let surface_area = Ctypes.getf s C.Types.Properties.surface_area
+  and volume = Ctypes.getf s C.Types.Properties.volume in
+  { surface_area; volume }
+
 let curvature t =
   let buf, curv = Curvature.alloc () in
   let _ = C.Funcs.manifold_get_curvature buf t in
@@ -112,15 +123,38 @@ let cone ?(center = false) ?(fn = 0) ~height r1 r2 =
   let _ = C.Funcs.manifold_cylinder buf height r1 r2 fn (Bool.to_int center) in
   t
 
-let of_mmesh m =
-  (* TODO: mesh properties type with optional provision *)
+let of_mmesh ?properties m =
   let buf, t = alloc () in
-  let _ = C.Funcs.manifold_of_mesh buf m in
+  let _ =
+    match properties with
+    | None -> C.Funcs.manifold_of_mesh buf m
+    | Some MMesh.{ tris; props; tolerances } ->
+      let open Ctypes in
+      let len_tris = List.length tris
+      and len_props = List.length props
+      and len_tols = List.length tolerances in
+      let ts = CArray.make C.Types.IVec3.t len_tris
+      and ps = CArray.make Ctypes.float len_props
+      and tols = CArray.make Ctypes.float len_tols in
+      List.iteri (fun i tri -> CArray.set ts i (ivec3_of_tup tri)) tris;
+      List.iteri (fun i p -> CArray.set ps i p) props;
+      List.iteri (fun i tol -> CArray.set tols i tol) tolerances;
+      C.Funcs.manifold_of_mesh_props
+        buf
+        m
+        (CArray.start ts)
+        (CArray.start ps)
+        (CArray.start tols)
+        (size_of_int len_tols)
+  in
   match status t with
-  | NoError -> t
-  | e ->
-    failwith
-      (Printf.sprintf "Faiure to build Manifold from mesh: %s" (Status.to_string e))
+  | NoError -> Ok t
+  | e -> Error (Status.to_string e)
+
+let of_mmesh_exn ?properties m =
+  match of_mmesh ?properties m with
+  | Ok t -> t
+  | Error e -> failwith (Printf.sprintf "Faiure to build Manifold from mesh: %s" e)
 
 let smooth ?(smoothness = []) m =
   let open Ctypes in
@@ -200,9 +234,10 @@ let difference t = function
   | [] -> copy t
   | ts -> List.fold_left (fun t e -> sub t e) t ts
 
-let intersection t = function
-  | [] -> copy t
-  | ts -> List.fold_left (fun t e -> intersect t e) t ts
+let intersection = function
+  | [] -> empty ()
+  | [ a ] -> copy a
+  | a :: ts -> List.fold_left (fun t e -> intersect t e) a ts
 
 let split a b =
   let buf1, first = alloc ()
@@ -319,8 +354,14 @@ let to_mmeshgl t =
 
 let points t = MMesh.points (to_mmesh t)
 let of_mesh m = of_mmesh @@ MMesh.of_mesh m
+let of_mesh_exn m = of_mmesh_exn @@ MMesh.of_mesh m
 let to_mesh t = MMesh.to_mesh @@ to_mmesh t
 
 let hull ts =
   let ps = List.fold_left (fun ps t -> List.rev_append (points t) ps) [] ts in
   of_mesh (Mesh.hull ps)
+
+let hull_exn ts =
+  match hull ts with
+  | Ok t -> t
+  | Error e -> failwith (Printf.sprintf "Faiure to build Manifold from hulled mesh: %s" e)

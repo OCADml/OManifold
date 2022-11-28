@@ -13,7 +13,7 @@ let () =
   and a = Poly2.ring ~fn:5 ~thickness:(v2 2.5 2.5) (v2 6. 6.)
   and b = Poly2.ring ~fn:80 ~thickness:(v2 2. 2.) (v2 4. 4.) in
   Mesh.path_morph ~refine:2 ~caps ~path ~outer_map:`Tangent a b
-  |> Manifold.of_mesh
+  |> Manifold.of_mesh_exn
   |> Export.manifold "tangent_morph_sweep.stl"
 
 let man =
@@ -26,7 +26,7 @@ let man =
       ~height:3.
       (Poly2.ring ~fn:5 ~thickness:(v2 0.5 0.5) (v2 4. 4.))
       (Poly2.ring ~fn:80 ~thickness:(v2 0.2 0.2) (v2 1. 1.))
-    |> Manifold.of_mesh
+    |> Manifold.of_mesh_exn
   in
   Manifold.(add (ztrans 2. top) (ztrans (-2.) @@ xrot Float.pi top))
 

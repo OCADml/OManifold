@@ -1,6 +1,12 @@
 open OCADml
 open Conv
 
+type properties =
+  { tris : (int * int * int) list
+  ; props : float list
+  ; tolerances : float list
+  }
+
 type t = C.Types.Mesh.t Ctypes_static.ptr
 
 let size = C.Funcs.mesh_size () |> size_to_int

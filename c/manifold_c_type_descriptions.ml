@@ -74,6 +74,9 @@ module Types (F : Cstubs.Types.TYPE) = struct
     type t = [ `Properties ] structure
 
     let t : t typ = structure "ManifoldProperties"
+    let surface_area = field t "surface_area" float
+    let volume = field t "volume" float
+    let () = seal t
   end
 
   module MeshRelation = struct

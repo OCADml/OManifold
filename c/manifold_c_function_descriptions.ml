@@ -389,6 +389,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let manifold_genus = foreign "manifold_genus" (ptr Manifold.t @-> returning int)
 
+  let manifold_get_properties =
+    foreign "manifold_get_properties" (ptr Manifold.t @-> returning Properties.t)
+
   let manifold_get_curvature =
     foreign
       "manifold_get_curvature"
