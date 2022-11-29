@@ -193,20 +193,6 @@ let decompose t =
   let _ = C.Funcs.manifold_decompose (Ctypes.CArray.start bufs) t sz in
   !ts
 
-(* 2D to 3D *)
-
-let extrude ?(slices = 16) ?(twist = 0.) ?(scale = v2 1. 1.) ~height:h polys =
-  let buf, t = alloc ()
-  and tw = Math.deg_of_rad twist in
-  (* TODO: no default for slices and calculate based on twist *)
-  let _ = C.Funcs.manifold_extrude buf polys h slices tw scale.x scale.y in
-  t
-
-let revolve ?(fn = 0) polys =
-  let buf, t = alloc () in
-  let _ = C.Funcs.manifold_revolve buf polys fn in
-  t
-
 (* Booleans *)
 
 let add a b =
@@ -334,6 +320,34 @@ let refine n t =
   let _ = C.Funcs.manifold_refine buf t n in
   refined
 
+(* 2D to 3D *)
+
+let extrude
+    ?slices
+    ?fa
+    ?(twist = 0.)
+    ?(scale = v2 1. 1.)
+    ?(center = false)
+    ~height:h
+    polys
+  =
+  let buf, t = alloc ()
+  and tw = Math.deg_of_rad twist in
+  let slices =
+    match slices, twist with
+    | Some s, tw when Float.(abs tw /. (2. *. pi) < 1.) -> s
+    | fn, tw -> Util.helical_slices ?fa ?fn tw
+  in
+  let _ = C.Funcs.manifold_extrude buf polys h slices tw scale.x scale.y in
+  if center then ztrans (h /. -2.) t else t
+
+let revolve ?(fn = 0) polys =
+  let buf, t = alloc () in
+  let _ = C.Funcs.manifold_revolve buf polys fn in
+  t
+
+(* Quality Globals *)
+
 let get_circular_segments r = C.Funcs.manifold_get_circular_segments r
 let set_circular_segments fn = C.Funcs.manifold_set_circular_segments fn
 
@@ -341,6 +355,8 @@ let set_min_circular_angle fa =
   C.Funcs.manifold_set_min_circular_angle (Math.deg_of_rad fa)
 
 let set_min_circular_edge_length fs = C.Funcs.manifold_set_min_circular_edge_length fs
+
+(* Mesh Conversion *)
 
 let to_mmesh t =
   let buf, mesh = MMesh.alloc () in
@@ -356,6 +372,8 @@ let points t = MMesh.points (to_mmesh t)
 let of_mesh m = of_mmesh @@ MMesh.of_mesh m
 let of_mesh_exn m = of_mmesh_exn @@ MMesh.of_mesh m
 let to_mesh t = MMesh.to_mesh @@ to_mmesh t
+
+(* Extras *)
 
 let hull ts =
   let ps = List.fold_left (fun ps t -> List.rev_append (points t) ps) [] ts in

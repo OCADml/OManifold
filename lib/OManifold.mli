@@ -404,10 +404,39 @@ module Manifold : sig
 
   (** {1 Shapes} *)
 
+  (** [tetrahedron ()]
+
+       Create a tetrahedron centred at the origin with one vertex at
+       [(v3 1. 1. 1.)] and the rest at similarly symmetric points. *)
   val tetrahedron : unit -> t
+
+  (** [sphere ?fn radius]
+
+       Create a sphere with given [radius] at the origin of the coordinate
+       system. The number of segments along the diameter can be explicitly set by
+       [fn], otherwise it is determined by the {{!label-quality} quality globals}. *)
   val sphere : ?fn:int -> float -> t
+
+  (** [cube ?center dimensions]
+
+    Create a cube in the first octant, with the given xyz [dimensions]. When
+    [center] is true, the cube is centered on the origin. *)
   val cube : ?center:bool -> v3 -> t
+
+  (** [cylinder ?center ?fn ~height radius]
+
+     Creates a cylinder centered about the z-axis. When [center] is true, it will
+     also be centered vertically, otherwise the base will sit upon the XY
+     plane. The number of segments along the diameter can be explicitly set by
+     [fn], otherwise it is determined by the {{!label-quality} quality globals}. *)
   val cylinder : ?center:bool -> ?fn:int -> height:float -> float -> t
+
+  (** [cone ?center ?fn ~height r1 r2 ]
+
+     Create cone with bottom radius [r1] and top radius [r2]. When [center] is
+     true, it will also be centered vertically, otherwise the base will sit upon
+     the XY plane. The number of segments along the diameter can be explicitly set by
+     [fn], otherwise it is determined by the {{!label-quality} quality globals}.*)
   val cone : ?center:bool -> ?fn:int -> height:float -> float -> float -> t
 
   (** {1 Mesh Conversions} *)
@@ -423,14 +452,37 @@ module Manifold : sig
 
   (** {1 2D to 3D} *)
 
+  (** [extrude ?slices ?twist ?scale ~height polygons]
+
+    Vertically extrude non-overlapping set of 2d [polygons] from the XY plane to
+    [height]. If [?center] is [true], the resulting 3D object is centered around
+    the XY plane, rather than resting on top of it.
+    - [?twist] rotates the shape by the specified angle (in radians) as it is
+      extruded upwards
+    - [?slices] specifies the number of intermediate points along the Z axis of
+      the extrusion. By default this increases with the value of [?twist],
+      though manual refinement may improve results.
+    - [?scale] expands or contracts the shape in X and Y as it is extruded
+      upward. Default is [(v2 1. 1.)], no scaling. If set to [(v2 0. 0.)], a
+      pure cone is formed, with only a single vertex at the top. *)
   val extrude
     :  ?slices:int
+    -> ?fa:float
     -> ?twist:float
     -> ?scale:v2
+    -> ?center:bool
     -> height:float
     -> Polygons.t
     -> t
 
+  (** [revolve ?fn polygons]
+
+       Revolve a non-overapping set of 2d [polygons] around the y-axis and then set this
+       as the z-axis of the resulting manifold. If the polygons cross the y-axis, only
+       the part on the positive x side is used. Geometrically valid input will result
+       in geometrically valid output. The number of segments in the revolution
+       can be set explicitly with [fn], otherwise it is determined by the
+       {{!label-quality} quality globals}. *)
   val revolve : ?fn:int -> Polygons.t -> t
 
   (** {1 Booleans} *)
@@ -595,7 +647,12 @@ module Manifold : sig
        not describe a valid manifold. *)
   val hull_exn : t list -> t
 
-  (** {1 Quality Globals} *)
+  (** {1:quality Quality Globals}
+
+       Akin to {{:https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/The_OpenSCAD_Language#$fa,_$fs_and_$fn}OpenSCAD}'s facet governing "special"
+       parameters, [$fn], [$fa], and [$fs]. These are global variables that are
+       handy for quickly switching from quick and dirty rough iteration
+       quality to computationally expensive smooth final products. *)
 
   (** [get_circular_segments r]
 
@@ -604,8 +661,29 @@ module Manifold : sig
        {!set_min_circular_angle}, and {!set_min_circular_edge_length}). *)
   val get_circular_segments : float -> int
 
+  (** [set_circular_segments fn]
+
+       Set a default number of segments that circular shape are drawn with (by
+       default this is unset, and minimum circular angle and length are used to
+       calculate the number of segments instead). This takes precedence over both
+       minumum circular angle and edge length, and is akin to defining the special
+       [$fn] variable at the top level of an {{:https://openscad.org/}OpenSCAD} script. *)
   val set_circular_segments : int -> unit
+
+  (** [set_min_circular_angle fa]
+
+       Change the default minimum angle (in radians) between consecutive segments on a
+       circular object/edge (default is [pi /. 18.]). This is akin to setting
+       the special [$fa] variable at the top level of an
+       {{:https://openscad.org/}OpenSCAD} script. *)
   val set_min_circular_angle : float -> unit
+
+  (** [set_min_circular_edge_length fs]
+
+       Change the default minimum edge length for segments that that circular
+       objects/edges are drawn with (default = [1.]). This is akin to setting
+       the special [$fs] variable at the top level of an
+       {{:https://openscad.org/}OpenSCAD} script. *)
   val set_min_circular_edge_length : float -> unit
 end
 
