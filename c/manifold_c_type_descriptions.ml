@@ -70,6 +70,12 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let t : t typ = structure "ManifoldCurvature"
   end
 
+  module Components = struct
+    type t = [ `Components ] structure
+
+    let t : t typ = structure "ManifoldComponents"
+  end
+
   module Properties = struct
     type t = [ `Properties ] structure
 

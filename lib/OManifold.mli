@@ -371,7 +371,7 @@ module Manifold : sig
 
   (** [curvature t]
 
-       Curvature is the inverse of the radius of curvature, and signed such that
+       The inverse of the radius of curvature, and signed such that
        positive is convex and negative is concave. There are two orthogonal
        principal curvatures at any point on a manifold, with one maximum and the
        other minimum. Gaussian curvature is their product, while mean curvature is

@@ -1,11 +1,6 @@
 open OCADml
 open OManifold
 
-let no_error m =
-  match Manifold.status m with
-  | NoError -> true
-  | _ -> false
-
 let%test "uncollected" =
   let tet = Manifold.tetrahedron () in
   Gc.full_major ();
@@ -17,7 +12,8 @@ let%test "uncollected" =
   Gc.full_major ();
   let b = f Manifold.(add (f a) (f (add (tetrahedron ()) tet))) in
   Gc.full_major ();
-  no_error @@ Manifold.add (f b) a
+  let _ = Manifold.add (f b) a in
+  true (* no segfaults due to early free / double free *)
 
 let%test "box" =
   let a = v3 0. 0. 0.
@@ -27,7 +23,8 @@ let%test "box" =
 
 let%test "warp" =
   let s = Manifold.sphere 10. in
-  no_error @@ Manifold.warp (V3.translate (v3 1. 1. 1.)) s
+  let _ = Manifold.warp (V3.translate (v3 1. 1. 1.)) s in
+  true (* no failure in C *)
 
 let%test "decompose_compose" =
   let spheres = Manifold.(add (sphere 2.) (ztrans 5. (sphere 2.))) in

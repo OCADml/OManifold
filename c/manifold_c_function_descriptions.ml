@@ -237,13 +237,21 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_compose"
       (ptr void @-> ptr (ptr Manifold.t) @-> size_t @-> returning (ptr Manifold.t))
 
-  let manifold_decompose_length =
-    foreign "manifold_decompose_length" (ptr Manifold.t @-> returning size_t)
+  let manifold_get_components =
+    foreign
+      "manifold_get_components"
+      (ptr void @-> ptr Manifold.t @-> returning (ptr Components.t))
+
+  let manifold_components_length =
+    foreign "manifold_components_length" (ptr Components.t @-> returning size_t)
 
   let manifold_decompose =
     foreign
       "manifold_decompose"
-      (ptr (ptr void) @-> ptr Manifold.t @-> size_t @-> returning (ptr (ptr Manifold.t)))
+      ( ptr (ptr void)
+      @-> ptr Manifold.t
+      @-> ptr Components.t
+      @-> returning (ptr (ptr Manifold.t)) )
 
   let manifold_as_original =
     foreign
@@ -558,6 +566,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let meshgl_size = foreign "manifold_meshgl_size" (void @-> returning size_t)
   let box_size = foreign "manifold_box_size" (void @-> returning size_t)
   let curvature_size = foreign "manifold_curvature_size" (void @-> returning size_t)
+  let components_size = foreign "manifold_components_size" (void @-> returning size_t)
 
   let mesh_relation_size =
     foreign "manifold_mesh_relation_size" (void @-> returning size_t)
@@ -588,6 +597,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let destruct_curvature =
     foreign "manifold_destruct_curvature" (ptr Curvature.t @-> returning void)
 
+  let destruct_components =
+    foreign "manifold_destruct_components" (ptr Components.t @-> returning void)
+
   let destruct_mesh_relation =
     foreign "manifold_destruct_mesh_relation" (ptr MeshRelation.t @-> returning void)
 
@@ -614,6 +626,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let delete_curvature =
     foreign "manifold_delete_curvature" (ptr Curvature.t @-> returning void)
+
+  let delete_components =
+    foreign "manifold_delete_components" (ptr Components.t @-> returning void)
 
   let delete_mesh_relation =
     foreign "manifold_delete_mesh_relation" (ptr MeshRelation.t @-> returning void)

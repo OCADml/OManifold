@@ -31,6 +31,16 @@ module Id = struct
     | Product -> -1
 end
 
+module Components = struct
+  let size = C.Funcs.components_size () |> size_to_int
+  let destruct t = C.Funcs.destruct_components t
+
+  let alloc () =
+    let finalise = Mem.finaliser C.Types.Components.t destruct in
+    let buf = Mem.allocate_buf ~finalise size in
+    buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.Components.t) buf)
+end
+
 type size =
   { surface_area : float
   ; volume : float
@@ -181,7 +191,9 @@ let compose ts =
   t
 
 let decompose t =
-  let sz = C.Funcs.manifold_decompose_length t in
+  let comps_buf, comps = Components.alloc () in
+  let _ = C.Funcs.manifold_get_components comps_buf t in
+  let sz = C.Funcs.manifold_components_length comps in
   let len = size_to_int sz in
   let bufs = Ctypes.(CArray.make (ptr void) len)
   and ts = ref [] in
@@ -190,7 +202,7 @@ let decompose t =
     Ctypes.CArray.set bufs i buf;
     ts := man :: !ts
   done;
-  let _ = C.Funcs.manifold_decompose (Ctypes.CArray.start bufs) t sz in
+  let _ = C.Funcs.manifold_decompose (Ctypes.CArray.start bufs) t comps in
   !ts
 
 (* Booleans *)
@@ -231,15 +243,17 @@ let split a b =
   let _ = C.Funcs.manifold_split buf1 buf2 a b in
   first, second
 
-let split_by_plane ({ a; b; c; d } : Plane.t) t =
+let split_by_plane plane t =
   let buf1, first = alloc ()
-  and buf2, second = alloc () in
-  let _ = C.Funcs.manifold_split_by_plane buf1 buf2 t a b c d in
+  and buf2, second = alloc ()
+  and { x; y; z; w } = Plane.to_v4 plane in
+  let _ = C.Funcs.manifold_split_by_plane buf1 buf2 t x y z w in
   first, second
 
-let trim_by_plane ({ a; b; c; d } : Plane.t) t =
-  let buf, trimmed = alloc () in
-  let _ = C.Funcs.manifold_trim_by_plane buf t a b c d in
+let trim_by_plane plane t =
+  let buf, trimmed = alloc ()
+  and { x; y; z; w } = Plane.to_v4 plane in
+  let _ = C.Funcs.manifold_trim_by_plane buf t x y z w in
   trimmed
 
 (* Transformations *)
