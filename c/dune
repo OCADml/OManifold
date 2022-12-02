@@ -33,13 +33,7 @@
 ; Build Manifold vendor
 
 (rule
- (targets
-  libmanifoldc.a
-  dllmanifoldc%{ext_dll}
-  libmanifold.a
-  dllmanifold%{ext_dll}
-  libmeshIO.a
-  dllmeshIO%{ext_dll})
+ (targets dllmanifoldc%{ext_dll} dllmanifold%{ext_dll} dllmeshIO%{ext_dll})
  (deps
   (source_tree vendor/manifold))
  (action
@@ -47,7 +41,7 @@
    (progn
     (ignore-outputs
      (chdir
-      vendor/manifold/build
+      vendor/manifold/build_so
       (progn
        (run
         cmake
@@ -59,7 +53,26 @@
         -DMANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
         -DMANIFOLD_SEQ_SDF=ON
         ..)
-       (run make)
+       (run make))))
+    (copy
+     vendor/manifold/build_so/bindings/c/libmanifoldc.so
+     dllmanifoldc.so)
+    (copy
+     vendor/manifold/build_so/src/manifold/libmanifold.so
+     dllmanifold.so)
+    (copy vendor/manifold/build_so/test/meshIO/libmeshIO.so dllmeshIO.so)))))
+
+(rule
+ (targets libmanifoldc.a libmanifold.a libmeshIO.a)
+ (deps
+  (source_tree vendor/manifold))
+ (action
+  (no-infer
+   (progn
+    (ignore-outputs
+     (chdir
+      vendor/manifold/build_a
+      (progn
        (run
         cmake
         -DCMAKE_BUILD_TYPE=Release
@@ -71,9 +84,6 @@
         -DMANIFOLD_SEQ_SDF=ON
         ..)
        (run make))))
-    (copy vendor/manifold/build/bindings/c/libmanifoldc.a libmanifoldc.a)
-    (copy vendor/manifold/build/bindings/c/libmanifoldc.so dllmanifoldc.so)
-    (copy vendor/manifold/build/src/manifold/libmanifold.a libmanifold.a)
-    (copy vendor/manifold/build/src/manifold/libmanifold.so dllmanifold.so)
-    (copy vendor/manifold/build/test/meshIO/libmeshIO.a libmeshIO.a)
-    (copy vendor/manifold/build/test/meshIO/libmeshIO.so dllmeshIO.so)))))
+    (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
+    (copy vendor/manifold/build_a/src/manifold/libmanifold.a libmanifold.a)
+    (copy vendor/manifold/build_a/test/meshIO/libmeshIO.a libmeshIO.a)))))
