@@ -508,9 +508,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let sdf_t = Ctypes.(float @-> float @-> float @-> returning float)
 
-  let level_set =
+  let level_set_seq =
     foreign
-      "manifold_level_set"
+      "manifold_level_set_seq"
       ( ptr void
       @-> static_funptr sdf_t
       @-> ptr Box.t

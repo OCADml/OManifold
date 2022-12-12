@@ -48,10 +48,10 @@
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=ON
         -DMANIFOLD_EXPORT=ON
+        -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=ON ; TODO: need to set this depending on options/availability
         -DMANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
-        -DMANIFOLD_SEQ_SDF=ON
         ..)
        (run make))))
     (copy
@@ -78,10 +78,10 @@
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=OFF
         -DMANIFOLD_EXPORT=ON
+        -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=ON ; TODO: need to set this depending on options/availability
         -DMANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
-        -DMANIFOLD_SEQ_SDF=ON
         ..)
        (run make))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)

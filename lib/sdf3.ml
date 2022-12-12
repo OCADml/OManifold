@@ -112,7 +112,7 @@ let to_mmesh ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
   and f =
     Ctypes.(coerce (Foreign.funptr C.Funcs.sdf_t) (static_funptr C.Funcs.sdf_t) sdf)
   in
-  let _ = C.Funcs.level_set buf f box edge_length level in
+  let _ = C.Funcs.level_set_seq buf f box edge_length level in
   mesh
 
 let to_mesh ?level ?edge_length ~box sdf =
