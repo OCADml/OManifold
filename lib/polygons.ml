@@ -36,6 +36,10 @@ let alloc () =
   let buf = Mem.allocate_buf ~finalise size in
   buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.Polygons.t) buf)
 
+(* FIXME: Winding needs to be forced to opposite of the OCADml convention (e.g.
+    CW rather than CCW) for creating meshes with CW faces (there is no such
+    check in Manifold at this time). *)
+
 let make paths =
   let buf, t = alloc ()
   and len = List.length paths in
@@ -49,3 +53,6 @@ let of_poly2 p = make (p.Poly2.outer :: p.holes)
 let of_poly2s polys =
   let f ps poly = poly.Poly2.outer :: List.rev_append poly.holes ps in
   make @@ List.fold_left f [] polys
+
+let of_path p = make [ p ]
+let of_paths p = make p

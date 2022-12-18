@@ -50,6 +50,17 @@ module Polygons : sig
        These are nothing special, but are provided for convenience (prepending
        the outer path onto the list of holes before applying {!make}). *)
 
+  (** [of_path path]
+
+      Lift a 2d {!OCADml.Path2.t} into a manifold polygon set. *)
+  val of_path : Path2.t -> t
+
+  (** [of_paths paths]
+
+       Lump together a set of 2d {!OCADml.Path2.t}s into a manifold polygon
+       set. Equivalent to {!make}. *)
+  val of_paths : Path2.t list -> t
+
   (** [of_poly2 poly]
 
        Lift a 2d {!OCADml.Poly2.t} into a manifold polygon set. *)
