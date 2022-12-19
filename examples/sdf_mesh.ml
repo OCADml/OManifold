@@ -2,14 +2,6 @@ open OCADml
 open OManifold
 
 let () =
-  let s = Manifold.sphere ~fn:64 10. in
-  (* NOTE: not doing anything, not sure if I misunderstand *)
-  let s = Manifold.refine 2 s in
-  let s = Manifold.copy s in
-  let mesh = Manifold.to_mmesh s in
-  Export.mmesh "sphere.stl" mesh
-
-let () =
   let bb_max = v3 10. 10. 10. in
   let f =
     Sdf3.cylinder ~round:2. ~height:12. 4.
