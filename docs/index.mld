@@ -1,0 +1,54 @@
+{0 OManifold}
+
+OManifold provides OCaml bindings to the {{:https://github.com/elalish/manifold}
+Manifold} solid modelling (C++) library, with integrations into the
+{{:https:/github.com/OCADml/OCADml} OCADml} ecosystem. Via Manifold, this
+library provides a means to verify, smooth, and perform boolean operations
+(with guaranteed manifold output) upon meshes generated in OCADml.
+
+{%html:
+  <p style="text-align:center;">
+  <img src="../assets/manifold_menger_sponge.png" style="width:100mm;"/>
+  </p> %}
+
+{1:api API}
+
+{!module-OManifold} -- top level library interface
+
+{2 2d subsystem}
+- {{!OManifold.Polygons} [Polygons]} -- complex polygon sets (extrudable to [Manifold.t])
+
+{2 Manifold}
+- {{!OManifold.Manifold} [Manifold]} -- manifold 3d solids (set of meshes)
+- {{!OManifold.Box} [Box]} -- 3d bounding box type and operations
+- {{!OManifold.MeshRelation} [MeshRelation]} -- relationship of current to previous meshes
+- {{!OManifold.Curvature} [Curvature]} -- vertex curvatures of a manifold
+
+{2 Signed Distance Functions}
+Manifold provides a level set algorithm for the generation of manifold meshes
+from {{:https://en.wikipedia.org/wiki/Signed_distance_function} signed distance
+functions} (positive inside, negative outside). Unfortunately due to the OCaml
+runtime lock, only sequential (without multiprocessing or GPU acceleration)
+execution of sdfs defined here are possible, thus performance will be slower
+than using {{:https://github.com/elalish/manifold} Manifold} or another SDF CAD
+library such as {{:https://github.com/libfive/libfive} libfive} directly.
+- {{!OManifold.Sdf2} [Sdf2]} -- 2d signed distance fields (extrudable to [Sdf3.t])
+- {{!OManifold.Sdf3} [Sdf3]} -- 3d signed distance fields
+
+{2 IO}
+- {{!OManifold.MMesh} [MMesh]} -- manifold's 3d mesh input/output representation
+- {{!OManifold.MMeshGL} [MMeshGL]} -- mesh output suitable for graphics libraries
+- {{!OManifold.Export} [Export]} -- write meshes/manifolds to disk via {{:https://github.com/assimp/assimp} assimp}
+
+{1:alternatives OCADml integration alternatives}
+
+This library only provides a means of performing boolean operations, validation,
+and export of triangular meshes generated with OCADml without the need to run an
+additional tool. At this time however, the user experience, particularly in
+debugging non-manifold meshes may be smoother using {{:https://github.io/OSCADml} OSCADml},
+which has the advantage of the {{:https://openscad.org/} OpenSCAD} viewer.
+
+{2 OSCADml}
+- {{:https://github.io/OSCADml } github}
+- {{:https://ocadml.github.io/OSCADml/OSCADml/index.html} docs}
+- {{:https://ocadml.github.io/OSCADml/OSCADml/index.html#examples} examples}

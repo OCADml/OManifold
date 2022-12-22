@@ -394,7 +394,7 @@ module Manifold : sig
 
        Gets the relationship to the previous meshes, for the purpose of
        assigning properties like texture coordinates. The
-       {!MeshRelation.BaryRef.tri_bary} vector is the same length as
+       {!MeshRelation.tri_bary} vector is the same length as
        {!MMesh.points}: {!MeshRelation.BaryRef.original_id} indicates the source
        mesh and {!MeshRelation.BaryRef.tri} is that mesh's triangle index to which
        these barycentric coordinates refer. {!MeshRelation.BaryRef.vert_bary} gives
@@ -425,7 +425,7 @@ module Manifold : sig
 
        Create a sphere with given [radius] at the origin of the coordinate
        system. The number of segments along the diameter can be explicitly set by
-       [fn], otherwise it is determined by the {{!label-quality} quality globals}. *)
+       [fn], otherwise it is determined by the {{!section-quality} quality globals}. *)
   val sphere : ?fn:int -> float -> t
 
   (** [cube ?center dimensions]
@@ -439,7 +439,7 @@ module Manifold : sig
      Creates a cylinder centered about the z-axis. When [center] is true, it will
      also be centered vertically, otherwise the base will sit upon the XY
      plane. The number of segments along the diameter can be explicitly set by
-     [fn], otherwise it is determined by the {{!label-quality} quality globals}. *)
+     [fn], otherwise it is determined by the {{!section-quality} quality globals}. *)
   val cylinder : ?center:bool -> ?fn:int -> height:float -> float -> t
 
   (** [cone ?center ?fn ~height r1 r2 ]
@@ -447,7 +447,7 @@ module Manifold : sig
      Create cone with bottom radius [r1] and top radius [r2]. When [center] is
      true, it will also be centered vertically, otherwise the base will sit upon
      the XY plane. The number of segments along the diameter can be explicitly set by
-     [fn], otherwise it is determined by the {{!label-quality} quality globals}.*)
+     [fn], otherwise it is determined by the {{!section-quality} quality globals}.*)
   val cone : ?center:bool -> ?fn:int -> height:float -> float -> float -> t
 
   (** {1 Mesh Conversions} *)
@@ -493,7 +493,7 @@ module Manifold : sig
        the part on the positive x side is used. Geometrically valid input will result
        in geometrically valid output. The number of segments in the revolution
        can be set explicitly with [fn], otherwise it is determined by the
-       {{!label-quality} quality globals}. *)
+       {{!section-quality} quality globals}. *)
   val revolve : ?fn:int -> Polygons.t -> t
 
   (** {1 Booleans} *)
