@@ -1,11 +1,11 @@
 # OManifold
 
-OManifold provides OCaml bindings to the [Manifold](https://github.com/elalish/manifold)
+OManifold provides bindings to the [Manifold](https://github.com/elalish/manifold)
 solid modelling (C++) library, with integrations into the
 [OCADml](https:/github.com/OCADml/OCADml) ecosystem. Via Manifold, this library
 provides a means to verify, smooth, and perform boolean operations (with guaranteed manifold output) upon meshes generated in OCADml.
 
-![Manifold menger mesh logo](docs/assets/manifold_menger_mesh.png)
+![Manifold menger sponge logo](docs/assets/manifold_menger_sponge.png)
 
 ## Notable differences from Manifold
 
