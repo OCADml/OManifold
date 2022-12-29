@@ -17,10 +17,11 @@ jobs:
         with:
           ocaml-compiler: 4.14.x
 
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.13
+
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install make cmake
           opam install . --deps-only --with-doc
 
       - name: Pull in submodules (manifold and dependencies)
