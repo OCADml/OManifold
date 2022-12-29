@@ -22,7 +22,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install libassimp-dev
+          sudo apt-get update
+          sudo apt-get install build-essentials libassimp-dev
           opam install . --deps-only --with-doc
 
       - name: Pull in submodules (manifold and dependencies)
