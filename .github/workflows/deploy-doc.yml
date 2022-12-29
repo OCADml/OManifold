@@ -28,8 +28,8 @@ jobs:
         run: git submodule update --init --recursive
 
 
-      - name: TEST: try to build manifold (outside of dune)
-      - run: |
+      - name: TEST -> try to build manifold (outside of dune)
+        run: |
           cd c/vendor/manifold
           mkdir build
           cd build
