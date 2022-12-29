@@ -1,0 +1,9 @@
+(executable
+ (name discover))
+
+(rule
+ (deps discover.exe)
+ (targets "use_cuda" "c_library_flags")
+ (action
+  (no-infer
+   (run ./discover.exe))))

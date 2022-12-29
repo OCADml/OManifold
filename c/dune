@@ -14,8 +14,7 @@
     (c_flags
      "-Ic/vendor/manifold/bindings/c/include"
      "-Ivendor/manifold/bindings/c/include")
-    (c_library_flags
-     (-lstdc++ -lassimp -fopenmp -L/opt/cuda/lib64 -lcuda -lcudart))))
+    (c_library_flags %{read-lines:config/c_library_flags})))
   (headers
    (include "manifoldc.h"))
   (external_library_name libmanifoldc)
@@ -50,8 +49,8 @@
         -DMANIFOLD_EXPORT=ON
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
-        -DMANIFOLD_USE_CUDA=ON ; TODO: need to set this depending on options/availability
-        -DMANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
+        -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
+        -DMANIFOLD_PAR=OMP
         ..)
        (run make))))
     (copy
@@ -80,8 +79,8 @@
         -DMANIFOLD_EXPORT=ON
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
-        -DMANIFOLD_USE_CUDA=ON ; TODO: need to set this depending on options/availability
-        -DMANIFOLD_PAR=OMP ; TODO: need to set this depending on options/availability
+        -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
+        -DMANIFOLD_PAR=OMP
         ..)
        (run make))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)

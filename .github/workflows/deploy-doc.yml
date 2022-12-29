@@ -19,6 +19,9 @@ jobs:
 
       - run: opam install . --deps-only --with-doc
 
+      - name: pull in submodules (manifold and dependencies)
+        run: git submodule update --recursive
+
       - name: Build docs
         run: |
           opam exec -- dune build @doc
