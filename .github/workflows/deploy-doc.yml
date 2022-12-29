@@ -30,11 +30,11 @@ jobs:
 
       - name: TEST: try to build manifold (outside of dune)
       - run: |
-        cd c/vendor/manifold
-        mkdir build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DMANIFOLD_EXPORT=ON -DMANIFOLD_CBIND=ON -DMANIFOLD_USE_CUDA=OFF -DMANIFOLD_PAR=OMP -DMANIFOLD_PYBIND=OFF ..
-        make
+          cd c/vendor/manifold
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DMANIFOLD_EXPORT=ON -DMANIFOLD_CBIND=ON -DMANIFOLD_USE_CUDA=OFF -DMANIFOLD_PAR=OMP -DMANIFOLD_PYBIND=OFF ..
+          make
 
       - name: Build docs
         run: |
