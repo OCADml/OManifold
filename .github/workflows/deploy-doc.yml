@@ -20,7 +20,8 @@ jobs:
       - run: opam install . --deps-only --with-doc
 
       - name: pull in submodules (manifold and dependencies)
-        run: git submodule update --recursive
+        run: |
+          git submodule update --init --recursive
 
       - name: Build docs
         run: |
