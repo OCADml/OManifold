@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy-doc:
+  build-test-and-deploy-doc:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -29,8 +29,7 @@ jobs:
       - name: Pull in submodules (manifold and dependencies)
         run: git submodule update --init --recursive
 
-
-      - name: TEST -> try to build manifold (outside of dune)
+      - name: Build manifold (outside of dune)
         run: |
           cd c/vendor/manifold
           mkdir build

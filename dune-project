@@ -28,5 +28,6 @@
    (>= 4.14.0))
   ctypes
   ctypes-foreign
+  conf-cmake
   (OCADml
    (>= 0.1.0))))

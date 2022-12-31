@@ -32,8 +32,8 @@ runtime lock, only sequential (without multiprocessing or GPU acceleration)
 execution of sdfs defined here are possible, thus performance will be slower
 than using {{:https://github.com/elalish/manifold} Manifold} or another SDF CAD
 library such as {{:https://github.com/libfive/libfive} libfive} directly.
-- {{!OManifold.Sdf2} [Sdf2]} -- 2d signed distance fields (extrudable to [Sdf3.t])
-- {{!OManifold.Sdf3} [Sdf3]} -- 3d signed distance fields
+- {{!OManifold.Sdf2} [Sdf2]} -- 2d signed distance functions (extrudable to [Sdf3.t])
+- {{!OManifold.Sdf3} [Sdf3]} -- 3d signed distance functions
 
 {2 IO}
 - {{!OManifold.MMesh} [MMesh]} -- manifold's 3d mesh input/output representation
@@ -42,7 +42,7 @@ library such as {{:https://github.com/libfive/libfive} libfive} directly.
 
 {1:alternatives OCADml integration alternatives}
 
-This library only provides a means of performing boolean operations, validation,
+This library provides a means of performing boolean operations, validation,
 and export of triangular meshes generated with OCADml without the need to run an
 additional tool. At this time however, the user experience, particularly in
 debugging non-manifold meshes may be smoother using {{:https://github.io/OSCADml} OSCADml},

@@ -180,7 +180,14 @@ let smooth ?(smoothness = []) m =
   let idx_ptr = CArray.start edge_idxs
   and k_ptr = CArray.start edge_ks in
   let _ = C.Funcs.manifold_smooth buf m idx_ptr k_ptr (size_of_int len) in
-  t
+  match status t with
+  | NoError -> Ok t
+  | e -> Error (Status.to_string e)
+
+let smooth_exn ?smoothness m =
+  match smooth ?smoothness m with
+  | Ok t -> t
+  | Error e -> failwith (Printf.sprintf "Faiure to build smooth Manifold from mesh: %s" e)
 
 let compose ts =
   let buf, t = alloc () in

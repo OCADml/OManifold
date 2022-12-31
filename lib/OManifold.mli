@@ -456,7 +456,39 @@ module Manifold : sig
   val of_mmesh_exn : ?properties:MMesh.properties -> MMesh.t -> t
   val of_mesh : Mesh.t -> (t, string) result
   val of_mesh_exn : Mesh.t -> t
-  val smooth : ?smoothness:(int * float) list -> MMesh.t -> t
+
+  (** [smooth ?smoothness m]
+
+       Constructs a smooth version of the input mesh [m] by creating tangents,
+       returning an error if you have already supplied tangents for it. The actual
+       triangle resolution is unchanged, thus you will likely want to follow up
+       with {!refine} to interpolate to higher-resolution curves.
+
+       By default, every edge is calculated for maximum smoothness (very much
+       approximately), attempting to minimize the maximum mean Curvature magnitude.
+       No higher-order derivatives are considered, as the interpolation is
+       independent per triangle, only sharing constraints on their boundaries.
+       To control the relative smoothness at particular halfedges (ideally
+       limited to a small subset of all halfedges), [smoothness] can be provided
+       with [(index, s)] pairs specifying a smoothness factor [s] between [0.]
+       and [1.] for the [index] interperpreted as [3 * triangle + {0,1,2}] where
+       [0] is the edge between the first and second vertices of the [triangle].
+
+       At a smoothness value of zero, a sharp crease is made. The smoothness is
+       interpolated along each edge, so the specified value should be thought of as
+       an average. Where exactly two sharpened edges meet at a vertex, their
+       tangents are rotated to be colinear so that the sharpened edge can be
+       continuous. Vertices with only one sharpened edge are completely smooth,
+       allowing sharpened edges to smoothly vanish at termination. A single vertex
+       can be sharpened by sharping all edges that are incident on it, allowing
+       cones to be formed. *)
+  val smooth : ?smoothness:(int * float) list -> MMesh.t -> (t, string) result
+
+  (** [smooth_exn ?smoothness m]
+
+       Same as {!smooth}, but raising [Failure] rather than returning [Error]. *)
+  val smooth_exn : ?smoothness:(int * float) list -> MMesh.t -> t
+
   val to_mmesh : t -> MMesh.t
   val to_mmeshgl : t -> MMeshGL.t
   val to_mesh : t -> Mesh.t
