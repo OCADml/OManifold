@@ -452,9 +452,35 @@ module Manifold : sig
 
   (** {1 Mesh Conversions} *)
 
+  (** [of_mmesh ?properties m]
+
+       Create a manifold from the mesh [m], returning [Error] if [m] is not an
+       oriented 2-manifold. Will collapse degenerate triangles and unnecessary
+       vertices. If [properties] is provided, it will be used to determine which
+       coplanar triangles can be safely merged due to all properties being colinear
+       (the properties themselves are not stored as part of the {!Mmesh.t}). Any
+       edges that define property boundaries will be retained in the output of
+       arbitrary boolean operations such that these properties can be properly
+       reapplied to the result using the {!MeshRelation.t}. *)
   val of_mmesh : ?properties:MMesh.properties -> MMesh.t -> (t, string) result
+
+  (** [of_mmesh_exn ?properties m]
+
+       Same as {!of_mmesh}, but raising a [Failure] rather than returning an
+       [Error]. *)
   val of_mmesh_exn : ?properties:MMesh.properties -> MMesh.t -> t
+
+  (** [of_mesh m]
+
+       Create a manifold from an OCADml mesh [m], returning [Error] if [m] is
+       not an oriented 2-manifold. Will collapse degenerate triangles and
+       unnecessary vertices. *)
   val of_mesh : Mesh.t -> (t, string) result
+
+  (** [of_mesh_exn ?properties m]
+
+       Same as {!of_mesh}, but raising a [Failure] rather than returning an
+       [Error]. *)
   val of_mesh_exn : Mesh.t -> t
 
   (** [smooth ?smoothness m]
@@ -489,8 +515,19 @@ module Manifold : sig
        Same as {!smooth}, but raising [Failure] rather than returning [Error]. *)
   val smooth_exn : ?smoothness:(int * float) list -> MMesh.t -> t
 
+  (** [to_mmesh t]
+
+       Obtain a mesh describing the shape of the manifold [t]. *)
   val to_mmesh : t -> MMesh.t
+
+  (** [to_mmeshgl t]
+
+       Obtain a graphics library (gl) friendly mesh representation of the manifold [t]. *)
   val to_mmeshgl : t -> MMeshGL.t
+
+  (** [to_mesh t]
+
+       Obtain an OCADml mesh describing the shape ot the manifold [t]. *)
   val to_mesh : t -> Mesh.t
 
   (** {1 2D to 3D} *)
@@ -773,6 +810,7 @@ module Sdf2 : sig
 end
 
 module Sdf3 : sig
+  (** A negative inside, positive outside signed-distance function. *)
   type t = v3 -> float
 
   (** {1 Shapes} *)
@@ -807,6 +845,23 @@ module Sdf3 : sig
 
   (** {1 Mesh Generation} *)
 
+  (** [to_mmesh ?level ?edge_length ~box t]
+
+       Constructs a level-set Mesh from the signed-distance function [t].
+       This uses a form of Marching Tetrahedra (akin to Marching Cubes, but better
+       for manifoldness). Instead of using a cubic grid, it uses a body-centered
+       cubic grid (two shifted cubic grids). This means if your function's interior
+       exceeds the given bounds, you will see a kind of egg-crate shape closing off
+       the manifold, which is due to the underlying grid. The output is
+       guaranteed to be manifold, thus should always be an appropriate input to
+       {!Manifold.of_mmesh}.
+
+      - [box] is and axis-aligned bounding box defining the extent of the grid
+        overwhich [t] is evaluated
+      - [edge_length] is the the approximate maximum edge length of the triangles
+        in the final result. This affects grid spacing, thus strongly impacting performance.
+      - [level] can be provided with a positive value to inset the mesh, or a
+        negative value to outset it (default is [0.] -- no offset) *)
   val to_mmesh : ?level:float -> ?edge_length:float -> box:Box.t -> t -> MMesh.t
 end
 
