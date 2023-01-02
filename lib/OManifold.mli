@@ -10,6 +10,14 @@ module Curvature : sig
       }
   end
 
+  (** Computed vertex curvatures of a {!Manifold.t}
+
+     The inverse of the radius of curvature, and signed such that
+     positive is convex and negative is concave. There are two orthogonal
+     principal curvatures at any point on a manifold, with one maximum and the
+     other minimum. Gaussian curvature is their product, while mean curvature is
+     their sum. This approximates them for every vertex (returned as vectors in
+     the structure) and also returns their minimum and maximum values. *)
   type t =
     { bounds : Bounds.t
     ; vert_mean : float list
@@ -20,16 +28,20 @@ end
 module MeshRelation : sig
   module BaryRef : sig
     type t =
-      { mesh_id : int
-      ; original_id : int
-      ; tri : int
+      { mesh_id : int (** unique ID to the particular instance of the mesh *)
+      ; original_id : int (** ID corresponding to the source mesh *)
+      ; tri : int (** triangle index in the source mesh to which {!vert_bary} refers *)
       ; vert_bary : int * int * int
+            (** an index for each vertex into the {!barycentric} list if that
+   index is [>= 0], indicating it is a new vertex, otherwise, if the index is [<
+    0], this indicates it is an original vertex (the [index + 3] vertex of the
+   reference triangle) *)
       }
   end
 
   type t =
     { barycentric : v3 list
-    ; tri_bary : BaryRef.t list
+    ; tri_bary : BaryRef.t list (** same length as {!MMesh.points} *)
     }
 end
 
@@ -271,6 +283,8 @@ end
 
 module Manifold : sig
   module Id : sig
+    (** Unique identifier for a manifold {!type:t}, or a tag indicating that it
+          is the result of transformations/operations on original/product manifolds *)
     type t =
       | Original of int
       | Product
@@ -282,6 +296,7 @@ module Manifold : sig
     val to_int : t -> int
   end
 
+  (** Spatial properties of a {!Manifold.t}, returned by {!val:size} *)
   type size =
     { surface_area : float
     ; volume : float
@@ -328,90 +343,6 @@ module Manifold : sig
        disconnected. If everything is connected, the result is singular copy of
        the original. It is the inverse operation of {!compose}. *)
   val decompose : t -> t list
-
-  (** {1 Data Extraction} *)
-
-  (** [original_id t]
-
-       If this mesh is an original, this returns its
-       {!MeshRelation.BaryRef.mesh_id} that can be referenced by product manifolds'
-       {!MeshRelation.t}. *)
-  val original_id : t -> Id.t
-
-  (** [num_vert t]
-
-       The number of vertices in the manifold [t]. *)
-  val num_vert : t -> int
-
-  (** [num_edge t]
-
-       The number of edges in the manifold [t]. *)
-  val num_edge : t -> int
-
-  (** [num_tri t]
-
-       The number of triangles in the manifold [t]. *)
-  val num_tri : t -> int
-
-  (** [bounding_box t]
-
-       Return the axis-aligned bounding box of all of the manifold [t]'s
-       vertices. *)
-  val bounding_box : t -> Box.t
-
-  (** [precision t]
-       Returns the precision of this manifold's vertices, which tracks the
-       approximate rounding error over all the transforms and operations that have
-       led to this state. Any triangles that are colinear within this precision are
-       considered degenerate and removed. This is the value of &epsilon; defining
-       {{:https://github.com/elalish/manifold/wiki/manifold-Library#definition-of-%CE%B5-valid}
-       &epsilon;-valid}. *)
-  val precision : t -> float
-
-  (** [genus t]
-
-       The genus is a topological property of the manifold, representing the
-       number of "handles". A sphere is 0, torus 1, etc. It is only meaningful
-       for a single mesh, so it is best use {!decompose} first. *)
-  val genus : t -> int
-
-  (** [size t]
-
-       The physical size (surface area and volume) of the manifold [t]. *)
-  val size : t -> size
-
-  (** [curvature t]
-
-       The inverse of the radius of curvature, and signed such that
-       positive is convex and negative is concave. There are two orthogonal
-       principal curvatures at any point on a manifold, with one maximum and the
-       other minimum. Gaussian curvature is their product, while mean curvature is
-       their sum. This approximates them for every vertex (returned as vectors in
-       the structure) and also returns their minimum and maximum values. *)
-  val curvature : t -> Curvature.t
-
-  (** [mesh_relation t]
-
-       Gets the relationship to the previous meshes, for the purpose of
-       assigning properties like texture coordinates. The
-       {!MeshRelation.tri_bary} vector is the same length as
-       {!MMesh.points}: {!MeshRelation.BaryRef.original_id} indicates the source
-       mesh and {!MeshRelation.BaryRef.tri} is that mesh's triangle index to which
-       these barycentric coordinates refer. {!MeshRelation.BaryRef.vert_bary} gives
-       an index for each vertex into the barycentric vector if that index is >= 0,
-       indicating it is a new vertex. If the index is < 0, this indicates it is an
-       original vertex, the index + 3 vert of the referenced triangle.
-
-       {!MeshRelation.BaryRef.mesh_id} is a unique ID to the particular instance
-       of a given mesh.  For instance, if you want to convert the triangle mesh to a
-       polygon mesh, all the triangles from a given face will have the same
-       [mesh_id] and [tri] values. *)
-  val mesh_relation : t -> MeshRelation.t
-
-  (** [points t]
-
-       Retrieve the points making up the meshes of the manifold [t]. *)
-  val points : t -> v3 list
 
   (** {1 Shapes} *)
 
@@ -727,6 +658,90 @@ module Manifold : sig
        not describe a valid manifold. *)
   val hull_exn : t list -> t
 
+  (** {1 Data Extraction} *)
+
+  (** [original_id t]
+
+       If this mesh is an original, this returns its
+       {!MeshRelation.BaryRef.mesh_id} that can be referenced by product manifolds'
+       {!MeshRelation.t}. *)
+  val original_id : t -> Id.t
+
+  (** [num_vert t]
+
+       The number of vertices in the manifold [t]. *)
+  val num_vert : t -> int
+
+  (** [num_edge t]
+
+       The number of edges in the manifold [t]. *)
+  val num_edge : t -> int
+
+  (** [num_tri t]
+
+       The number of triangles in the manifold [t]. *)
+  val num_tri : t -> int
+
+  (** [bounding_box t]
+
+       Return the axis-aligned bounding box of all of the manifold [t]'s
+       vertices. *)
+  val bounding_box : t -> Box.t
+
+  (** [precision t]
+       Returns the precision of this manifold's vertices, which tracks the
+       approximate rounding error over all the transforms and operations that have
+       led to this state. Any triangles that are colinear within this precision are
+       considered degenerate and removed. This is the value of &epsilon; defining
+       {{:https://github.com/elalish/manifold/wiki/manifold-Library#definition-of-%CE%B5-valid}
+       &epsilon;-valid}. *)
+  val precision : t -> float
+
+  (** [genus t]
+
+       The genus is a topological property of the manifold, representing the
+       number of "handles". A sphere is 0, torus 1, etc. It is only meaningful
+       for a single mesh, so it is best use {!decompose} first. *)
+  val genus : t -> int
+
+  (** [size t]
+
+       The physical size (surface area and volume) of the manifold [t]. *)
+  val size : t -> size
+
+  (** [curvature t]
+
+       The inverse of the radius of curvature, and signed such that
+       positive is convex and negative is concave. There are two orthogonal
+       principal curvatures at any point on a manifold, with one maximum and the
+       other minimum. Gaussian curvature is their product, while mean curvature is
+       their sum. This approximates them for every vertex (returned as vectors in
+       the structure) and also returns their minimum and maximum values. *)
+  val curvature : t -> Curvature.t
+
+  (** [mesh_relation t]
+
+       Gets the relationship to the previous meshes, for the purpose of
+       assigning properties like texture coordinates. The
+       {!MeshRelation.tri_bary} vector is the same length as
+       {!MMesh.points}: {!MeshRelation.BaryRef.original_id} indicates the source
+       mesh and {!MeshRelation.BaryRef.tri} is that mesh's triangle index to which
+       these barycentric coordinates refer. {!MeshRelation.BaryRef.vert_bary} gives
+       an index for each vertex into the barycentric vector if that index is >= 0,
+       indicating it is a new vertex. If the index is < 0, this indicates it is an
+       original vertex, the index + 3 vert of the referenced triangle.
+
+       {!MeshRelation.BaryRef.mesh_id} is a unique ID to the particular instance
+       of a given mesh.  For instance, if you want to convert the triangle mesh to a
+       polygon mesh, all the triangles from a given face will have the same
+       [mesh_id] and [tri] values. *)
+  val mesh_relation : t -> MeshRelation.t
+
+  (** [points t]
+
+       Retrieve the points making up the meshes of the manifold [t]. *)
+  val points : t -> v3 list
+
   (** {1:quality Quality Globals}
 
        Akin to {{:https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/The_OpenSCAD_Language#$fa,_$fs_and_$fn}OpenSCAD}'s facet governing "special"
@@ -866,6 +881,9 @@ module Sdf3 : sig
 end
 
 module Export : sig
+  (** Writing manifold meshes to disk via {{:https://github.com/assimp/assimp}
+    Open Asset Import Library (assimp)}. *)
+
   module Material : sig
     type t
 
@@ -879,6 +897,7 @@ module Export : sig
   end
 
   module Opts : sig
+    (** Export options *)
     type t
 
     val make : ?faceted:bool -> ?material:Material.t -> unit -> t

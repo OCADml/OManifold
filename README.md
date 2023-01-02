@@ -25,9 +25,23 @@ let () =
   Export.manifold "example.glb" (Manifold.sub s cyl)
 ```
 
+## External Dependencies
+
+- [libassimp](https://github.com/assimp/assimp), used for export of meshes from
+  the `Manifold.t` and [`MMesh.t`] types
+- [OpenMP](https://www.openmp.org/) linkage is `ON` for the Manifold build
+- The vendored Manifold library is linked with
+ [cuda](https://developer.nvidia.com/cuda-toolkit) if the library is found on
+ the system, otherwise it is built without
+
 ## Documentation
 
 Documentation for OManifold is available
 [online](https://geoffder.github.io/OManifold/OManifold/index.html), covering the
 [API](https://geoffder.github.io/OManifold/OManifold/index.html#api). Referring
-to the [manual](https://ocadml.github.io/OCADml/OCADml/index.html) for [OCADml](https://github.com/OCADml/OCADml) is also likely to be helpful.
+to the [manual](https://ocadml.github.io/OCADml/OCADml/index.html) for
+[OCADml](https://github.com/OCADml/OCADml) is also likely to be helpful.
+Finally, as many of the usage examples found in the [OSCADml
+documentation](https://OCADml.github.io/OSCADml/OSCADml/index.html#examples) are
+largely OCADml centric, they can serve as a reference until similar efforts are
+made in this repository.
