@@ -389,7 +389,7 @@ module Manifold : sig
        oriented 2-manifold. Will collapse degenerate triangles and unnecessary
        vertices. If [properties] is provided, it will be used to determine which
        coplanar triangles can be safely merged due to all properties being colinear
-       (the properties themselves are not stored as part of the {!Mmesh.t}). Any
+       (the properties themselves are not stored as part of the {!MMesh.t}). Any
        edges that define property boundaries will be retained in the output of
        arbitrary boolean operations such that these properties can be properly
        reapplied to the result using the {!MeshRelation.t}. *)
