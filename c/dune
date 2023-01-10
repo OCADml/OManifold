@@ -54,12 +54,14 @@
         ..)
        (run make))))
     (copy
-     vendor/manifold/build_so/bindings/c/libmanifoldc.so
-     dllmanifoldc.so)
+     vendor/manifold/build_so/bindings/c/libmanifoldc%{ext_dll}
+     dllmanifoldc%{ext_dll})
     (copy
-     vendor/manifold/build_so/src/manifold/libmanifold.so
-     dllmanifold.so)
-    (copy vendor/manifold/build_so/test/meshIO/libmeshIO.so dllmeshIO.so)))))
+     vendor/manifold/build_so/src/manifold/libmanifold%{ext_dll}
+     dllmanifold%{ext_dll})
+    (copy
+     vendor/manifold/build_so/test/meshIO/libmeshIO%{ext_dll}
+     dllmeshIO%{ext_dll})))))
 
 (rule
  (targets libmanifoldc.a libmanifold.a libmeshIO.a)
