@@ -45,3 +45,15 @@ Finally, as many of the usage examples found in the [OSCADml
 documentation](https://OCADml.github.io/OSCADml/OSCADml/index.html#examples) are
 largely OCADml centric, they can serve as a reference until similar efforts are
 made in this repository.
+
+# Building
+
+Manifold is vendored as a git submodule, so make sure to add
+`--recurse-submodules` when cloning, or run `git submodule update --init
+--recursive` to update the submodule if already cloned.
+
+```
+git clone --recurse-submodules https://github.com/geoffder/OManifold
+cd OManifold
+dune build
+```

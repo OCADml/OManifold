@@ -18,8 +18,8 @@ let%test "uncollected" =
 let%test "box" =
   let a = v3 0. 0. 0.
   and b = v3 2. 2. 2. in
-  let box = Box.make a b in
-  V3.(equal (Box.min box) a && equal (Box.max box) b)
+  let box = MBox.make a b in
+  V3.(equal (MBox.min box) a && equal (MBox.max box) b)
 
 let%test "warp" =
   let s = Manifold.sphere 10. in

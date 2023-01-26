@@ -167,14 +167,13 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let () = seal t
   end
 
-  module BaryRef = struct
-    type t = [ `BaryRef ] structure
+  module TriRef = struct
+    type t = [ `TriRef ] structure
 
-    let t : t typ = structure "ManifoldBaryRef"
+    let t : t typ = structure "ManifoldTriRef"
     let mesh_id = field t "mesh_id" int
     let original_id = field t "original_id" int
     let tri = field t "tri" int
-    let vert_bary = field t "vert_bary" IVec3.t
     let () = seal t
   end
 

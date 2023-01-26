@@ -26,23 +26,15 @@ module Curvature : sig
 end
 
 module MeshRelation : sig
-  module BaryRef : sig
+  module TriRef : sig
     type t =
       { mesh_id : int (** unique ID to the particular instance of the mesh *)
       ; original_id : int (** ID corresponding to the source mesh *)
-      ; tri : int (** triangle index in the source mesh to which {!vert_bary} refers *)
-      ; vert_bary : int * int * int
-            (** an index for each vertex into the {!barycentric} list if that
-   index is [>= 0], indicating it is a new vertex, otherwise, if the index is [<
-    0], this indicates it is an original vertex (the [index + 3] vertex of the
-   reference triangle) *)
+      ; tri : int (** triangle index in the source mesh *)
       }
   end
 
-  type t =
-    { barycentric : v3 list
-    ; tri_bary : BaryRef.t list (** same length as {!MMesh.points} *)
-    }
+  type t = { tri_ref : TriRef.t list (** same length as {!MMesh.points} *) }
 end
 
 module Polygons : sig
@@ -166,13 +158,15 @@ module MMeshGL : sig
 
   (** {1 Data Extraction} *)
 
-  val points : t -> float list
+  val num_prop : t -> int
+  val num_vert : t -> int
+  val num_tri : t -> int
+  val properties : t -> float list
   val triangles : t -> int list
-  val normals : t -> float list
   val halfedge_tangents : t -> float list
 end
 
-module Box : sig
+module MBox : sig
   (** The 3-dimensional bounding box representation of the Manifold library. *)
   type t
 
@@ -269,16 +263,16 @@ module Box : sig
 
   (** {1 OCADml conversion} *)
 
-  (** [of_bbox b]
+  (** [of_box b]
 
        Construct a manifold box from the bounds of the 3d OCADml bounding box [b]. *)
-  val of_bbox : V3.bbox -> t
+  val of_box : Box3.t -> t
 
-  (** [to_bbox t]
+  (** [to_box t]
 
        Return the minimum and maximum bounds of the manifold box [t] as an
        OCADml bounding box. *)
-  val to_bbox : t -> V3.bbox
+  val to_box : t -> Box3.t
 end
 
 module Manifold : sig
@@ -319,7 +313,7 @@ module Manifold : sig
   (** [as_original t]
 
        If you copy a manifold, but you want this new copy to have new properties
-       (e.g. a different UV mapping), you can reset its {!MeshRelation.BaryRef.mesh_id} to a new original,
+       (e.g. a different UV mapping), you can reset its {!MeshRelation.TriRef.mesh_id} to a new original,
        meaning it will now be referenced by its descendents instead of the meshes it
        was built from, allowing you to differentiate the copies when applying your
        properties to the final result.
@@ -663,7 +657,7 @@ module Manifold : sig
   (** [original_id t]
 
        If this mesh is an original, this returns its
-       {!MeshRelation.BaryRef.mesh_id} that can be referenced by product manifolds'
+       {!MeshRelation.TriRef.mesh_id} that can be referenced by product manifolds'
        {!MeshRelation.t}. *)
   val original_id : t -> Id.t
 
@@ -686,7 +680,7 @@ module Manifold : sig
 
        Return the axis-aligned bounding box of all of the manifold [t]'s
        vertices. *)
-  val bounding_box : t -> Box.t
+  val bounding_box : t -> MBox.t
 
   (** [precision t]
        Returns the precision of this manifold's vertices, which tracks the
@@ -724,14 +718,14 @@ module Manifold : sig
        Gets the relationship to the previous meshes, for the purpose of
        assigning properties like texture coordinates. The
        {!MeshRelation.tri_bary} vector is the same length as
-       {!MMesh.points}: {!MeshRelation.BaryRef.original_id} indicates the source
-       mesh and {!MeshRelation.BaryRef.tri} is that mesh's triangle index to which
-       these barycentric coordinates refer. {!MeshRelation.BaryRef.vert_bary} gives
+       {!MMesh.points}: {!MeshRelation.TriRef.original_id} indicates the source
+       mesh and {!MeshRelation.TriRef.tri} is that mesh's triangle index to which
+       these barycentric coordinates refer. {!MeshRelation.TriRef.vert_bary} gives
        an index for each vertex into the barycentric vector if that index is >= 0,
        indicating it is a new vertex. If the index is < 0, this indicates it is an
        original vertex, the index + 3 vert of the referenced triangle.
 
-       {!MeshRelation.BaryRef.mesh_id} is a unique ID to the particular instance
+       {!MeshRelation.TriRef.mesh_id} is a unique ID to the particular instance
        of a given mesh.  For instance, if you want to convert the triangle mesh to a
        polygon mesh, all the triangles from a given face will have the same
        [mesh_id] and [tri] values. *)
@@ -877,7 +871,7 @@ module Sdf3 : sig
         in the final result. This affects grid spacing, thus strongly impacting performance.
       - [level] can be provided with a positive value to inset the mesh, or a
         negative value to outset it (default is [0.] -- no offset) *)
-  val to_mmesh : ?level:float -> ?edge_length:float -> box:Box.t -> t -> MMesh.t
+  val to_mmesh : ?level:float -> ?edge_length:float -> box:MBox.t -> t -> MMesh.t
 end
 
 module Export : sig

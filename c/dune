@@ -38,7 +38,8 @@
  (action
   (no-infer
    (progn
-    (ignore-outputs
+    (with-outputs-to
+     cmake_shared.log
      (chdir
       vendor/manifold/build_so
       (progn
@@ -70,7 +71,8 @@
  (action
   (no-infer
    (progn
-    (ignore-outputs
+    (with-outputs-to
+     cmake_static.log
      (chdir
       vendor/manifold/build_a
       (progn

@@ -83,7 +83,7 @@ let num_edge t = C.Funcs.manifold_num_edge t
 let num_tri t = C.Funcs.manifold_num_tri t
 
 let bounding_box t =
-  let buf, box = Box.alloc () in
+  let buf, box = MBox.alloc () in
   let _ = C.Funcs.manifold_bounding_box buf t in
   box
 
@@ -118,9 +118,9 @@ let sphere ?(fn = 0) rad =
   let _ = C.Funcs.manifold_sphere buf rad fn in
   t
 
-let cube ?(center = false) { x; y; z } =
+let cube ?(center = false) d =
   let buf, t = alloc () in
-  let _ = C.Funcs.manifold_cube buf x y z (Bool.to_int center) in
+  let _ = V3.(C.Funcs.manifold_cube buf (x d) (y d) (z d) (Bool.to_int center)) in
   t
 
 let cylinder ?(center = false) ?(fn = 0) ~height r =
@@ -252,13 +252,13 @@ let split a b =
 let split_by_plane plane t =
   let buf1, first = alloc ()
   and buf2, second = alloc ()
-  and { x; y; z; w } = Plane.to_v4 plane in
+  and x, y, z, w = Plane.to_tup plane in
   let _ = C.Funcs.manifold_split_by_plane buf1 buf2 t x y z w in
   first, second
 
 let trim_by_plane plane t =
   let buf, trimmed = alloc ()
-  and { x; y; z; w } = Plane.to_v4 plane in
+  and x, y, z, w = Plane.to_tup plane in
   let _ = C.Funcs.manifold_trim_by_plane buf t x y z w in
   trimmed
 
@@ -273,9 +273,9 @@ let warp f t =
   let _ = C.Funcs.manifold_warp buf t f in
   warped
 
-let translate { x; y; z } t =
+let translate p t =
   let buf, translated = alloc () in
-  let _ = C.Funcs.manifold_translate buf t x y z in
+  let _ = V3.(C.Funcs.manifold_translate buf t (x p) (y p) (z p)) in
   translated
 
 let[@inline] xtrans x t = translate (v3 x 0. 0.) t
@@ -283,10 +283,10 @@ let[@inline] ytrans y t = translate (v3 0. y 0.) t
 let[@inline] ztrans z t = translate (v3 0. 0. z) t
 
 let rotate ?about r t =
-  let { x; y; z } = V3.deg_of_rad r in
+  let r = V3.deg_of_rad r in
   let rot t =
     let buf, rotated = alloc () in
-    let _ = C.Funcs.manifold_rotate buf t x y z in
+    let _ = V3.(C.Funcs.manifold_rotate buf t (x r) (y r) (z r)) in
     rotated
   in
   match about with
@@ -300,21 +300,22 @@ let[@inline] zrot z t = rotate (v3 0. 0. z) t
 let affine (a : Affine3.t) t =
   let buf, transformed = alloc () in
   let _ =
+    let open Gg.M4 in
     C.Funcs.manifold_transform
       buf
       t
-      a.r0c0
-      a.r1c0
-      a.r2c0
-      a.r0c1
-      a.r1c1
-      a.r2c1
-      a.r0c2
-      a.r1c2
-      a.r2c2
-      a.r0c3
-      a.r1c3
-      a.r2c3
+      (e00 a)
+      (e10 a)
+      (e20 a)
+      (e01 a)
+      (e11 a)
+      (e21 a)
+      (e02 a)
+      (e12 a)
+      (e22 a)
+      (e03 a)
+      (e13 a)
+      (e23 a)
   in
   transformed
 
@@ -326,9 +327,9 @@ let quaternion ?about q t =
 
 let axis_rotate ?about ax angle t = quaternion ?about (Quaternion.make ax angle) t
 
-let scale { x; y; z } t =
+let scale s t =
   let buf, scaled = alloc () in
-  let _ = C.Funcs.manifold_scale buf t x y z in
+  let _ = V3.(C.Funcs.manifold_scale buf t (x s) (y s) (z s)) in
   scaled
 
 let[@inline] xscale x t = scale (v3 x 1. 1.) t
@@ -358,7 +359,7 @@ let extrude
     | Some s, tw when Float.(abs tw /. (2. *. pi) < 1.) -> s
     | fn, tw -> Util.helical_slices ?fa ?fn tw
   in
-  let _ = C.Funcs.manifold_extrude buf polys h slices tw scale.x scale.y in
+  let _ = C.Funcs.manifold_extrude buf polys h slices tw (V2.x scale) (V2.y scale) in
   if center then ztrans (h /. -2.) t else t
 
 let revolve ?(fn = 0) polys =

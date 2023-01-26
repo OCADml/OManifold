@@ -8,45 +8,57 @@ let cube ?round (dims : v3) =
   let dims =
     match round with
     | None -> V3.(dims /$ 2.)
-    | Some r -> v3 ((dims.x /. 2.) -. r) ((dims.y /. 2.) -. r) ((dims.z /. 2.) -. r)
+    | Some r -> V3.(v ((x dims /. 2.) -. r) ((y dims /. 2.) -. r) ((z dims /. 2.) -. r))
   in
   let f (p : v3) =
-    let q = Float.(v3 (abs p.x -. dims.x) (abs p.y -. dims.y) (abs p.z -. dims.z)) in
-    let len = Float.(V3.norm (v3 (max q.x 0.) (max q.y 0.) (max q.z 0.))) in
-    Float.(neg @@ (len +. min (max q.x (max q.y q.z)) 0.))
+    let q =
+      V3.(
+        v
+          (Float.abs (x p) -. x dims)
+          (Float.abs (y p) -. y dims)
+          (Float.abs (z p) -. z dims))
+    in
+    let len =
+      Float.(V3.norm (v3 (max (V3.x q) 0.) (max (V3.y q) 0.) (max (V3.z q) 0.)))
+    in
+    Float.(neg @@ (len +. min (max (V3.x q) (max (V3.y q) (V3.z q))) 0.))
   in
   match round with
   | None -> f
   | Some r -> fun p -> f p +. r
 
 let torus (v : v2) (p : v3) =
-  let q = v2 (V2.norm (v2 p.x p.z) -. v.x) p.y in
-  Float.neg @@ (V2.norm q -. v.y)
+  let q = v2 (V2.norm (v2 (V3.x p) (V3.z p)) -. V2.x v) (V3.y p) in
+  Float.neg @@ (V2.norm q -. V2.y v)
 
 let cylinder ?round ~height r =
   match round with
   | None ->
     let h = height /. 2. in
-    fun (p : v3) ->
-      let d = v2 (Float.abs p.z -. h) (Float.abs (V2.norm (v2 p.x p.y)) -. r) in
-      Float.(neg (min (max d.x d.y) 0. +. V2.norm (v2 (max d.x 0.) (max d.y 0.))))
+    fun p ->
+      let d =
+        v2 (Float.abs (V3.z p) -. h) (Float.abs (V2.norm (v2 (V3.x p) (V3.y p))) -. r)
+      in
+      Float.(neg V2.(min (max (x d) (y d)) 0. +. norm (v2 (max (x d) 0.) (max (y d) 0.))))
   | Some rnd ->
     let h = (height /. 2.) -. rnd in
-    fun (p : v3) ->
-      let d = v2 (Float.abs p.z -. h) (V2.norm (v2 p.x p.y) -. (r -. rnd)) in
-      Float.(neg (min (max d.x d.y) 0. +. V2.norm (v2 (max d.x 0.) (max d.y 0.)) -. rnd))
+    fun p ->
+      let d = V3.(v2 (Float.abs (z p) -. h) (V2.norm (v2 (x p) (y p)) -. (r -. rnd))) in
+      Float.(
+        neg
+          V2.(min (max (x d) (y d)) 0. +. norm (v2 (max (x d) 0.) (max (y d) 0.)) -. rnd))
 
 let round r (t : t) p = t p +. r
 let onion r (t : t) p = r -. Float.abs (t p)
 
 let elongate h t =
-  let hx = h.V3.x /. 2.
-  and hy = h.y /. 2.
-  and hz = h.z /. 2. in
+  let hx = V3.x h /. 2.
+  and hy = V3.y h /. 2.
+  and hz = V3.z h /. 2. in
   fun p ->
-    let x = Float.abs p.V3.x -. hx
-    and y = Float.abs p.y -. hy
-    and z = Float.abs p.z -. hz in
+    let x = Float.abs (V3.x p) -. hx
+    and y = Float.abs (V3.y p) -. hy
+    and z = Float.abs (V3.z p) -. hz in
     let w = Float.(min (max x (max y z)) 0.) in
     t Float.(v3 (max x 0. +. w) (max y 0. +. w) (max z 0. +. w))
 

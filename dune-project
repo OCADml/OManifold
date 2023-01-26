@@ -21,13 +21,16 @@
 
 (package
  (name OManifold)
- (synopsis "OCaml bindings to the Manifold solid modelling library.")
- (description "OCaml bindings to the Manifold solid modelling library.")
+ (synopsis "OCaml bindings to the Manifold solid modelling library")
+ (description "OCaml bindings to the Manifold solid modelling library")
  (depends
   (ocaml
    (>= 4.14.0))
   ctypes
   ctypes-foreign
   conf-cmake
+  (gg
+   (>= 1.0.0))
   (OCADml
-   (>= 0.1.0))))
+   (>= 0.3.0))
+  conf-assimp))

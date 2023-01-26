@@ -18,23 +18,23 @@ let ivec3_to_list_rev v = [ getf v IVec3.z; getf v IVec3.y; getf v IVec3.x ]
 
 let vec2_of_v2 (v : v2) =
   let vec = make Vec2.t in
-  setf vec Vec2.x v.x;
-  setf vec Vec2.y v.y;
+  setf vec Vec2.x (V2.x v);
+  setf vec Vec2.y (V2.y v);
   vec
 
 let vec3_of_v3 (v : v3) =
   let vec = make Vec3.t in
-  setf vec Vec3.x v.x;
-  setf vec Vec3.y v.y;
-  setf vec Vec3.z v.z;
+  setf vec Vec3.x (V3.x v);
+  setf vec Vec3.y (V3.y v);
+  setf vec Vec3.z (V3.z v);
   vec
 
 let vec4_of_v4 (v : v4) =
   let vec = make Vec4.t in
-  setf vec Vec4.x v.x;
-  setf vec Vec4.y v.y;
-  setf vec Vec4.z v.z;
-  setf vec Vec4.w v.w;
+  setf vec Vec4.x (Gg.V4.x v);
+  setf vec Vec4.y (Gg.V4.y v);
+  setf vec Vec4.z (Gg.V4.z v);
+  setf vec Vec4.w (Gg.V4.w v);
   vec
 
 let ivec3_of_tup (x, y, z) =

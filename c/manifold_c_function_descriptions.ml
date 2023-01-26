@@ -82,25 +82,15 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_get_mesh_relation"
       (ptr void @-> ptr Manifold.t @-> returning (ptr MeshRelation.t))
 
-  let mesh_relation_barycentric_length =
+  let mesh_relation_tri_ref_length =
     foreign
-      "manifold_mesh_relation_barycentric_length"
+      "manifold_mesh_relation_tri_ref_length"
       (ptr MeshRelation.t @-> returning size_t)
 
-  let mesh_relation_barycentric =
+  let mesh_relation_tri_ref =
     foreign
-      "manifold_mesh_relation_barycentric"
-      (ptr void @-> ptr MeshRelation.t @-> returning (ptr Vec3.t))
-
-  let mesh_relation_tri_bary_length =
-    foreign
-      "manifold_mesh_relation_tri_bary_length"
-      (ptr MeshRelation.t @-> returning size_t)
-
-  let mesh_relation_tri_bary =
-    foreign
-      "manifold_mesh_relation_tri_bary"
-      (ptr void @-> ptr MeshRelation.t @-> returning (ptr BaryRef.t))
+      "manifold_mesh_relation_tri_ref"
+      (ptr void @-> ptr MeshRelation.t @-> returning (ptr TriRef.t))
 
   let mesh_vert_length =
     foreign "manifold_mesh_vert_length" (ptr Mesh.t @-> returning size_t)
@@ -130,21 +120,25 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_mesh_halfedge_tangent"
       (ptr void @-> ptr Mesh.t @-> returning (ptr Vec4.t))
 
-  let meshgl_vert_length =
-    foreign "manifold_meshgl_vert_length" (ptr MeshGL.t @-> returning size_t)
+  let meshgl_num_prop = foreign "manifold_meshgl_num_prop" (ptr MeshGL.t @-> returning int)
+  let meshgl_num_vert = foreign "manifold_meshgl_num_vert" (ptr MeshGL.t @-> returning int)
+  let meshgl_num_tri = foreign "manifold_meshgl_num_tri" (ptr MeshGL.t @-> returning int)
+
+  let meshgl_vert_properties_length =
+    foreign "manifold_meshgl_vert_properties_length" (ptr MeshGL.t @-> returning size_t)
 
   let meshgl_tri_length =
     foreign "manifold_meshgl_tri_length" (ptr MeshGL.t @-> returning size_t)
 
-  let meshgl_normal_length =
-    foreign "manifold_meshgl_normal_length" (ptr MeshGL.t @-> returning size_t)
+  let meshgl_merge_length =
+    foreign "manifold_meshgl_merge_length" (ptr MeshGL.t @-> returning size_t)
 
   let meshgl_tangent_length =
     foreign "manifold_meshgl_tangent_length" (ptr MeshGL.t @-> returning size_t)
 
-  let meshgl_vert_pos =
+  let meshgl_vert_properties =
     foreign
-      "manifold_meshgl_vert_pos"
+      "manifold_meshgl_vert_properties"
       (ptr void @-> ptr MeshGL.t @-> returning (ptr float))
 
   let meshgl_tri_verts =
@@ -152,10 +146,15 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_meshgl_tri_verts"
       (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
 
-  let meshgl_vert_normal =
+  let meshgl_merge_from_vert =
     foreign
-      "manifold_meshgl_vert_normal"
-      (ptr void @-> ptr MeshGL.t @-> returning (ptr float))
+      "manifold_meshgl_merge_from_vert"
+      (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
+
+  let meshgl_merge_to_vert =
+    foreign
+      "manifold_meshgl_merge_to_vert"
+      (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
 
   let meshgl_halfedge_tangent =
     foreign
