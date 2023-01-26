@@ -37,8 +37,8 @@ let () =
 ## Documentation
 
 Documentation for OManifold is available
-[online](https://geoffder.github.io/OManifold/OManifold/index.html), covering the
-[API](https://geoffder.github.io/OManifold/OManifold/index.html#api). Referring
+[online](https://ocadml.github.io/OManifold/OManifold/index.html), covering the
+[API](https://ocadml.github.io/OManifold/OManifold/index.html#api). Referring
 to the [manual](https://ocadml.github.io/OCADml/OCADml/index.html) for
 [OCADml](https://github.com/OCADml/OCADml) is also likely to be helpful.
 Finally, as many of the usage examples found in the [OSCADml

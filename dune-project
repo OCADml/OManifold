@@ -9,9 +9,9 @@
 (generate_opam_files true)
 
 (source
- (github geoffder/omanifold))
+ (github ocadml/omanifold))
 
-(documentation https://geoffder.github.io/omanifold)
+(documentation https://ocadml.github.io/omanifold)
 
 (license GPL-2.0-or-later)
 
