@@ -46,7 +46,7 @@ documentation](https://OCADml.github.io/OSCADml/OSCADml/index.html#examples) are
 largely OCADml centric, they can serve as a reference until similar efforts are
 made in this repository.
 
-# Building
+## Building
 
 Manifold is vendored as a git submodule, so make sure to add
 `--recurse-submodules` when cloning, or run `git submodule update --init
