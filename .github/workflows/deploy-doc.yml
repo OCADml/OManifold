@@ -24,6 +24,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install build-essential libassimp-dev
+          opam update
           opam install . --deps-only --with-doc
 
       - name: Pull in submodules (manifold and dependencies)
