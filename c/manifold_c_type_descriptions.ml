@@ -8,8 +8,12 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let not_manifold = constant "NOT_MANIFOLD" int64_t
     let vertex_index_out_of_bounds = constant "VERTEX_INDEX_OUT_OF_BOUNDS" int64_t
     let properties_wrong_length = constant "PROPERTIES_WRONG_LENGTH" int64_t
-    let tri_properties_wrong_length = constant "TRI_PROPERTIES_WRONG_LENGTH" int64_t
-    let tri_properties_out_of_bounds = constant "TRI_PROPERTIES_OUT_OF_BOUNDS" int64_t
+    let missing_position_properties = constant "MISSING_POSITION_PROPERTIES" int64_t
+
+    let merge_vectors_different_lengths =
+      constant "MERGE_VECTORS_DIFFERENT_LENGTHS" int64_t
+
+    let merge_index_out_of_bounds = constant "MERGE_INDEX_OUT_OF_BOUNDS" int64_t
 
     type t =
       | NoError
@@ -17,8 +21,9 @@ module Types (F : Cstubs.Types.TYPE) = struct
       | NotManifold
       | VertexIndexOutOfBounds
       | PropertiesWrongLength
-      | TriPropertiesWrongLength
-      | TriPropertiesOutOfBounds
+      | MissingPositionProperties
+      | MergeVectorsDifferentLengths
+      | MergeIndexOutOfBounds
 
     let t =
       enum
@@ -28,8 +33,9 @@ module Types (F : Cstubs.Types.TYPE) = struct
         ; NotManifold, not_manifold
         ; VertexIndexOutOfBounds, vertex_index_out_of_bounds
         ; PropertiesWrongLength, properties_wrong_length
-        ; TriPropertiesWrongLength, tri_properties_wrong_length
-        ; TriPropertiesOutOfBounds, tri_properties_out_of_bounds
+        ; MissingPositionProperties, missing_position_properties
+        ; MergeVectorsDifferentLengths, merge_vectors_different_lengths
+        ; MergeIndexOutOfBounds, merge_index_out_of_bounds
         ]
         ~unexpected:(fun _ -> assert false)
   end
@@ -50,12 +56,6 @@ module Types (F : Cstubs.Types.TYPE) = struct
     type t = [ `Polygons ] structure
 
     let t : t typ = structure "ManifoldPolygons"
-  end
-
-  module Mesh = struct
-    type t = [ `Mesh ] structure
-
-    let t : t typ = structure "ManifoldMesh"
   end
 
   module MeshGL = struct
@@ -83,12 +83,6 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let surface_area = field t "surface_area" float
     let volume = field t "volume" float
     let () = seal t
-  end
-
-  module MeshRelation = struct
-    type t = [ `MeshRelation ] structure
-
-    let t : t typ = structure "ManifoldMeshRelation"
   end
 
   module Box = struct
@@ -164,16 +158,6 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let t : t typ = structure "ManifoldPolyVert"
     let pos = field t "pos" Vec2.t
     let idx = field t "idx" int
-    let () = seal t
-  end
-
-  module TriRef = struct
-    type t = [ `TriRef ] structure
-
-    let t : t typ = structure "ManifoldTriRef"
-    let mesh_id = field t "mesh_id" int
-    let original_id = field t "original_id" int
-    let tri = field t "tri" int
     let () = seal t
   end
 

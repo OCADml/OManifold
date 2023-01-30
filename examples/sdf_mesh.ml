@@ -12,9 +12,9 @@ let () =
     |> Sdf3.onion 1.
     |> Fun.flip Sdf3.difference Sdf3.(ztrans 5. @@ cube (v3 18. 18. 10.))
   and box = MBox.make bb_max (V3.neg bb_max) in
-  let mesh = Sdf3.to_mmesh ~edge_length:1. ~box f in
-  match Manifold.of_mmesh mesh with
-  | Ok m -> Export.mmesh "sdf_mesh.stl" @@ Manifold.to_mmesh m
+  let mesh = Sdf3.to_mmeshgl ~edge_length:1. ~box f in
+  match Manifold.of_mmeshgl mesh with
+  | Ok m -> Export.mmeshgl "sdf_mesh.stl" @@ Manifold.to_mmeshgl m
   | Error e -> failwith (Printf.sprintf "Sdf mesh is non-manifold: %s" e)
 
 let () =
@@ -26,7 +26,7 @@ let () =
     |> Sdf3.translate (v3 5. 0. 0.)
     (* Sdf2.rhombus (v2 6. 3.) |> Sdf2.round 1. |> Sdf2.onion 1. |> Sdf2.revolve *)
   and box = MBox.make bb_max (V3.neg bb_max) in
-  let mesh = Sdf3.to_mmesh ~edge_length:1. ~box f in
-  match Manifold.of_mmesh mesh with
-  | Ok m -> Export.mmesh "sdf_extrude.stl" @@ Manifold.to_mmesh m
+  let mesh = Sdf3.to_mmeshgl ~edge_length:1. ~box f in
+  match Manifold.of_mmeshgl mesh with
+  | Ok m -> Export.mmeshgl "sdf_extrude.stl" @@ Manifold.to_mmeshgl m
   | Error e -> failwith (Printf.sprintf "Sdf extrusion is non-manifold: %s" e)

@@ -32,3 +32,22 @@ let man =
   Manifold.(add (ztrans 2. top) (ztrans (-2.) @@ xrot Float.pi top))
 
 let () = Export.manifold "eased_morph.stl" man
+
+(* FIXME: Consider making an issue at Manifold about this. This model was fine
+    previously, before updating to the recent mesh relation related changes.
+   - the eased morph example results in a broken model when the OCADml mesh is
+    processed into a Manifold
+   - direct output from MeshGL is fine (unmanipulated, but shows that it isn't
+    my translation code)
+   - the same mesh renders without error in OpenSCAD *)
+let () =
+  Export.mmeshgl "eased_morph_direct.stl"
+  @@ MMeshGL.of_mesh
+  @@ Mesh.morph
+       ~refine:2
+       ~ez:(v2 0.42 0., v2 1. 1.)
+       ~slices:60
+       ~outer_map:`Tangent
+       ~height:3.
+       (Poly2.ring ~fn:5 ~thickness:(v2 0.5 0.5) (v2 4. 4.))
+       (Poly2.ring ~fn:80 ~thickness:(v2 0.2 0.2) (v2 1. 1.))

@@ -8,8 +8,9 @@ module Status = struct
     | NotManifold
     | VertexIndexOutOfBounds
     | PropertiesWrongLength
-    | TriPropertiesWrongLength
-    | TriPropertiesOutOfBounds
+    | MissingPositionProperties
+    | MergeVectorsDifferentLengths
+    | MergeIndexOutOfBounds
 
   let to_string = function
     | NoError -> "NO_ERROR"
@@ -17,8 +18,9 @@ module Status = struct
     | NotManifold -> "NOT_MANIFOLD"
     | VertexIndexOutOfBounds -> "VERTEX_INDEX_OUT_OF_BOUNDS"
     | PropertiesWrongLength -> "PROPERTIES_WRONG_LENGTH"
-    | TriPropertiesWrongLength -> "TRI_PROPERTIES_WRONG_LENGTH"
-    | TriPropertiesOutOfBounds -> "TRI_PROPERTIES_OUT_OF_BOUNDS"
+    | MissingPositionProperties -> "MISSING_POSITION_PROPERTIES"
+    | MergeVectorsDifferentLengths -> "MERGE_VECTORS_DIFFERENT_LENGTHS"
+    | MergeIndexOutOfBounds -> "MERGE_INDEX_OUT_OF_BOUNDS"
 end
 
 module Id = struct
@@ -101,11 +103,6 @@ let curvature t =
   let _ = C.Funcs.manifold_get_curvature buf t in
   Curvature.of_ptr curv
 
-let mesh_relation t =
-  let buf, rel = MeshRelation.alloc () in
-  let _ = C.Funcs.manifold_get_mesh_relation buf t in
-  MeshRelation.of_ptr rel
-
 (* Shapes *)
 
 let tetrahedron () =
@@ -133,36 +130,15 @@ let cone ?(center = false) ?(fn = 0) ~height r1 r2 =
   let _ = C.Funcs.manifold_cylinder buf height r1 r2 fn (Bool.to_int center) in
   t
 
-let of_mmesh ?properties m =
+let of_mmeshgl m =
   let buf, t = alloc () in
-  let _ =
-    match properties with
-    | None -> C.Funcs.manifold_of_mesh buf m
-    | Some MMesh.{ tris; props; tolerances } ->
-      let open Ctypes in
-      let len_tris = List.length tris
-      and len_props = List.length props
-      and len_tols = List.length tolerances in
-      let ts = CArray.make C.Types.IVec3.t len_tris
-      and ps = CArray.make Ctypes.float len_props
-      and tols = CArray.make Ctypes.float len_tols in
-      List.iteri (fun i tri -> CArray.set ts i (ivec3_of_tup tri)) tris;
-      List.iteri (fun i p -> CArray.set ps i p) props;
-      List.iteri (fun i tol -> CArray.set tols i tol) tolerances;
-      C.Funcs.manifold_of_mesh_props
-        buf
-        m
-        (CArray.start ts)
-        (CArray.start ps)
-        (CArray.start tols)
-        (size_of_int len_tols)
-  in
+  let _ = C.Funcs.manifold_of_meshgl buf m in
   match status t with
   | NoError -> Ok t
   | e -> Error (Status.to_string e)
 
-let of_mmesh_exn ?properties m =
-  match of_mmesh ?properties m with
+let of_mmeshgl_exn m =
+  match of_mmeshgl m with
   | Ok t -> t
   | Error e -> failwith (Printf.sprintf "Faiure to build Manifold from mesh: %s" e)
 
@@ -379,20 +355,15 @@ let set_min_circular_edge_length fs = C.Funcs.manifold_set_min_circular_edge_len
 
 (* Mesh Conversion *)
 
-let to_mmesh t =
-  let buf, mesh = MMesh.alloc () in
-  let _ = C.Funcs.manifold_get_mesh buf t in
-  mesh
-
 let to_mmeshgl t =
   let buf, mesh = MMeshGL.alloc () in
   let _ = C.Funcs.manifold_get_meshgl buf t in
   mesh
 
-let points t = MMesh.points (to_mmesh t)
-let of_mesh m = of_mmesh @@ MMesh.of_mesh m
-let of_mesh_exn m = of_mmesh_exn @@ MMesh.of_mesh m
-let to_mesh t = MMesh.to_mesh @@ to_mmesh t
+let points t = MMeshGL.points (to_mmeshgl t)
+let of_mesh ?rev m = of_mmeshgl @@ MMeshGL.of_mesh ?rev m
+let of_mesh_exn ?rev m = of_mmeshgl_exn @@ MMeshGL.of_mesh ?rev m
+let to_mesh t = MMeshGL.to_mesh @@ to_mmeshgl t
 
 (* Extras *)
 

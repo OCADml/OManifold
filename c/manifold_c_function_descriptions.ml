@@ -17,55 +17,28 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   (* Mesh Construction *)
 
-  let mesh =
+  let meshgl =
     foreign
-      "manifold_mesh"
+      "manifold_meshgl"
       ( ptr void
-      @-> ptr Vec3.t
+      @-> ptr float
       @-> size_t
-      @-> ptr IVec3.t
       @-> size_t
-      @-> returning (ptr Mesh.t) )
+      @-> ptr uint32_t
+      @-> size_t
+      @-> returning (ptr MeshGL.t) )
 
-  let mesh_w_normals =
+  let meshgl_w_tangents =
     foreign
-      "manifold_mesh_w_normals"
+      "manifold_meshgl_w_tangents"
       ( ptr void
-      @-> ptr Vec3.t
+      @-> ptr float
       @-> size_t
-      @-> ptr IVec3.t
       @-> size_t
-      @-> ptr Vec3.t
-      @-> returning (ptr Mesh.t) )
-
-  let mesh_w_tangents =
-    foreign
-      "manifold_mesh_w_tangents"
-      ( ptr void
-      @-> ptr Vec3.t
+      @-> ptr uint32_t
       @-> size_t
-      @-> ptr IVec3.t
-      @-> size_t
-      @-> ptr Vec4.t
-      @-> returning (ptr Mesh.t) )
-
-  let mesh_w_normals_tangents =
-    foreign
-      "manifold_mesh_w_normals_tangents"
-      ( ptr void
-      @-> ptr Vec3.t
-      @-> size_t
-      @-> ptr IVec3.t
-      @-> size_t
-      @-> ptr Vec3.t
-      @-> ptr Vec4.t
-      @-> returning (ptr Mesh.t) )
-
-  let manifold_get_mesh =
-    foreign "manifold_get_mesh" (ptr void @-> ptr Manifold.t @-> returning (ptr Mesh.t))
-
-  let mesh_copy =
-    foreign "manifold_mesh_copy" (ptr void @-> ptr Mesh.t @-> returning (ptr Mesh.t))
+      @-> ptr float
+      @-> returning (ptr MeshGL.t) )
 
   let manifold_get_meshgl =
     foreign
@@ -76,49 +49,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign "manifold_meshgl_copy" (ptr void @-> ptr MeshGL.t @-> returning (ptr MeshGL.t))
 
   (* Mesh Info  *)
-
-  let manifold_get_mesh_relation =
-    foreign
-      "manifold_get_mesh_relation"
-      (ptr void @-> ptr Manifold.t @-> returning (ptr MeshRelation.t))
-
-  let mesh_relation_tri_ref_length =
-    foreign
-      "manifold_mesh_relation_tri_ref_length"
-      (ptr MeshRelation.t @-> returning size_t)
-
-  let mesh_relation_tri_ref =
-    foreign
-      "manifold_mesh_relation_tri_ref"
-      (ptr void @-> ptr MeshRelation.t @-> returning (ptr TriRef.t))
-
-  let mesh_vert_length =
-    foreign "manifold_mesh_vert_length" (ptr Mesh.t @-> returning size_t)
-
-  let mesh_tri_length =
-    foreign "manifold_mesh_tri_length" (ptr Mesh.t @-> returning size_t)
-
-  let mesh_normal_length =
-    foreign "manifold_mesh_normal_length" (ptr Mesh.t @-> returning size_t)
-
-  let mesh_tangent_length =
-    foreign "manifold_mesh_tangent_length" (ptr Mesh.t @-> returning size_t)
-
-  let mesh_vert_pos =
-    foreign "manifold_mesh_vert_pos" (ptr void @-> ptr Mesh.t @-> returning (ptr Vec3.t))
-
-  let mesh_tri_verts =
-    foreign "manifold_mesh_tri_verts" (ptr void @-> ptr Mesh.t @-> returning (ptr IVec3.t))
-
-  let mesh_vert_normal =
-    foreign
-      "manifold_mesh_vert_normal"
-      (ptr void @-> ptr Mesh.t @-> returning (ptr Vec3.t))
-
-  let mesh_halfedge_tangent =
-    foreign
-      "manifold_mesh_halfedge_tangent"
-      (ptr void @-> ptr Mesh.t @-> returning (ptr Vec4.t))
 
   let meshgl_num_prop = foreign "manifold_meshgl_num_prop" (ptr MeshGL.t @-> returning int)
   let meshgl_num_vert = foreign "manifold_meshgl_num_vert" (ptr MeshGL.t @-> returning int)
@@ -132,6 +62,15 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let meshgl_merge_length =
     foreign "manifold_meshgl_merge_length" (ptr MeshGL.t @-> returning size_t)
+
+  let meshgl_run_index_length =
+    foreign "manifold_meshgl_run_index_length" (ptr MeshGL.t @-> returning size_t)
+
+  let meshgl_original_id_length =
+    foreign "manifold_meshgl_original_id_length" (ptr MeshGL.t @-> returning size_t)
+
+  let meshgl_face_id_length =
+    foreign "manifold_meshgl_face_id_length" (ptr MeshGL.t @-> returning size_t)
 
   let meshgl_tangent_length =
     foreign "manifold_meshgl_tangent_length" (ptr MeshGL.t @-> returning size_t)
@@ -154,6 +93,21 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let meshgl_merge_to_vert =
     foreign
       "manifold_meshgl_merge_to_vert"
+      (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
+
+  let meshgl_run_index =
+    foreign
+      "manifold_meshgl_run_index"
+      (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
+
+  let meshgl_original_id =
+    foreign
+      "manifold_meshgl_original_id"
+      (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
+
+  let meshgl_face_id =
+    foreign
+      "manifold_meshgl_face_id"
       (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
 
   let meshgl_halfedge_tangent =
@@ -190,25 +144,14 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_sphere =
     foreign "manifold_sphere" (ptr void @-> float @-> int @-> returning (ptr Manifold.t))
 
-  let manifold_of_mesh =
-    foreign "manifold_of_mesh" (ptr void @-> ptr Mesh.t @-> returning (ptr Manifold.t))
-
-  let manifold_of_mesh_props =
-    foreign
-      "manifold_of_mesh_props"
-      ( ptr void
-      @-> ptr Mesh.t
-      @-> ptr IVec3.t
-      @-> ptr float
-      @-> ptr float
-      @-> size_t
-      @-> returning (ptr Manifold.t) )
+  let manifold_of_meshgl =
+    foreign "manifold_of_meshgl" (ptr void @-> ptr MeshGL.t @-> returning (ptr Manifold.t))
 
   let manifold_smooth =
     foreign
       "manifold_smooth"
       ( ptr void
-      @-> ptr Mesh.t
+      @-> ptr MeshGL.t
       @-> ptr int
       @-> ptr float
       @-> size_t
@@ -515,7 +458,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
       @-> ptr Box.t
       @-> float
       @-> float
-      @-> returning (ptr Mesh.t) )
+      @-> returning (ptr MeshGL.t) )
 
   (* Export *)
   let material = foreign "manifold_material" (ptr void @-> returning (ptr Material.t))
@@ -547,10 +490,10 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_export_options_set_material"
       (ptr ExportOptions.t @-> ptr Material.t @-> returning void)
 
-  let export_mesh =
+  let export_meshgl =
     foreign
-      "manifold_export_mesh"
-      (ptr char @-> ptr Mesh.t @-> ptr ExportOptions.t @-> returning void)
+      "manifold_export_meshgl"
+      (ptr char @-> ptr MeshGL.t @-> ptr ExportOptions.t @-> returning void)
 
   (* Sizes for allocation *)
 
@@ -561,15 +504,10 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let polygons_size = foreign "manifold_polygons_size" (void @-> returning size_t)
   let pair_size = foreign "manifold_manifold_pair_size" (void @-> returning size_t)
-  let mesh_size = foreign "manifold_mesh_size" (void @-> returning size_t)
   let meshgl_size = foreign "manifold_meshgl_size" (void @-> returning size_t)
   let box_size = foreign "manifold_box_size" (void @-> returning size_t)
   let curvature_size = foreign "manifold_curvature_size" (void @-> returning size_t)
   let components_size = foreign "manifold_components_size" (void @-> returning size_t)
-
-  let mesh_relation_size =
-    foreign "manifold_mesh_relation_size" (void @-> returning size_t)
-
   let material_size = foreign "manifold_material_size" (void @-> returning size_t)
 
   let export_options_size =
@@ -586,8 +524,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let destruct_polygons =
     foreign "manifold_destruct_polygons" (ptr Polygons.t @-> returning void)
 
-  let destruct_mesh = foreign "manifold_destruct_mesh" (ptr Mesh.t @-> returning void)
-
   let destruct_meshgl =
     foreign "manifold_destruct_meshgl" (ptr MeshGL.t @-> returning void)
 
@@ -598,9 +534,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let destruct_components =
     foreign "manifold_destruct_components" (ptr Components.t @-> returning void)
-
-  let destruct_mesh_relation =
-    foreign "manifold_destruct_mesh_relation" (ptr MeshRelation.t @-> returning void)
 
   let destruct_material =
     foreign "manifold_destruct_material" (ptr Material.t @-> returning void)
@@ -619,7 +552,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let delete_polygons =
     foreign "manifold_delete_polygons" (ptr Polygons.t @-> returning void)
 
-  let delete_mesh = foreign "manifold_delete_mesh" (ptr Mesh.t @-> returning void)
   let delete_meshgl = foreign "manifold_delete_meshgl" (ptr MeshGL.t @-> returning void)
   let delete_box = foreign "manifold_delete_box" (ptr Box.t @-> returning void)
 
@@ -628,9 +560,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let delete_components =
     foreign "manifold_delete_components" (ptr Components.t @-> returning void)
-
-  let delete_mesh_relation =
-    foreign "manifold_delete_mesh_relation" (ptr MeshRelation.t @-> returning void)
 
   let delete_material =
     foreign "manifold_delete_material" (ptr Material.t @-> returning void)

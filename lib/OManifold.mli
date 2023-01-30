@@ -25,18 +25,6 @@ module Curvature : sig
     }
 end
 
-module MeshRelation : sig
-  module TriRef : sig
-    type t =
-      { mesh_id : int (** unique ID to the particular instance of the mesh *)
-      ; original_id : int (** ID corresponding to the source mesh *)
-      ; tri : int (** triangle index in the source mesh *)
-      }
-  end
-
-  type t = { tri_ref : TriRef.t list (** same length as {!MMesh.points} *) }
-end
-
 module Polygons : sig
   type t
 
@@ -76,22 +64,9 @@ module Polygons : sig
   val of_poly2s : Poly2.t list -> t
 end
 
-module MMesh : sig
-  (** Mesh properties which can optionally be provided to {!Manifold.of_mmesh}. *)
-  type properties =
-    { tris : (int * int * int) list (** Indices into props for each tri of the mesh *)
-    ; props : float list
-          (** Sets of property values, the length of which should be the largest
-                 index in [tris] times the length of [tolerances] (the number of properties).
-                 Think of it as a property matrix indexed as [idx * n_tolerances + tolerance_idx]. *)
-    ; tolerances : float list
-          (** Precision values. This is the amount of interpolation error allowed
-              before two neighouring triangles are considered not coplanar.
-              A good place to start is [1e-5] times the largest value you expect
-              this property to take. *)
-    }
-
-  (** The 3-dimensional mesh representation of the Manifold library. *)
+module MMeshGL : sig
+  (** A graphics library friendly representation of manifold's {!MMesh.t}.
+       Obtained solely via {!Manifold.to_mmeshgl} *)
   type t
 
   (** {1 Constructor} *)
@@ -112,27 +87,28 @@ module MMesh : sig
 
   (** {1 Data Extraction} *)
 
-  (** [points t]
-
-       Retrieve the points making up the mesh [t]. *)
-  val points : t -> v3 list
-
-  (** [triangles t]
-
-       Retrieve the triangular faces of the mesh [t] as triples of indices into
-       its {!points}. *)
-  val triangles : t -> (int * int * int) list
-
-  (** [normals t]
-
-       Retrieve the vertex normals of the mesh [t] (same length as {!points}). *)
-  val normals : t -> v3 list
+  val num_prop : t -> int
+  val num_vert : t -> int
+  val num_tri : t -> int
+  val properties : t -> float list
+  val triangles : t -> int list
 
   (** [halfedge_tangents t]
 
        Retrieve the halfedge tangents of the mesh [t] (three for each of the
        [t]'s {!triangles}). *)
-  val halfedge_tangents : t -> v4 list
+  val halfedge_tangents : t -> float list
+
+  (** [points t]
+
+       Retrieve the points making up the mesh [t]. *)
+  val points : t -> v3 list
+
+  (** [faces t]
+
+       Retrieve the triangular faces of the mesh [t] as triples of indices into
+       its {!points}. *)
+  val faces : t -> int list list
 
   (** {1 OCADml conversion}
 
@@ -140,30 +116,17 @@ module MMesh : sig
       winding convention (opposite to manifold) the triangles/faces are
       reversed. *)
 
-  (** [of_mesh m]
+  (** [of_mesh ?rev m]
 
-       Create a manifold mesh from the [OCADml.Mesh.t] [m].  *)
-  val of_mesh : Mesh.t -> t
+       Create a manifold mesh from the [OCADml.Mesh.t] [m]. If [rev] is [true]
+       (as it is by default), faces of the input mesh are reversed (as the
+       winding convention in OCADml is opposite to Manifold) *)
+  val of_mesh : ?rev:bool -> Mesh.t -> t
 
   (** [to_mesh t]
 
        Create an [OCADml.Mesh.t] from the manifold mesh [t].  *)
   val to_mesh : t -> Mesh.t
-end
-
-module MMeshGL : sig
-  (** A graphics library friendly representation of manifold's {!MMesh.t}.
-       Obtained solely via {!Manifold.to_mmeshgl} *)
-  type t
-
-  (** {1 Data Extraction} *)
-
-  val num_prop : t -> int
-  val num_vert : t -> int
-  val num_tri : t -> int
-  val properties : t -> float list
-  val triangles : t -> int list
-  val halfedge_tangents : t -> float list
 end
 
 module MBox : sig
@@ -313,15 +276,15 @@ module Manifold : sig
   (** [as_original t]
 
        If you copy a manifold, but you want this new copy to have new properties
-       (e.g. a different UV mapping), you can reset its {!MeshRelation.TriRef.mesh_id} to a new original,
-       meaning it will now be referenced by its descendents instead of the meshes it
-       was built from, allowing you to differentiate the copies when applying your
-       properties to the final result.
+       (e.g. a different UV mapping), you can reset its relational ids (as found
+       in {!MeshGl.t} to new originals, meaning it will now be referenced by its
+       descendents instead of the meshes it was built from, allowing you to
+       differentiate the copies when applying your properties to the final result.
 
        This function also condenses all coplanar faces in the relation, and
        collapses those edges. If you want to have inconsistent properties across
        these faces, meaning you want to preserve some of these edges, you should
-       instead use {!to_mmesh}, calculate your properties and use these to construct
+       instead use {!to_meshgl}, calculate your properties and use these to construct
        a new manifold. *)
   val as_original : t -> t
 
@@ -377,36 +340,33 @@ module Manifold : sig
 
   (** {1 Mesh Conversions} *)
 
-  (** [of_mmesh ?properties m]
+  (** [of_mmeshgl m]
 
        Create a manifold from the mesh [m], returning [Error] if [m] is not an
        oriented 2-manifold. Will collapse degenerate triangles and unnecessary
-       vertices. If [properties] is provided, it will be used to determine which
-       coplanar triangles can be safely merged due to all properties being colinear
-       (the properties themselves are not stored as part of the {!MMesh.t}). Any
-       edges that define property boundaries will be retained in the output of
-       arbitrary boolean operations such that these properties can be properly
-       reapplied to the result using the {!MeshRelation.t}. *)
-  val of_mmesh : ?properties:MMesh.properties -> MMesh.t -> (t, string) result
+       vertices. *)
+  val of_mmeshgl : MMeshGL.t -> (t, string) result
 
-  (** [of_mmesh_exn ?properties m]
+  (** [of_mmeshgl_exn ?properties m]
 
        Same as {!of_mmesh}, but raising a [Failure] rather than returning an
        [Error]. *)
-  val of_mmesh_exn : ?properties:MMesh.properties -> MMesh.t -> t
+  val of_mmeshgl_exn : MMeshGL.t -> t
 
-  (** [of_mesh m]
+  (** [of_mesh ?rev m]
 
        Create a manifold from an OCADml mesh [m], returning [Error] if [m] is
        not an oriented 2-manifold. Will collapse degenerate triangles and
-       unnecessary vertices. *)
-  val of_mesh : Mesh.t -> (t, string) result
+       unnecessary vertices. If [rev] is [true] (as it is by default), faces of
+       the input mesh are reversed (as the winding convention in OCADml is opposite
+       to Manifold) *)
+  val of_mesh : ?rev:bool -> Mesh.t -> (t, string) result
 
-  (** [of_mesh_exn ?properties m]
+  (** [of_mesh_exn ?rev m]
 
        Same as {!of_mesh}, but raising a [Failure] rather than returning an
        [Error]. *)
-  val of_mesh_exn : Mesh.t -> t
+  val of_mesh_exn : ?rev:bool -> Mesh.t -> t
 
   (** [smooth ?smoothness m]
 
@@ -433,17 +393,12 @@ module Manifold : sig
        allowing sharpened edges to smoothly vanish at termination. A single vertex
        can be sharpened by sharping all edges that are incident on it, allowing
        cones to be formed. *)
-  val smooth : ?smoothness:(int * float) list -> MMesh.t -> (t, string) result
+  val smooth : ?smoothness:(int * float) list -> MMeshGL.t -> (t, string) result
 
   (** [smooth_exn ?smoothness m]
 
        Same as {!smooth}, but raising [Failure] rather than returning [Error]. *)
-  val smooth_exn : ?smoothness:(int * float) list -> MMesh.t -> t
-
-  (** [to_mmesh t]
-
-       Obtain a mesh describing the shape of the manifold [t]. *)
-  val to_mmesh : t -> MMesh.t
+  val smooth_exn : ?smoothness:(int * float) list -> MMeshGL.t -> t
 
   (** [to_mmeshgl t]
 
@@ -633,7 +588,7 @@ module Manifold : sig
        Increase the density of the meshes in [t] by splitting every edge into
        [n] pieces. For instance, with [n = 2], each triangle will be split into 4
        triangles. These will all be coplanar (and will not be immediately collapsed)
-       unless the contained {!MMesh.t} within has {!MMesh.halfedge_tangents}
+       unless the contained {!MMeshGL.t} within has {!MMeshGL.halfedge_tangents}
        specified (e.g. from the {!smooth} constructor), in which case the new
        vertices will be moved to the interpolated surface according to their
        barycentric coordinates. *)
@@ -656,9 +611,8 @@ module Manifold : sig
 
   (** [original_id t]
 
-       If this mesh is an original, this returns its
-       {!MeshRelation.TriRef.mesh_id} that can be referenced by product manifolds'
-       {!MeshRelation.t}. *)
+       If this mesh is an original, this returns it unique id that can be
+       referenced by product manifolds (for the purposes of reappling mesh properties). *)
   val original_id : t -> Id.t
 
   (** [num_vert t]
@@ -712,24 +666,6 @@ module Manifold : sig
        their sum. This approximates them for every vertex (returned as vectors in
        the structure) and also returns their minimum and maximum values. *)
   val curvature : t -> Curvature.t
-
-  (** [mesh_relation t]
-
-       Gets the relationship to the previous meshes, for the purpose of
-       assigning properties like texture coordinates. The
-       {!MeshRelation.tri_bary} vector is the same length as
-       {!MMesh.points}: {!MeshRelation.TriRef.original_id} indicates the source
-       mesh and {!MeshRelation.TriRef.tri} is that mesh's triangle index to which
-       these barycentric coordinates refer. {!MeshRelation.TriRef.vert_bary} gives
-       an index for each vertex into the barycentric vector if that index is >= 0,
-       indicating it is a new vertex. If the index is < 0, this indicates it is an
-       original vertex, the index + 3 vert of the referenced triangle.
-
-       {!MeshRelation.TriRef.mesh_id} is a unique ID to the particular instance
-       of a given mesh.  For instance, if you want to convert the triangle mesh to a
-       polygon mesh, all the triangles from a given face will have the same
-       [mesh_id] and [tri] values. *)
-  val mesh_relation : t -> MeshRelation.t
 
   (** [points t]
 
@@ -854,7 +790,7 @@ module Sdf3 : sig
 
   (** {1 Mesh Generation} *)
 
-  (** [to_mmesh ?level ?edge_length ~box t]
+  (** [to_mmeshgl ?level ?edge_length ~box t]
 
        Constructs a level-set Mesh from the signed-distance function [t].
        This uses a form of Marching Tetrahedra (akin to Marching Cubes, but better
@@ -871,7 +807,7 @@ module Sdf3 : sig
         in the final result. This affects grid spacing, thus strongly impacting performance.
       - [level] can be provided with a positive value to inset the mesh, or a
         negative value to outset it (default is [0.] -- no offset) *)
-  val to_mmesh : ?level:float -> ?edge_length:float -> box:MBox.t -> t -> MMesh.t
+  val to_mmeshgl : ?level:float -> ?edge_length:float -> box:MBox.t -> t -> MMeshGL.t
 end
 
 module Export : sig
@@ -897,6 +833,6 @@ module Export : sig
     val make : ?faceted:bool -> ?material:Material.t -> unit -> t
   end
 
-  val mmesh : ?opts:Opts.t -> string -> MMesh.t -> unit
+  val mmeshgl : ?opts:Opts.t -> string -> MMeshGL.t -> unit
   val manifold : ?opts:Opts.t -> string -> Manifold.t -> unit
 end

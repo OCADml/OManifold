@@ -118,9 +118,9 @@ let intersection ?smooth a b =
       let h = Math.clamp ~min:0. ~max:1. ((0.5 +. (0.5 *. (da -. db))) /. k) in
       Math.lerp da db h -. (k *. h *. (1. -. h))
 
-let to_mmesh ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
+let to_mmeshgl ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
   let sdf x y z = sdf (v3 x y z) in
-  let buf, mesh = MMesh.alloc ()
+  let buf, mesh = MMeshGL.alloc ()
   and f =
     Ctypes.(coerce (Foreign.funptr C.Funcs.sdf_t) (static_funptr C.Funcs.sdf_t) sdf)
   in
@@ -128,4 +128,4 @@ let to_mmesh ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
   mesh
 
 let to_mesh ?level ?edge_length ~box sdf =
-  MMesh.to_mesh @@ to_mmesh ?level ?edge_length ~box sdf
+  MMeshGL.to_mesh @@ to_mmeshgl ?level ?edge_length ~box sdf

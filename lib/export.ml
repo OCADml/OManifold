@@ -47,7 +47,7 @@ module Opts = struct
     t
 end
 
-let mmesh ?(opts = Opts.make ()) path mesh =
-  C.Funcs.export_mesh (Conv.string_to_ptr Ctypes_static.char path) mesh opts
+let mmeshgl ?(opts = Opts.make ()) path mesh =
+  C.Funcs.export_meshgl (Conv.string_to_ptr Ctypes_static.char path) mesh opts
 
-let manifold ?opts path man = mmesh ?opts path (Manifold.to_mmesh man)
+let manifold ?opts path man = mmeshgl ?opts path (Manifold.to_mmeshgl man)
