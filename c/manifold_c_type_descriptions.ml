@@ -3,17 +3,25 @@ module Types (F : Cstubs.Types.TYPE) = struct
   open F
 
   module Status = struct
-    let no_error = constant "NO_ERROR" int64_t
-    let non_finite_vertex = constant "NON_FINITE_VERTEX" int64_t
-    let not_manifold = constant "NOT_MANIFOLD" int64_t
-    let vertex_index_out_of_bounds = constant "VERTEX_INDEX_OUT_OF_BOUNDS" int64_t
-    let properties_wrong_length = constant "PROPERTIES_WRONG_LENGTH" int64_t
-    let missing_position_properties = constant "MISSING_POSITION_PROPERTIES" int64_t
+    let no_error = constant "MANIFOLD_NO_ERROR" int64_t
+    let non_finite_vertex = constant "MANIFOLD_NON_FINITE_VERTEX" int64_t
+    let not_manifold = constant "MANIFOLD_NOT_MANIFOLD" int64_t
+
+    let vertex_index_out_of_bounds =
+      constant "MANIFOLD_VERTEX_INDEX_OUT_OF_BOUNDS" int64_t
+
+    let properties_wrong_length = constant "MANIFOLD_PROPERTIES_WRONG_LENGTH" int64_t
+
+    let missing_position_properties =
+      constant "MANIFOLD_MISSING_POSITION_PROPERTIES" int64_t
 
     let merge_vectors_different_lengths =
-      constant "MERGE_VECTORS_DIFFERENT_LENGTHS" int64_t
+      constant "MANIFOLD_MERGE_VECTORS_DIFFERENT_LENGTHS" int64_t
 
-    let merge_index_out_of_bounds = constant "MERGE_INDEX_OUT_OF_BOUNDS" int64_t
+    let merge_index_out_of_bounds = constant "MANIFOLD_MERGE_INDEX_OUT_OF_BOUNDS" int64_t
+    let transform_wrong_length = constant "MANIFOLD_TRANSFORM_WRONG_LENGTH" int64_t
+    let run_index_wrong_length = constant "MANIFOLD_RUN_INDEX_WRONG_LENGTH" int64_t
+    let face_id_wrong_length = constant "MANIFOLD_FACE_ID_WRONG_LENGTH" int64_t
 
     type t =
       | NoError
@@ -24,6 +32,9 @@ module Types (F : Cstubs.Types.TYPE) = struct
       | MissingPositionProperties
       | MergeVectorsDifferentLengths
       | MergeIndexOutOfBounds
+      | TransformWrongLength
+      | RunIndexWrongLength
+      | FaceIDWrongLength
 
     let t =
       enum
@@ -36,6 +47,9 @@ module Types (F : Cstubs.Types.TYPE) = struct
         ; MissingPositionProperties, missing_position_properties
         ; MergeVectorsDifferentLengths, merge_vectors_different_lengths
         ; MergeIndexOutOfBounds, merge_index_out_of_bounds
+        ; TransformWrongLength, transform_wrong_length
+        ; RunIndexWrongLength, run_index_wrong_length
+        ; FaceIDWrongLength, face_id_wrong_length
         ]
         ~unexpected:(fun _ -> assert false)
   end

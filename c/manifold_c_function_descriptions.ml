@@ -66,8 +66,11 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let meshgl_run_index_length =
     foreign "manifold_meshgl_run_index_length" (ptr MeshGL.t @-> returning size_t)
 
-  let meshgl_original_id_length =
-    foreign "manifold_meshgl_original_id_length" (ptr MeshGL.t @-> returning size_t)
+  let meshgl_run_original_id_length =
+    foreign "manifold_meshgl_run_original_id_length" (ptr MeshGL.t @-> returning size_t)
+
+  let meshgl_run_transform_length =
+    foreign "manifold_meshgl_run_transform_length" (ptr MeshGL.t @-> returning size_t)
 
   let meshgl_face_id_length =
     foreign "manifold_meshgl_face_id_length" (ptr MeshGL.t @-> returning size_t)
@@ -100,10 +103,15 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_meshgl_run_index"
       (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
 
-  let meshgl_original_id =
+  let meshgl_run_original_id =
     foreign
-      "manifold_meshgl_original_id"
+      "manifold_meshgl_run_original_id"
       (ptr void @-> ptr MeshGL.t @-> returning (ptr uint32_t))
+
+  let meshgl_run_transform =
+    foreign
+      "manifold_meshgl_run_transform"
+      (ptr void @-> ptr MeshGL.t @-> returning (ptr float))
 
   let meshgl_face_id =
     foreign

@@ -47,8 +47,9 @@ let make ?normals ?tangents points triangles =
             points
             norms
         with
-      | Invalid_argument _ ->
-        invalid_arg "If normals are provided, their length must be the same as points." );
+        | Invalid_argument _ ->
+          invalid_arg "If normals are provided, their length must be the same as points."
+      );
       size_of_int 6, ps
   in
   let tris = Ctypes.(CArray.make uint32_t (len_tris * 3)) in
@@ -91,6 +92,10 @@ let properties_length t = C.Funcs.meshgl_vert_properties_length t
 let tri_length t = C.Funcs.meshgl_tri_length t
 let merge_length t = C.Funcs.meshgl_merge_length t
 let tangent_length t = C.Funcs.meshgl_tangent_length t
+let run_index_length t = C.Funcs.meshgl_run_index_length t
+let run_original_id_length t = C.Funcs.meshgl_run_original_id_length t
+let run_transform_length t = C.Funcs.meshgl_run_transform_length t
+let face_id_length t = C.Funcs.meshgl_face_id_length t
 
 let properties t =
   let len = size_to_int @@ properties_length t in
@@ -109,6 +114,30 @@ let halfedge_tangents t =
   let buf = Mem.allocate_buf (len * Ctypes.(sizeof float)) in
   let tans = C.Funcs.meshgl_halfedge_tangent buf t in
   List.init len Ctypes.(fun i -> !@(tans +@ i))
+
+let run_index t =
+  let len = size_to_int @@ run_index_length t in
+  let buf = Mem.allocate_buf (len * Ctypes.(sizeof uint32_t)) in
+  let tans = C.Funcs.meshgl_run_index buf t in
+  List.init len Ctypes.(fun i -> Unsigned.UInt32.to_int !@(tans +@ i))
+
+let run_original_id t =
+  let len = size_to_int @@ run_original_id_length t in
+  let buf = Mem.allocate_buf (len * Ctypes.(sizeof uint32_t)) in
+  let tans = C.Funcs.meshgl_run_original_id buf t in
+  List.init len Ctypes.(fun i -> Unsigned.UInt32.to_int !@(tans +@ i))
+
+let run_transform t =
+  let len = size_to_int @@ run_transform_length t in
+  let buf = Mem.allocate_buf (len * Ctypes.(sizeof float)) in
+  let tans = C.Funcs.meshgl_run_transform buf t in
+  List.init len Ctypes.(fun i -> !@(tans +@ i))
+
+let face_id t =
+  let len = size_to_int @@ face_id_length t in
+  let buf = Mem.allocate_buf (len * Ctypes.(sizeof uint32_t)) in
+  let tans = C.Funcs.meshgl_face_id buf t in
+  List.init len Ctypes.(fun i -> Unsigned.UInt32.to_int !@(tans +@ i))
 
 let points t =
   let len = size_to_int @@ properties_length t
@@ -130,7 +159,7 @@ let faces t =
         [ to_int !@(tris +@ (i * 3))
         ; to_int !@(tris +@ ((i * 3) + 1))
         ; to_int !@(tris +@ ((i * 3) + 2))
-        ])
+        ] )
   in
   List.init (len / 3) f
 

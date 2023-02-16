@@ -99,6 +99,11 @@ module MMeshGL : sig
        [t]'s {!triangles}). *)
   val halfedge_tangents : t -> float list
 
+  val run_index : t -> int list
+  val run_original_id : t -> int list
+  val run_transform : t -> float list
+  val face_id : t -> int list
+
   (** [points t]
 
        Retrieve the points making up the mesh [t]. *)

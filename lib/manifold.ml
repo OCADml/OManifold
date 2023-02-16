@@ -11,6 +11,9 @@ module Status = struct
     | MissingPositionProperties
     | MergeVectorsDifferentLengths
     | MergeIndexOutOfBounds
+    | TransformWrongLength
+    | RunIndexWrongLength
+    | FaceIDWrongLength
 
   let to_string = function
     | NoError -> "NO_ERROR"
@@ -21,6 +24,9 @@ module Status = struct
     | MissingPositionProperties -> "MISSING_POSITION_PROPERTIES"
     | MergeVectorsDifferentLengths -> "MERGE_VECTORS_DIFFERENT_LENGTHS"
     | MergeIndexOutOfBounds -> "MERGE_INDEX_OUT_OF_BOUNDS"
+    | TransformWrongLength -> "TRANSFORM_WRONG_LENGTH"
+    | RunIndexWrongLength -> "RUN_INDEX_WRONG_LENGTH"
+    | FaceIDWrongLength -> "FACE_ID_WRONG_LENGTH"
 end
 
 module Id = struct
@@ -320,13 +326,13 @@ let refine n t =
 (* 2D to 3D *)
 
 let extrude
-    ?slices
-    ?fa
-    ?(twist = 0.)
-    ?(scale = v2 1. 1.)
-    ?(center = false)
-    ~height:h
-    polys
+  ?slices
+  ?fa
+  ?(twist = 0.)
+  ?(scale = v2 1. 1.)
+  ?(center = false)
+  ~height:h
+  polys
   =
   let buf, t = alloc ()
   and tw = Math.deg_of_rad twist in
