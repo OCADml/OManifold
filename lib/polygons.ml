@@ -48,10 +48,10 @@ let make paths =
   let _ = C.Funcs.polygons buf (Ctypes.CArray.start simps) (size_of_int len) in
   t
 
-let of_poly2 p = make (p.Poly2.outer :: p.holes)
+let of_poly2 p = make @@ Poly2.to_list p
 
 let of_poly2s polys =
-  let f ps poly = poly.Poly2.outer :: List.rev_append poly.holes ps in
+  let f ps poly = List.rev_append (Poly2.to_list poly) ps in
   make @@ List.fold_left f [] polys
 
 let of_path p = make [ p ]

@@ -28,9 +28,10 @@
    (>= 4.14.0))
   ctypes
   ctypes-foreign
+  integers
   conf-cmake
   (gg
    (>= 1.0.0))
   (OCADml
-   (>= 0.3.0))
+   (>= 0.4.0))
   conf-assimp))
