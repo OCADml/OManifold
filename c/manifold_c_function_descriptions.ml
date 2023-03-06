@@ -706,6 +706,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let manifold_size = foreign "manifold_manifold_size" (void @-> returning size_t)
 
+  let cross_section_size =
+    foreign "manifold_cross_section_size" (void @-> returning size_t)
+
   let simple_polygon_size =
     foreign "manifold_simple_polygon_size" (void @-> returning size_t)
 
@@ -725,6 +728,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let destruct_manifold =
     foreign "manifold_destruct_manifold" (ptr Manifold.t @-> returning void)
+
+  let destruct_cross_section =
+    foreign "manifold_destruct_cross_section" (ptr CrossSection.t @-> returning void)
 
   let destruct_simple_polygon =
     foreign "manifold_destruct_simple_polygon" (ptr SimplePolygon.t @-> returning void)
@@ -754,6 +760,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let delete_manifold =
     foreign "manifold_delete_manifold" (ptr Manifold.t @-> returning void)
+
+  let delete_cross_section =
+    foreign "manifold_delete_cross_section" (ptr CrossSection.t @-> returning void)
 
   let delete_simple_polygon =
     foreign "manifold_delete_simple_polygon" (ptr SimplePolygon.t @-> returning void)
