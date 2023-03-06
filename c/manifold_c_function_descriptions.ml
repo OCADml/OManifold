@@ -377,6 +377,72 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_original_id =
     foreign "manifold_original_id" (ptr Manifold.t @-> returning int)
 
+  (* Rectangle *)
+
+  let rect =
+    foreign
+      "manifold_rect"
+      (ptr void @-> float @-> float @-> float @-> float @-> returning (ptr Rect.t))
+
+  let rect_min = foreign "manifold_rect_min" (ptr Rect.t @-> returning Vec2.t)
+  let rect_max = foreign "manifold_rect_max" (ptr Rect.t @-> returning Vec2.t)
+
+  let rect_dimensions =
+    foreign "manifold_rect_dimensions" (ptr Rect.t @-> returning Vec2.t)
+
+  let rect_center = foreign "manifold_rect_center" (ptr Rect.t @-> returning Vec2.t)
+  let rect_scale = foreign "manifold_rect_scale" (ptr Rect.t @-> returning float)
+
+  let rect_contains_pt =
+    foreign "manifold_rect_contains_pt" (ptr Rect.t @-> float @-> float @-> returning bool)
+
+  let rect_contains_rect =
+    foreign "manifold_rect_contains_rect" (ptr Rect.t @-> ptr Rect.t @-> returning bool)
+
+  let rect_include_pt =
+    foreign "manifold_rect_include_pt" (ptr Rect.t @-> float @-> float @-> returning void)
+
+  let rect_union =
+    foreign
+      "manifold_rect_union"
+      (ptr void @-> ptr Rect.t @-> ptr Rect.t @-> returning (ptr Rect.t))
+
+  let rect_transform =
+    foreign
+      "manifold_rect_transform"
+      ( ptr void
+      @-> ptr Rect.t
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> returning (ptr Rect.t) )
+
+  let rect_translate =
+    foreign
+      "manifold_rect_translate"
+      (ptr void @-> ptr Rect.t @-> float @-> float @-> returning (ptr Rect.t))
+
+  let rect_mul =
+    foreign
+      "manifold_rect_mul"
+      (ptr void @-> ptr Rect.t @-> float @-> float @-> returning (ptr Rect.t))
+
+  let rect_does_overlap_rect =
+    foreign
+      "manifold_rect_does_overlap_rect"
+      (ptr Rect.t @-> ptr Rect.t @-> returning bool)
+
+  let rect_is_empty = foreign "manifold_rect_is_empty" (ptr Rect.t @-> returning bool)
+  let rect_is_finite = foreign "manifold_rect_is_finite" (ptr Rect.t @-> returning bool)
+
+  let rect_as_cross_section =
+    foreign
+      "manifold_rect_is_finite"
+      (ptr void @-> ptr Rect.t @-> ptr CrossSection.t @-> returning bool)
+
   (* Bounding Box *)
 
   let box =
@@ -400,10 +466,10 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let box_contains_pt =
     foreign
       "manifold_box_contains_pt"
-      (ptr Box.t @-> float @-> float @-> float @-> returning int)
+      (ptr Box.t @-> float @-> float @-> float @-> returning bool)
 
   let box_contains_box =
-    foreign "manifold_box_contains_box" (ptr Box.t @-> ptr Box.t @-> returning int)
+    foreign "manifold_box_contains_box" (ptr Box.t @-> ptr Box.t @-> returning bool)
 
   let box_include_pt =
     foreign
@@ -447,12 +513,12 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let box_does_overlap_pt =
     foreign
       "manifold_box_does_overlap_pt"
-      (ptr Box.t @-> float @-> float @-> float @-> returning int)
+      (ptr Box.t @-> float @-> float @-> float @-> returning bool)
 
   let box_does_overlap_box =
-    foreign "manifold_box_does_overlap_box" (ptr Box.t @-> ptr Box.t @-> returning int)
+    foreign "manifold_box_does_overlap_box" (ptr Box.t @-> ptr Box.t @-> returning bool)
 
-  let box_is_finite = foreign "manifold_box_is_finite" (ptr Box.t @-> returning int)
+  let box_is_finite = foreign "manifold_box_is_finite" (ptr Box.t @-> returning bool)
 
   (* SDF *)
 
@@ -513,6 +579,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let polygons_size = foreign "manifold_polygons_size" (void @-> returning size_t)
   let pair_size = foreign "manifold_manifold_pair_size" (void @-> returning size_t)
   let meshgl_size = foreign "manifold_meshgl_size" (void @-> returning size_t)
+  let rect_size = foreign "manifold_rect_size" (void @-> returning size_t)
   let box_size = foreign "manifold_box_size" (void @-> returning size_t)
   let curvature_size = foreign "manifold_curvature_size" (void @-> returning size_t)
   let components_size = foreign "manifold_components_size" (void @-> returning size_t)
@@ -535,6 +602,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let destruct_meshgl =
     foreign "manifold_destruct_meshgl" (ptr MeshGL.t @-> returning void)
 
+  let destruct_rect = foreign "manifold_destruct_rect" (ptr Rect.t @-> returning void)
   let destruct_box = foreign "manifold_destruct_box" (ptr Box.t @-> returning void)
 
   let destruct_curvature =
@@ -561,6 +629,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign "manifold_delete_polygons" (ptr Polygons.t @-> returning void)
 
   let delete_meshgl = foreign "manifold_delete_meshgl" (ptr MeshGL.t @-> returning void)
+  let delete_rect = foreign "manifold_delete_rect" (ptr Rect.t @-> returning void)
   let delete_box = foreign "manifold_delete_box" (ptr Box.t @-> returning void)
 
   let delete_curvature =

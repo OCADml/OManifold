@@ -60,6 +60,12 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let t : t typ = structure "ManifoldManifold"
   end
 
+  module CrossSection = struct
+    type t = [ `CrossSection ] structure
+
+    let t : t typ = structure "ManifoldCrossSection"
+  end
+
   module SimplePolygon = struct
     type t = [ `SimplePolygon ] structure
 
@@ -103,6 +109,12 @@ module Types (F : Cstubs.Types.TYPE) = struct
     type t = [ `Box ] structure
 
     let t : t typ = structure "ManifoldBox"
+  end
+
+  module Rect = struct
+    type t = [ `Rect ] structure
+
+    let t : t typ = structure "ManifoldRect"
   end
 
   module Material = struct

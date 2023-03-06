@@ -23,11 +23,11 @@ let max t = vec3_to_v3 @@ C.Funcs.box_max t
 let center t = vec3_to_v3 @@ C.Funcs.box_center t
 let dimensions t = vec3_to_v3 @@ C.Funcs.box_dimensions t
 let abs_max_coord t = C.Funcs.box_scale t
-let contains_pt t p = V3.(C.Funcs.box_contains_pt t (x p) (y p) (z p) > 0)
-let contains_box a b = C.Funcs.box_contains_box a b > 0
-let overlaps_pt t p = V3.(C.Funcs.box_does_overlap_pt t (x p) (y p) (z p) > 0)
-let overlaps_box a b = C.Funcs.box_does_overlap_box a b > 0
-let is_finite t = C.Funcs.box_is_finite t > 0
+let contains_pt t p = V3.(C.Funcs.box_contains_pt t (x p) (y p) (z p))
+let contains_box a b = C.Funcs.box_contains_box a b
+let overlaps_pt t p = V3.(C.Funcs.box_does_overlap_pt t (x p) (y p) (z p))
+let overlaps_box a b = C.Funcs.box_does_overlap_box a b
+let is_finite t = C.Funcs.box_is_finite t
 
 (* Transformations *)
 
