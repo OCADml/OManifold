@@ -27,12 +27,16 @@
    (functor Manifold_c_function_descriptions))
   (generated_types Manifold_c_types)
   (generated_entry_point C))
- (foreign_archives manifoldc manifold meshIO))
+ (foreign_archives manifoldc manifold meshIO clipper2))
 
 ; Build Manifold vendor
 
 (rule
- (targets dllmanifoldc%{ext_dll} dllmanifold%{ext_dll} dllmeshIO%{ext_dll})
+ (targets
+  dllmanifoldc%{ext_dll}
+  dllmanifold%{ext_dll}
+  dllmeshIO%{ext_dll}
+  dllclipper2%{ext_dll})
  (deps
   (source_tree vendor/manifold))
  (action
@@ -62,10 +66,13 @@
      dllmanifold%{ext_dll})
     (copy
      vendor/manifold/build_so/test/meshIO/libmeshIO%{ext_dll}
-     dllmeshIO%{ext_dll})))))
+     dllmeshIO%{ext_dll})
+    (copy
+     vendor/manifold/build_so/src/third_party/clipper2/CPP/libClipper2%{ext_dll}
+     dllclipper2%{ext_dll})))))
 
 (rule
- (targets libmanifoldc.a libmanifold.a libmeshIO.a)
+ (targets libmanifoldc.a libmanifold.a libmeshIO.a libclipper2.a)
  (deps
   (source_tree vendor/manifold))
  (action
@@ -89,4 +96,7 @@
        (run make))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
     (copy vendor/manifold/build_a/src/manifold/libmanifold.a libmanifold.a)
-    (copy vendor/manifold/build_a/test/meshIO/libmeshIO.a libmeshIO.a)))))
+    (copy vendor/manifold/build_a/test/meshIO/libmeshIO.a libmeshIO.a)
+    (copy
+     vendor/manifold/build_a/src/third_party/clipper2/CPP/libClipper2.a
+     libclipper2.a)))))

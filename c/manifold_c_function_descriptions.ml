@@ -379,7 +379,27 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   (* Cross Section *)
 
-  let manifold_cross_section_union =
+  let cross_section_of_simple_polygon =
+    foreign
+      "manifold_cross_section_of_simple_polygon"
+      (ptr void @-> ptr SimplePolygon.t @-> FillRule.t @-> returning (ptr CrossSection.t))
+
+  let cross_section_of_polygons =
+    foreign
+      "manifold_cross_section_of_polygons"
+      (ptr void @-> ptr Polygons.t @-> FillRule.t @-> returning (ptr CrossSection.t))
+
+  let cross_section_square =
+    foreign
+      "manifold_cross_section_square"
+      (ptr void @-> float @-> float @-> int @-> returning (ptr CrossSection.t))
+
+  let cross_section_circle =
+    foreign
+      "manifold_cross_section_circle"
+      (ptr void @-> float @-> int @-> returning (ptr CrossSection.t))
+
+  let cross_section_union =
     foreign
       "manifold_cross_section_union"
       ( ptr void
@@ -387,7 +407,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
       @-> ptr CrossSection.t
       @-> returning (ptr CrossSection.t) )
 
-  let manifold_cross_section_difference =
+  let cross_section_difference =
     foreign
       "manifold_cross_section_difference"
       ( ptr void
@@ -395,7 +415,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
       @-> ptr CrossSection.t
       @-> returning (ptr CrossSection.t) )
 
-  let manifold_cross_section_intersection =
+  let cross_section_intersection =
     foreign
       "manifold_cross_section_intersection"
       ( ptr void
@@ -403,13 +423,100 @@ module Functions (F : Ctypes.FOREIGN) = struct
       @-> ptr CrossSection.t
       @-> returning (ptr CrossSection.t) )
 
-  let manifold_cross_section_xor =
+  let cross_section_xor =
     foreign
       "manifold_cross_section_xor"
       ( ptr void
       @-> ptr CrossSection.t
       @-> ptr CrossSection.t
       @-> returning (ptr CrossSection.t) )
+
+  let cross_section_rect_clip =
+    foreign
+      "manifold_cross_section_rect_clip"
+      (ptr void @-> ptr CrossSection.t @-> ptr Rect.t @-> returning (ptr CrossSection.t))
+
+  let cross_section_translate =
+    foreign
+      "manifold_cross_section_translate"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> float
+      @-> float
+      @-> returning (ptr CrossSection.t) )
+
+  let cross_section_rotate =
+    foreign
+      "manifold_cross_section_rotate"
+      (ptr void @-> ptr CrossSection.t @-> float @-> returning (ptr CrossSection.t))
+
+  let cross_section_scale =
+    foreign
+      "manifold_cross_section_scale"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> float
+      @-> float
+      @-> returning (ptr CrossSection.t) )
+
+  let cross_section_mirror =
+    foreign
+      "manifold_cross_section_mirror"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> float
+      @-> float
+      @-> returning (ptr CrossSection.t) )
+
+  let cross_section_transform =
+    foreign
+      "manifold_cross_section_transform"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> float
+      @-> returning (ptr CrossSection.t) )
+
+  let cross_section_simplify =
+    foreign
+      "manifold_cross_section_simplify"
+      (ptr void @-> ptr CrossSection.t @-> double @-> returning (ptr CrossSection.t))
+
+  let cross_section_offset =
+    foreign
+      "manifold_cross_section_offset"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> double
+      @-> JoinType.t
+      @-> double
+      @-> double
+      @-> returning (ptr CrossSection.t) )
+
+  let cross_section_area =
+    foreign "manifold_cross_section_area" (ptr CrossSection.t @-> returning double)
+
+  let cross_section_bounds =
+    foreign
+      "manifold_cross_section_bounds"
+      (ptr void @-> ptr CrossSection.t @-> returning (ptr Rect.t))
+
+  let cross_section_to_polygons =
+    foreign
+      "manifold_cross_section_to_polygons"
+      (ptr void @-> ptr CrossSection.t @-> returning (ptr Polygons.t))
+  (* ManifoldCrossSection *manifold_cross_section_offset( *)
+  (*     void *mem, ManifoldCrossSection *cs, double delta, ManifoldJoinType jt, *)
+  (*     double miter_limit, double arc_tolerance); *)
+  (* double manifold_cross_section_area(ManifoldCrossSection *cs); *)
+  (* ManifoldRect *manifold_cross_section_bounds(void *mem, *)
+  (*                                             ManifoldCrossSection *cs); *)
+  (* ManifoldPolygons *manifold_cross_section_to_polygons(void *mem, *)
+  (*                                                      ManifoldCrossSection *cs); *)
 
   (* Rectangle *)
 
@@ -474,8 +581,8 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let rect_as_cross_section =
     foreign
-      "manifold_rect_is_finite"
-      (ptr void @-> ptr Rect.t @-> ptr CrossSection.t @-> returning bool)
+      "manifold_rect_as_cross_section"
+      (ptr void @-> ptr Rect.t @-> returning (ptr CrossSection.t))
 
   (* Bounding Box *)
 

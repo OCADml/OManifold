@@ -60,6 +60,42 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let t : t typ = structure "ManifoldManifold"
   end
 
+  module FillRule = struct
+    let even_odd = constant "MANIFOLD_FILL_RULE_EVEN_ODD" int64_t
+    let non_zero = constant "MANIFOLD_FILL_RULE_NON_ZERO" int64_t
+    let positive = constant "MANIFOLD_FILL_RULE_POSITIVE" int64_t
+    let negative = constant "MANIFOLD_FILL_RULE_NEGATIVE" int64_t
+
+    type t =
+      | EvenOdd
+      | NonZero
+      | Positive
+      | Negative
+
+    let t =
+      enum
+        "ManifoldFillRule"
+        [ EvenOdd, even_odd; NonZero, non_zero; Positive, positive; Negative, negative ]
+        ~unexpected:(fun _ -> assert false)
+  end
+
+  module JoinType = struct
+    let square = constant "MANIFOLD_JOIN_TYPE_SQUARE" int64_t
+    let round = constant "MANIFOLD_JOIN_TYPE_ROUND" int64_t
+    let miter = constant "MANIFOLD_JOIN_TYPE_MITER" int64_t
+
+    type t =
+      | Square
+      | Round
+      | Miter
+
+    let t =
+      enum
+        "ManifoldJoinType"
+        [ Square, square; Round, round; Miter, miter ]
+        ~unexpected:(fun _ -> assert false)
+  end
+
   module CrossSection = struct
     type t = [ `CrossSection ] structure
 
