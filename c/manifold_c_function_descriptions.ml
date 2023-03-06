@@ -509,14 +509,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_cross_section_to_polygons"
       (ptr void @-> ptr CrossSection.t @-> returning (ptr Polygons.t))
-  (* ManifoldCrossSection *manifold_cross_section_offset( *)
-  (*     void *mem, ManifoldCrossSection *cs, double delta, ManifoldJoinType jt, *)
-  (*     double miter_limit, double arc_tolerance); *)
-  (* double manifold_cross_section_area(ManifoldCrossSection *cs); *)
-  (* ManifoldRect *manifold_cross_section_bounds(void *mem, *)
-  (*                                             ManifoldCrossSection *cs); *)
-  (* ManifoldPolygons *manifold_cross_section_to_polygons(void *mem, *)
-  (*                                                      ManifoldCrossSection *cs); *)
 
   (* Rectangle *)
 
