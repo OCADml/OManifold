@@ -178,15 +178,6 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let () = seal t
   end
 
-  module PolyVert = struct
-    type t = [ `PolyVert ] structure
-
-    let t : t typ = structure "ManifoldPolyVert"
-    let pos = field t "pos" Vec2.t
-    let idx = field t "idx" int
-    let () = seal t
-  end
-
   module CurvatureBounds = struct
     type t = [ `CurvatureBounds ] structure
 

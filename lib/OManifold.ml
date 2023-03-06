@@ -5,5 +5,4 @@ module Sdf3 = Sdf3
 module MBox = MBox
 module Export = Export
 module MMeshGL = MMeshGL
-module PolyVert = PolyVert
 module Curvature = Curvature

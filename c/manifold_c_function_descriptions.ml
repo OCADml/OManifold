@@ -320,7 +320,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_refine"
       (ptr void @-> ptr Manifold.t @-> int @-> returning (ptr Manifold.t))
 
-  (* Manifold Mutation *)
+  (* Quality Globals *)
 
   let manifold_set_min_circular_angle =
     foreign "manifold_set_min_circular_angle" (float @-> returning void)
@@ -376,6 +376,40 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let manifold_original_id =
     foreign "manifold_original_id" (ptr Manifold.t @-> returning int)
+
+  (* Cross Section *)
+
+  let manifold_cross_section_union =
+    foreign
+      "manifold_cross_section_union"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> ptr CrossSection.t
+      @-> returning (ptr CrossSection.t) )
+
+  let manifold_cross_section_difference =
+    foreign
+      "manifold_cross_section_difference"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> ptr CrossSection.t
+      @-> returning (ptr CrossSection.t) )
+
+  let manifold_cross_section_intersection =
+    foreign
+      "manifold_cross_section_intersection"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> ptr CrossSection.t
+      @-> returning (ptr CrossSection.t) )
+
+  let manifold_cross_section_xor =
+    foreign
+      "manifold_cross_section_xor"
+      ( ptr void
+      @-> ptr CrossSection.t
+      @-> ptr CrossSection.t
+      @-> returning (ptr CrossSection.t) )
 
   (* Rectangle *)
 
