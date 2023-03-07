@@ -351,6 +351,7 @@ let revolve ?(fn = 0) polys =
 
 (* Quality Globals *)
 
+(* TODO: move these into a Quality module *)
 let get_circular_segments r = C.Funcs.manifold_get_circular_segments r
 let set_circular_segments fn = C.Funcs.manifold_set_circular_segments fn
 

@@ -58,12 +58,5 @@ let transform a t =
 
 (* Conversion *)
 
-(* TODO: the alloc needs to be in a crossSection_0 module, or this function
-    should be added in OManifold.ml *)
-(* let to_cross_section t = *)
-(*   let buf, cs = CrossSection.alloc () in *)
-(*   let _ = C.Funcs.rect_as_cross_section buf t in *)
-(*   cs *)
-
 let of_box bb = make (Box2.min bb) (Box2.max bb)
 let to_box t = Box2.v (min t) (max t)

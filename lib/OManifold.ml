@@ -6,3 +6,14 @@ module MBox = MBox
 module Export = Export
 module MMeshGL = MMeshGL
 module Curvature = Curvature
+
+module MRect = struct
+  include MRect
+
+  let to_cross_section t =
+    let buf, cs = CrossSection.alloc () in
+    let _ = C.Funcs.rect_as_cross_section buf t in
+    cs
+end
+
+module CrossSection = CrossSection

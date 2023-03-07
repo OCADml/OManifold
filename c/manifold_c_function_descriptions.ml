@@ -392,7 +392,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let cross_section_square =
     foreign
       "manifold_cross_section_square"
-      (ptr void @-> float @-> float @-> int @-> returning (ptr CrossSection.t))
+      (ptr void @-> float @-> float @-> bool @-> returning (ptr CrossSection.t))
 
   let cross_section_circle =
     foreign
@@ -499,6 +499,9 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let cross_section_area =
     foreign "manifold_cross_section_area" (ptr CrossSection.t @-> returning double)
+
+  let cross_section_is_empty =
+    foreign "manifold_cross_section_is_empty" (ptr CrossSection.t @-> returning bool)
 
   let cross_section_bounds =
     foreign
