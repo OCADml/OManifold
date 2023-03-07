@@ -605,9 +605,9 @@ module Manifold : sig
 
   (** {1 2D to 3D} *)
 
-  (** [extrude ?slices ?twist ?scale ~height polygons]
+  (** [extrude ?slices ?twist ?scale ~height cross_section]
 
-    Vertically extrude non-overlapping set of 2d [polygons] from the XY plane to
+    Vertically extrude a 2d [cross_section] from the XY plane to
     [height]. If [?center] is [true], the resulting 3D object is centered around
     the XY plane, rather than resting on top of it.
     - [?twist] rotates the shape by the specified angle (in radians) as it is
@@ -625,18 +625,18 @@ module Manifold : sig
     -> ?scale:v2
     -> ?center:bool
     -> height:float
-    -> Polygons.t
+    -> CrossSection.t
     -> t
 
   (** [revolve ?fn polygons]
 
-       Revolve a non-overapping set of 2d [polygons] around the y-axis and then set this
+       Revolve a 2d [cross_section] around the y-axis and then set this
        as the z-axis of the resulting manifold. If the polygons cross the y-axis, only
        the part on the positive x side is used. Geometrically valid input will result
        in geometrically valid output. The number of segments in the revolution
        can be set explicitly with [fn], otherwise it is determined by the
        {{!section-quality} quality globals}. *)
-  val revolve : ?fn:int -> Polygons.t -> t
+  val revolve : ?fn:int -> CrossSection.t -> t
 
   (** {1 Booleans} *)
 

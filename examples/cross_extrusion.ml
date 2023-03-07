@@ -8,6 +8,6 @@ let () =
     let m = Affine2.(translate (v2 4. 6.) %> rotate (Float.pi /. 4.)) in
     CrossSection.affine m sq
   in
-  Manifold.extrude ~height:5. (CrossSection.to_polygons a)
-  |> Manifold.add (Manifold.extrude ~height:5. (CrossSection.to_polygons b))
+  Manifold.extrude ~height:5. a
+  |> Manifold.add (Manifold.extrude ~height:5. b)
   |> Export.manifold "cross_section_transform.stl"

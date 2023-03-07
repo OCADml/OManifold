@@ -169,7 +169,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_extrude"
       ( ptr void
-      @-> ptr Polygons.t
+      @-> ptr CrossSection.t
       @-> float
       @-> int
       @-> float
@@ -180,7 +180,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_revolve =
     foreign
       "manifold_revolve"
-      (ptr void @-> ptr Polygons.t @-> int @-> returning (ptr Manifold.t))
+      (ptr void @-> ptr CrossSection.t @-> int @-> returning (ptr Manifold.t))
 
   let manifold_compose =
     foreign
