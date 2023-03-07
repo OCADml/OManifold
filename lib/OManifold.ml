@@ -1,3 +1,6 @@
+type mrect = C.Types.Rect.t Ctypes_static.ptr
+type cross_section = C.Types.CrossSection.t Ctypes_static.ptr
+
 module Manifold = Manifold
 module Polygons = Polygons
 module Sdf2 = Sdf2

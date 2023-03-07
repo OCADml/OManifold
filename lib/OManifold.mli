@@ -1,5 +1,8 @@
 open OCADml
 
+type mrect
+type cross_section
+
 module Curvature : sig
   module Bounds : sig
     type t =
@@ -26,6 +29,12 @@ module Curvature : sig
 end
 
 module Polygons : sig
+  module Simple : sig
+    type t
+
+    val make : Path2.t -> t
+  end
+
   type t
 
   (** {1 Constructors}*)
@@ -134,10 +143,79 @@ module MMeshGL : sig
   val to_mesh : t -> Mesh.t
 end
 
+module CrossSection : sig
+  type t = cross_section
+
+  (** {1 Constructors}*)
+
+  val empty : unit -> t
+  val copy : t -> t
+
+  val of_simple_polygon
+    :  ?fill_rule:[ `EvenOdd | `Negative | `NonZero | `Positive ]
+    -> Polygons.Simple.t
+    -> t
+
+  val of_polygons
+    :  ?fill_rule:[ `EvenOdd | `Negative | `NonZero | `Positive ]
+    -> Polygons.t
+    -> t
+
+  (** {1 Shapes} *)
+
+  val circle : ?fn:int -> float -> t
+  val square : ?center:bool -> v2 -> t
+
+  (** {1 Booleans} *)
+
+  val add : t -> t -> t
+  val sub : t -> t -> t
+  val intersect : t -> t -> t
+  val union : t list -> t
+  val difference : t -> t list -> t
+  val intersection : t list -> t
+  val xor : t list -> t
+  val rect_clip : t -> mrect -> t
+
+  (** {1 Transformations} *)
+
+  val translate : v2 -> t -> t
+  val xtrans : float -> t -> t
+  val ytrans : float -> t -> t
+  val rotate : ?about:v2 -> float -> t -> t
+  val zrot : float -> t -> t
+  val mirror : v2 -> t -> t
+  val affine : Affine2.t -> t -> t
+  val scale : v2 -> t -> t
+  val xscale : float -> t -> t
+  val yscale : float -> t -> t
+
+  (** {1 Path simplification and offsetting} *)
+
+  val simplify : ?eps:float -> t -> t
+
+  val offset
+    :  ?join_type:[< `Miter | `Round | `Square > `Square ]
+    -> ?miter_limit:float
+    -> ?arc_tolerance:float
+    -> delta:float
+    -> t
+    -> t
+
+  (** {1 Geometry} *)
+
+  val bounds : t -> mrect
+  val area : t -> float
+  val is_empty : t -> bool
+
+  (** {1 Conversion} *)
+  val to_polygons : t -> Polygons.t
+end
+
 module MRect : sig
   (** The 2-dimensional axis-aligned recantagle (bounding box) representation of
       the Manifold library. *)
-  type t
+  type t = mrect
 
   (** {1 Constructor} *)
 

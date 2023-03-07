@@ -1,5 +1,5 @@
 (executables
- (names sdf_mesh hulling sweep morphs)
+ (names sdf_mesh hulling sweep morphs cross_extrusion)
  (libraries OCADml OManifold))
 
 (rule

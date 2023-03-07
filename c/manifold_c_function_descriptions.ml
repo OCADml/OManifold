@@ -379,6 +379,14 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   (* Cross Section *)
 
+  let cross_section_empty =
+    foreign "manifold_cross_section_empty" (ptr void @-> returning (ptr CrossSection.t))
+
+  let cross_section_copy =
+    foreign
+      "manifold_cross_section_copy"
+      (ptr void @-> ptr CrossSection.t @-> returning (ptr CrossSection.t))
+
   let cross_section_of_simple_polygon =
     foreign
       "manifold_cross_section_of_simple_polygon"

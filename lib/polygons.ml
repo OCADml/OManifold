@@ -1,14 +1,9 @@
 open Conv
 open OCADml
 
-module Vert = struct
-  type t =
-    { pos : v2
-    ; idx : int
-    }
-end
-
 module Simple = struct
+  type t = Manifold_c_types.SimplePolygon.t Ctypes_static.ptr
+
   let size = C.Funcs.polygons_size () |> size_to_int
   let destruct t = C.Funcs.destruct_simple_polygon t
 

@@ -332,7 +332,7 @@ let extrude
   ?(scale = v2 1. 1.)
   ?(center = false)
   ~height:h
-  polys
+  cross
   =
   let buf, t = alloc ()
   and tw = Math.deg_of_rad twist in
@@ -341,7 +341,7 @@ let extrude
     | Some s, tw when Float.(abs tw /. (2. *. pi) < 1.) -> s
     | fn, tw -> Util.helical_slices ?fa ?fn tw
   in
-  let _ = C.Funcs.manifold_extrude buf polys h slices tw (V2.x scale) (V2.y scale) in
+  let _ = C.Funcs.manifold_extrude buf cross h slices tw (V2.x scale) (V2.y scale) in
   if center then ztrans (h /. -2.) t else t
 
 let revolve ?(fn = 0) polys =

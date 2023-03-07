@@ -13,15 +13,15 @@ let alloc () =
   , Ctypes.coerce Ctypes_static.(ptr void) Ctypes_static.(ptr C.Types.CrossSection.t) buf
   )
 
-(* TODO: add empty and copy constructors *)
-(* let empty () = *)
-(*   let buf, t = alloc () in *)
-(*   let _ = C.Funcs.cross_section_empty buf in *)
-(*   t *)
-(* let copy t = *)
-(*   let buf, cs = alloc () in *)
-(*   let _ = C.Funcs.cross_section_copy buf t in *)
-(*   cs *)
+let empty () =
+  let buf, t = alloc () in
+  let _ = C.Funcs.cross_section_empty buf in
+  t
+
+let copy t =
+  let buf, cs = alloc () in
+  let _ = C.Funcs.cross_section_copy buf t in
+  cs
 
 let bounds t =
   let buf, rect = MRect.alloc () in
@@ -47,7 +47,7 @@ let circle ?(fn = 0) rad =
 
 let square ?(center = false) d =
   let buf, t = alloc () in
-  let _ = V3.(C.Funcs.cross_section_square buf (x d) (y d) center) in
+  let _ = V2.(C.Funcs.cross_section_square buf (x d) (y d) center) in
   t
 
 let add a b =
@@ -92,7 +92,7 @@ let xor = function
 
 let rect_clip t rect =
   let buf, clipped = alloc () in
-  let _ = V2.(C.Funcs.cross_section_rect_clip buf t rect) in
+  let _ = C.Funcs.cross_section_rect_clip buf t rect in
   clipped
 
 let translate p t =
@@ -139,7 +139,7 @@ let[@inline] yscale y t = scale (v2 1. y) t
 
 let simplify ?(eps = 1e-6) t =
   let buf, simplified = alloc () in
-  let _ = V2.(C.Funcs.cross_section_simplify buf t eps) in
+  let _ = C.Funcs.cross_section_simplify buf t eps in
   simplified
 
 let offset ?(join_type = `Square) ?(miter_limit = 2.0) ?(arc_tolerance = 0.) ~delta t =
@@ -150,3 +150,8 @@ let offset ?(join_type = `Square) ?(miter_limit = 2.0) ?(arc_tolerance = 0.) ~de
 
 let area t = C.Funcs.cross_section_area t
 let is_empty t = C.Funcs.cross_section_is_empty t
+
+let to_polygons t =
+  let buf, ps = Polygons.alloc () in
+  let _ = C.Funcs.cross_section_to_polygons buf t in
+  ps
