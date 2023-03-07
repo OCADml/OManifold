@@ -431,14 +431,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
       @-> ptr CrossSection.t
       @-> returning (ptr CrossSection.t) )
 
-  let cross_section_xor =
-    foreign
-      "manifold_cross_section_xor"
-      ( ptr void
-      @-> ptr CrossSection.t
-      @-> ptr CrossSection.t
-      @-> returning (ptr CrossSection.t) )
-
   let cross_section_rect_clip =
     foreign
       "manifold_cross_section_rect_clip"

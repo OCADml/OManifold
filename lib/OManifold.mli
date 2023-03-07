@@ -174,7 +174,6 @@ module CrossSection : sig
   val union : t list -> t
   val difference : t -> t list -> t
   val intersection : t list -> t
-  val xor : t list -> t
   val rect_clip : t -> mrect -> t
 
   (** {1 Transformations} *)
@@ -628,7 +627,7 @@ module Manifold : sig
     -> CrossSection.t
     -> t
 
-  (** [revolve ?fn polygons]
+  (** [revolve ?fn cross_section]
 
        Revolve a 2d [cross_section] around the y-axis and then set this
        as the z-axis of the resulting manifold. If the polygons cross the y-axis, only

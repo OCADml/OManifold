@@ -65,11 +65,6 @@ let intersect a b =
   let _ = C.Funcs.cross_section_intersection buf a b in
   t
 
-let xor a b =
-  let buf, t = alloc () in
-  let _ = C.Funcs.cross_section_xor buf a b in
-  t
-
 let union = function
   | [] -> empty ()
   | [ a ] -> copy a
@@ -84,11 +79,6 @@ let intersection = function
   | [] -> empty ()
   | [ a ] -> copy a
   | a :: ts -> List.fold_left (fun t e -> intersect t e) a ts
-
-let xor = function
-  | [] -> empty ()
-  | [ a ] -> copy a
-  | a :: ts -> List.fold_left (fun t e -> xor t e) a ts
 
 let rect_clip t rect =
   let buf, clipped = alloc () in
