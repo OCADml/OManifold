@@ -3,6 +3,13 @@ open Conv
 
 type t = C.Types.CrossSection.t Ctypes_static.ptr
 
+type fill_rule =
+  [ `EvenOdd
+  | `Negative
+  | `NonZero
+  | `Positive
+  ]
+
 let size = C.Funcs.cross_section_size () |> size_to_int
 let destruct t = C.Funcs.destruct_cross_section t
 
@@ -34,11 +41,17 @@ let of_simple_polygon ?(fill_rule = `Positive) sp =
   let _ = C.Funcs.cross_section_of_simple_polygon buf sp fill_rule in
   t
 
+let of_path ?fill_rule p = of_simple_polygon ?fill_rule (Polygons.Simple.make p)
+
 let of_polygons ?(fill_rule = `Positive) ps =
   let buf, t = alloc ()
   and fill_rule = FillRule.make fill_rule in
   let _ = C.Funcs.cross_section_of_polygons buf ps fill_rule in
   t
+
+let of_paths ?fill_rule ps = of_polygons ?fill_rule (Polygons.of_paths ps)
+let of_poly2 ?fill_rule p = of_polygons ?fill_rule (Polygons.of_poly2 p)
+let of_poly2s ?fill_rule ps = of_polygons ?fill_rule (Polygons.of_poly2s ps)
 
 let circle ?(fn = 0) rad =
   let buf, t = alloc () in
@@ -104,7 +117,7 @@ let rotate ?about r t =
   | None -> rot t
   | Some p -> translate (V2.neg p) t |> rot |> translate p
 
-let[@inline] zrot z t = rotate z t
+let[@inline] zrot ?about z t = rotate ?about z t
 
 let mirror ax t =
   let buf, mirrored = alloc () in
@@ -140,6 +153,14 @@ let offset ?(join_type = `Square) ?(miter_limit = 2.0) ?(arc_tolerance = 0.) ~de
 
 let area t = C.Funcs.cross_section_area t
 let is_empty t = C.Funcs.cross_section_is_empty t
+
+(* TODO: getting points out of a Polygons point vector. Needs functions to be
+    added to manifoldc. Might be a good time to re-evaluate the API and whether
+    they should be re-written with opaque vector types with get/reserve/add
+    functions for each relevant vector in the interface. Float and uint64 for
+    sure, possibly 2d and 3d points. Manifold vectors as well for
+    compose/decompose. Would allow for the removal of the components type and
+    function breakdown of Decompose that was forced by the array interface. *)
 
 let to_polygons t =
   let buf, ps = Polygons.alloc () in

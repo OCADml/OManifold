@@ -146,20 +146,23 @@ end
 module CrossSection : sig
   type t = cross_section
 
+  type fill_rule =
+    [ `EvenOdd
+    | `Negative
+    | `NonZero
+    | `Positive
+    ]
+
   (** {1 Constructors}*)
 
   val empty : unit -> t
   val copy : t -> t
-
-  val of_simple_polygon
-    :  ?fill_rule:[ `EvenOdd | `Negative | `NonZero | `Positive ]
-    -> Polygons.Simple.t
-    -> t
-
-  val of_polygons
-    :  ?fill_rule:[ `EvenOdd | `Negative | `NonZero | `Positive ]
-    -> Polygons.t
-    -> t
+  val of_simple_polygon : ?fill_rule:fill_rule -> Polygons.Simple.t -> t
+  val of_polygons : ?fill_rule:fill_rule -> Polygons.t -> t
+  val of_path : ?fill_rule:fill_rule -> Path2.t -> t
+  val of_paths : ?fill_rule:fill_rule -> Path2.t list -> t
+  val of_poly2 : ?fill_rule:fill_rule -> Poly2.t -> t
+  val of_poly2s : ?fill_rule:fill_rule -> Poly2.t list -> t
 
   (** {1 Shapes} *)
 
@@ -182,7 +185,7 @@ module CrossSection : sig
   val xtrans : float -> t -> t
   val ytrans : float -> t -> t
   val rotate : ?about:v2 -> float -> t -> t
-  val zrot : float -> t -> t
+  val zrot : ?about:v2 -> float -> t -> t
   val mirror : v2 -> t -> t
   val affine : Affine2.t -> t -> t
   val scale : v2 -> t -> t
@@ -208,6 +211,7 @@ module CrossSection : sig
   val is_empty : t -> bool
 
   (** {1 Conversion} *)
+
   val to_polygons : t -> Polygons.t
 end
 
@@ -715,19 +719,19 @@ module Manifold : sig
 
     Rotate the manifold [t] around the x-axis through the origin (or the point
     [about] if provided) by [r] (in radians). *)
-  val xrot : float -> t -> t
+  val xrot : ?about:v3 -> float -> t -> t
 
   (** [yrot ?about r t]
 
     Rotate the manifold [t] around the y-axis through the origin (or the point
     [about] if provided) by [r] (in radians). *)
-  val yrot : float -> t -> t
+  val yrot : ?about:v3 -> float -> t -> t
 
   (** [zrot ?about r t]
 
     Rotate the manifold [t] around the z-axis through the origin (or the point
     [about] if provided) by [r] (in radians). *)
-  val zrot : float -> t -> t
+  val zrot : ?about:v3 -> float -> t -> t
 
   (** [affine m t]
 
@@ -829,6 +833,7 @@ module Manifold : sig
   val bounding_box : t -> MBox.t
 
   (** [precision t]
+
        Returns the precision of this manifold's vertices, which tracks the
        approximate rounding error over all the transforms and operations that have
        led to this state. Any triangles that are colinear within this precision are
@@ -863,45 +868,6 @@ module Manifold : sig
 
        Retrieve the points making up the meshes of the manifold [t]. *)
   val points : t -> v3 list
-
-  (** {1:quality Quality Globals}
-
-       Akin to {{:https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/The_OpenSCAD_Language#$fa,_$fs_and_$fn}OpenSCAD}'s facet governing "special"
-       parameters, [$fn], [$fa], and [$fs]. These are global variables that are
-       handy for quickly switching from quick and dirty rough iteration
-       quality to computationally expensive smooth final products. *)
-
-  (** [get_circular_segments r]
-
-       Determine how many segment there would be in a circle with radius [r],
-       based on the global quality parameters (set by {!set_circular_segments},
-       {!set_min_circular_angle}, and {!set_min_circular_edge_length}). *)
-  val get_circular_segments : float -> int
-
-  (** [set_circular_segments fn]
-
-       Set a default number of segments that circular shape are drawn with (by
-       default this is unset, and minimum circular angle and length are used to
-       calculate the number of segments instead). This takes precedence over both
-       minumum circular angle and edge length, and is akin to defining the special
-       [$fn] variable at the top level of an {{:https://openscad.org/}OpenSCAD} script. *)
-  val set_circular_segments : int -> unit
-
-  (** [set_min_circular_angle fa]
-
-       Change the default minimum angle (in radians) between consecutive segments on a
-       circular object/edge (default is [pi /. 18.]). This is akin to setting
-       the special [$fa] variable at the top level of an
-       {{:https://openscad.org/}OpenSCAD} script. *)
-  val set_min_circular_angle : float -> unit
-
-  (** [set_min_circular_edge_length fs]
-
-       Change the default minimum edge length for segments that that circular
-       objects/edges are drawn with (default = [1.]). This is akin to setting
-       the special [$fs] variable at the top level of an
-       {{:https://openscad.org/}OpenSCAD} script. *)
-  val set_min_circular_edge_length : float -> unit
 end
 
 module Sdf2 : sig
@@ -1000,6 +966,45 @@ module Sdf3 : sig
       - [level] can be provided with a positive value to inset the mesh, or a
         negative value to outset it (default is [0.] -- no offset) *)
   val to_mmeshgl : ?level:float -> ?edge_length:float -> box:MBox.t -> t -> MMeshGL.t
+end
+
+module Quality : sig
+  (** Quality globals akin to {{:https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/The_OpenSCAD_Language#$fa,_$fs_and_$fn}OpenSCAD}'s facet governing "special"
+       parameters, [$fn], [$fa], and [$fs]. These are global variables that are
+       handy for quickly switching from quick and dirty rough iteration
+       quality to computationally expensive smooth final products. *)
+
+  (** [get_circular_segments r]
+
+       Determine how many segment there would be in a circle with radius [r],
+       based on the global quality parameters (set by {!set_circular_segments},
+       {!set_min_circular_angle}, and {!set_min_circular_edge_length}). *)
+  val get_circular_segments : float -> int
+
+  (** [set_circular_segments fn]
+
+       Set a default number of segments that circular shape are drawn with (by
+       default this is unset, and minimum circular angle and length are used to
+       calculate the number of segments instead). This takes precedence over both
+       minumum circular angle and edge length, and is akin to defining the special
+       [$fn] variable at the top level of an {{:https://openscad.org/}OpenSCAD} script. *)
+  val set_circular_segments : int -> unit
+
+  (** [set_min_circular_angle fa]
+
+       Change the default minimum angle (in radians) between consecutive segments on a
+       circular object/edge (default is [pi /. 18.]). This is akin to setting
+       the special [$fa] variable at the top level of an
+       {{:https://openscad.org/}OpenSCAD} script. *)
+  val set_min_circular_angle : float -> unit
+
+  (** [set_min_circular_edge_length fs]
+
+       Change the default minimum edge length for segments that that circular
+       objects/edges are drawn with (default = [1.]). This is akin to setting
+       the special [$fs] variable at the top level of an
+       {{:https://openscad.org/}OpenSCAD} script. *)
+  val set_min_circular_edge_length : float -> unit
 end
 
 module Export : sig

@@ -275,9 +275,9 @@ let rotate ?about r t =
   | None -> rot t
   | Some p -> translate (V3.neg p) t |> rot |> translate p
 
-let[@inline] xrot x t = rotate (v3 x 0. 0.) t
-let[@inline] yrot y t = rotate (v3 0. y 0.) t
-let[@inline] zrot z t = rotate (v3 0. 0. z) t
+let[@inline] xrot ?about x t = rotate ?about (v3 x 0. 0.) t
+let[@inline] yrot ?about y t = rotate ?about (v3 0. y 0.) t
+let[@inline] zrot ?about z t = rotate ?about (v3 0. 0. z) t
 
 let affine (a : Affine3.t) t =
   let buf, transformed = alloc () in
@@ -348,17 +348,6 @@ let revolve ?(fn = 0) polys =
   let buf, t = alloc () in
   let _ = C.Funcs.manifold_revolve buf polys fn in
   t
-
-(* Quality Globals *)
-
-(* TODO: move these into a Quality module *)
-let get_circular_segments r = C.Funcs.manifold_get_circular_segments r
-let set_circular_segments fn = C.Funcs.manifold_set_circular_segments fn
-
-let set_min_circular_angle fa =
-  C.Funcs.manifold_set_min_circular_angle (Math.deg_of_rad fa)
-
-let set_min_circular_edge_length fs = C.Funcs.manifold_set_min_circular_edge_length fs
 
 (* Mesh Conversion *)
 
