@@ -57,7 +57,7 @@
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
         -DMANIFOLD_PAR=OMP
         ..)
-       (run make))))
+       (run make -j))))
     (copy
      vendor/manifold/build_so/bindings/c/libmanifoldc%{ext_dll}
      dllmanifoldc%{ext_dll})
@@ -93,7 +93,7 @@
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
         -DMANIFOLD_PAR=OMP
         ..)
-       (run make))))
+       (run make -j))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
     (copy vendor/manifold/build_a/src/manifold/libmanifold.a libmanifold.a)
     (copy vendor/manifold/build_a/test/meshIO/libmeshIO.a libmeshIO.a)
