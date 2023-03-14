@@ -16,7 +16,8 @@ library provides a means to verify, smooth, and perform boolean operations
 {!module-OManifold} -- top level library interface
 
 {2 2d subsystem}
-- {{!OManifold.Polygons} [Polygons]} -- complex polygon sets (extrudable to [Manifold.t])
+- {{!OManifold.Polygons} [Polygons]} -- complex polygon sets (possibly intersecting)
+- {{!OManifold.CrossSection} [CrossSection]} -- non-overlapping polygons (extrudable)
 
 {2 Manifold}
 - {{!OManifold.Manifold} [Manifold]} -- manifold 3d solids (set of meshes)
