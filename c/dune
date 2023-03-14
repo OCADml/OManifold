@@ -52,6 +52,7 @@
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=ON
         -DMANIFOLD_EXPORT=ON
+        -DMANIFOLD_TEST=OFF
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
@@ -65,7 +66,7 @@
      vendor/manifold/build_so/src/manifold/libmanifold%{ext_dll}
      dllmanifold%{ext_dll})
     (copy
-     vendor/manifold/build_so/test/meshIO/libmeshIO%{ext_dll}
+     vendor/manifold/build_so/meshIO/libmeshIO%{ext_dll}
      dllmeshIO%{ext_dll})
     (copy
      vendor/manifold/build_so/src/third_party/clipper2/CPP/libClipper2%{ext_dll}
@@ -88,6 +89,7 @@
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=OFF
         -DMANIFOLD_EXPORT=ON
+        -DMANIFOLD_TEST=OFF
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
@@ -96,7 +98,7 @@
        (run make -j))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
     (copy vendor/manifold/build_a/src/manifold/libmanifold.a libmanifold.a)
-    (copy vendor/manifold/build_a/test/meshIO/libmeshIO.a libmeshIO.a)
+    (copy vendor/manifold/build_a/meshIO/libmeshIO.a libmeshIO.a)
     (copy
      vendor/manifold/build_a/src/third_party/clipper2/CPP/libClipper2.a
      libclipper2.a)))))
