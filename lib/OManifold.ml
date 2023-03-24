@@ -9,7 +9,6 @@ type op_type =
 
 module Quality = Quality
 module Manifold = Manifold
-module Polygons = Polygons
 module Sdf2 = Sdf2
 module Sdf3 = Sdf3
 module MBox = MBox
