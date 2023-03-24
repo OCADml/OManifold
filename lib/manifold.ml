@@ -54,7 +54,7 @@ let alloc () =
   let buf = Mem.allocate_buf ~finalise size in
   buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.Manifold.t) buf)
 
-module ManifoldVec = struct
+module Vec = struct
   let size = C.Funcs.manifold_vec_size () |> size_to_int
   let destruct t = C.Funcs.destruct_manifold_vec t
 
@@ -195,16 +195,16 @@ let smooth_exn ?smoothness m =
 
 let compose ts =
   let buf, t = alloc () in
-  let ms = ManifoldVec.empty () in
-  List.iter (fun t -> ManifoldVec.push_back ms t) ts;
+  let ms = Vec.empty () in
+  List.iter (fun t -> Vec.push_back ms t) ts;
   let _ = C.Funcs.manifold_compose buf ms in
   t
 
 let decompose t =
-  let buf, mv = ManifoldVec.alloc' () in
+  let buf, mv = Vec.alloc' () in
   let _ = C.Funcs.manifold_decompose buf t
   and ts = ref [] in
-  for i = ManifoldVec.length mv - 1 downto 0 do
+  for i = Vec.length mv - 1 downto 0 do
     let buf, man = alloc () in
     let _ = C.Funcs.manifold_vec_get buf mv i in
     ts := man :: !ts
@@ -222,8 +222,8 @@ let boolean ~op a b =
 let batch_boolean ~op ts =
   let buf, t = alloc ()
   and op = OpType.make op
-  and mv = ManifoldVec.empty () in
-  List.iter (fun m -> ManifoldVec.push_back mv m) ts;
+  and mv = Vec.empty () in
+  List.iter (fun m -> Vec.push_back mv m) ts;
   let _ = C.Funcs.manifold_batch_boolean buf mv op in
   t
 

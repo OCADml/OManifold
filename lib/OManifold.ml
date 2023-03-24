@@ -1,6 +1,12 @@
 type mrect = C.Types.Rect.t Ctypes_static.ptr
 type cross_section = C.Types.CrossSection.t Ctypes_static.ptr
 
+type op_type =
+  [ `Add
+  | `Subtract
+  | `Intersect
+  ]
+
 module Quality = Quality
 module Manifold = Manifold
 module Polygons = Polygons

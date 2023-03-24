@@ -235,7 +235,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_vec_get =
     foreign
       "manifold_manifold_vec_get"
-      (ptr void @-> ptr ManifoldVec.t @-> int @-> returning (ptr ManifoldVec.t))
+      (ptr void @-> ptr ManifoldVec.t @-> int @-> returning (ptr Manifold.t))
 
   let manifold_vec_set =
     foreign
@@ -498,7 +498,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let cross_section_vec_get =
     foreign
       "manifold_cross_section_vec_get"
-      (ptr void @-> ptr CrossSectionVec.t @-> int @-> returning (ptr CrossSectionVec.t))
+      (ptr void @-> ptr CrossSectionVec.t @-> int @-> returning (ptr CrossSection.t))
 
   let cross_section_vec_set =
     foreign
@@ -600,7 +600,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
         @-> float
         @-> returning (ptr CrossSection.t) )
 
-  let warp2_t = Ctypes.(float @-> float @-> returning Vec3.t)
+  let warp2_t = Ctypes.(float @-> float @-> returning Vec2.t)
 
   let cross_section_warp =
     foreign

@@ -143,6 +143,12 @@ module MMeshGL : sig
   val to_mesh : t -> Mesh.t
 end
 
+type op_type =
+  [ `Add
+  | `Subtract
+  | `Intersect
+  ]
+
 module CrossSection : sig
   type t = cross_section
 
@@ -171,6 +177,8 @@ module CrossSection : sig
 
   (** {1 Booleans} *)
 
+  val boolean : op:op_type -> t -> t -> t
+  val batch_boolean : op:op_type -> t list -> t
   val add : t -> t -> t
   val sub : t -> t -> t
   val intersect : t -> t -> t
@@ -178,6 +186,11 @@ module CrossSection : sig
   val difference : t -> t list -> t
   val intersection : t list -> t
   val rect_clip : t -> mrect -> t
+
+  (** {1 Topology} *)
+
+  val compose : t list -> t
+  val decompose : t -> t list
 
   (** {1 Transformations} *)
 
@@ -191,6 +204,13 @@ module CrossSection : sig
   val scale : v2 -> t -> t
   val xscale : float -> t -> t
   val yscale : float -> t -> t
+
+  (** [warp f t]
+
+       Map over the vertices of the cross-section [t] with the function [f],
+       followed by a union operation ensuring that the result is free of
+       intersections. *)
+  val warp : (v2 -> v2) -> t -> t
 
   (** {1 Path simplification and offsetting} *)
 
@@ -208,6 +228,8 @@ module CrossSection : sig
 
   val bounds : t -> mrect
   val area : t -> float
+  val num_vert : t -> int
+  val num_contour : t -> int
   val is_empty : t -> bool
 
   (** {1 Conversion} *)
@@ -484,6 +506,8 @@ module Manifold : sig
        a new manifold. *)
   val as_original : t -> t
 
+  (** {1 Topology} *)
+
   (** [compose ts]
        Constructs a new manifold from a list of other manifolds. This is a purely
        topological operation, so care should be taken to avoid creating
@@ -642,6 +666,9 @@ module Manifold : sig
   val revolve : ?fn:int -> CrossSection.t -> t
 
   (** {1 Booleans} *)
+
+  val boolean : op:op_type -> t -> t -> t
+  val batch_boolean : op:op_type -> t list -> t
 
   (** [add a b]
 

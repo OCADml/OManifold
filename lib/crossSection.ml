@@ -20,7 +20,7 @@ let alloc () =
   , Ctypes.coerce Ctypes_static.(ptr void) Ctypes_static.(ptr C.Types.CrossSection.t) buf
   )
 
-module CrossSectionVec = struct
+module Vec = struct
   let size = C.Funcs.cross_section_size () |> size_to_int
   let destruct t = C.Funcs.destruct_cross_section_vec t
 
@@ -95,6 +95,24 @@ let square ?(center = false) d =
   let _ = V2.(C.Funcs.cross_section_square buf (x d) (y d) center) in
   t
 
+let compose ts =
+  let buf, t = alloc () in
+  let csv = Vec.empty () in
+  List.iter (fun t -> Vec.push_back csv t) ts;
+  let _ = C.Funcs.cross_section_compose buf csv in
+  t
+
+let decompose t =
+  let buf, csv = Vec.alloc' () in
+  let _ = C.Funcs.cross_section_decompose buf t
+  and ts = ref [] in
+  for i = Vec.length csv - 1 downto 0 do
+    let buf, cs = alloc () in
+    let _ = C.Funcs.cross_section_vec_get buf csv i in
+    ts := cs :: !ts
+  done;
+  !ts
+
 (* Booleans *)
 
 let boolean ~op a b =
@@ -106,8 +124,8 @@ let boolean ~op a b =
 let batch_boolean ~op ts =
   let buf, t = alloc ()
   and op = OpType.make op
-  and csv = CrossSectionVec.empty () in
-  List.iter (fun m -> CrossSectionVec.push_back csv m) ts;
+  and csv = Vec.empty () in
+  List.iter (fun m -> Vec.push_back csv m) ts;
   let _ = C.Funcs.cross_section_batch_boolean buf csv op in
   t
 
@@ -191,7 +209,7 @@ let[@inline] yscale y t = scale (v2 1. y) t
 
 let warp f t =
   let buf, warped = alloc () in
-  let f x y = Conv.vec3_of_v3 (f (v2 x y)) in
+  let f x y = Conv.vec2_of_v2 (f (v2 x y)) in
   let f =
     Ctypes.(coerce (Foreign.funptr C.Funcs.warp2_t) (static_funptr C.Funcs.warp2_t) f)
   in
