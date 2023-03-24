@@ -9,13 +9,11 @@ type op_type =
 
 module Quality = Quality
 module Manifold = Manifold
+module CrossSection = CrossSection
 module Sdf2 = Sdf2
 module Sdf3 = Sdf3
-module MBox = MBox
-module Export = Export
 module MMeshGL = MMeshGL
-module Curvature = Curvature
-module CrossSection = CrossSection
+module MBox = MBox
 
 module MRect = struct
   include MRect
@@ -25,3 +23,5 @@ module MRect = struct
     let _ = C.Funcs.rect_as_cross_section buf t in
     cs
 end
+
+module Export = Export

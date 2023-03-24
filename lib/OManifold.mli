@@ -3,31 +3,6 @@ open OCADml
 type mrect
 type cross_section
 
-module Curvature : sig
-  module Bounds : sig
-    type t =
-      { min_mean : float
-      ; max_mean : float
-      ; min_gaussian : float
-      ; max_gaussian : float
-      }
-  end
-
-  (** Computed vertex curvatures of a {!Manifold.t}
-
-     The inverse of the radius of curvature, and signed such that
-     positive is convex and negative is concave. There are two orthogonal
-     principal curvatures at any point on a manifold, with one maximum and the
-     other minimum. Gaussian curvature is their product, while mean curvature is
-     their sum. This approximates them for every vertex (returned as vectors in
-     the structure) and also returns their minimum and maximum values. *)
-  type t =
-    { bounds : Bounds.t
-    ; vert_mean : float list
-    ; vert_gaussian : float list
-    }
-end
-
 module MMeshGL : sig
   (** A graphics library friendly representation of manifold's {!MMesh.t}.
        Obtained solely via {!Manifold.to_mmeshgl} *)
@@ -429,6 +404,31 @@ module Manifold : sig
     { surface_area : float
     ; volume : float
     }
+
+  module Curvature : sig
+    module Bounds : sig
+      type t =
+        { min_mean : float
+        ; max_mean : float
+        ; min_gaussian : float
+        ; max_gaussian : float
+        }
+    end
+
+    (** Computed vertex curvatures of a {!Manifold.t}
+
+     The inverse of the radius of curvature, and signed such that
+     positive is convex and negative is concave. There are two orthogonal
+     principal curvatures at any point on a manifold, with one maximum and the
+     other minimum. Gaussian curvature is their product, while mean curvature is
+     their sum. This approximates them for every vertex (returned as vectors in
+     the structure) and also returns their minimum and maximum values. *)
+    type t =
+      { bounds : Bounds.t
+      ; vert_mean : float list
+      ; vert_gaussian : float list
+      }
+  end
 
   type t
 

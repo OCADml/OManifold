@@ -39,6 +39,8 @@ module Id = struct
     | Product -> -1
 end
 
+module Curvature = Curvature
+
 type size =
   { surface_area : float
   ; volume : float
