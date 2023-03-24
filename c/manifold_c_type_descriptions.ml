@@ -54,12 +54,6 @@ module Types (F : Cstubs.Types.TYPE) = struct
         ~unexpected:(fun _ -> assert false)
   end
 
-  module Manifold = struct
-    type t = [ `Manifold ] structure
-
-    let t : t typ = structure "ManifoldManifold"
-  end
-
   module FillRule = struct
     let even_odd = constant "MANIFOLD_FILL_RULE_EVEN_ODD" int64_t
     let non_zero = constant "MANIFOLD_FILL_RULE_NON_ZERO" int64_t
@@ -96,10 +90,45 @@ module Types (F : Cstubs.Types.TYPE) = struct
         ~unexpected:(fun _ -> assert false)
   end
 
+  module OpType = struct
+    let add = constant "MANIFOLD_ADD" int64_t
+    let subtract = constant "MANIFOLD_SUBTRACT" int64_t
+    let intersect = constant "MANIFOLD_INTERSECT" int64_t
+
+    type t =
+      | Add
+      | Subtract
+      | Intersect
+
+    let t =
+      enum
+        "ManifoldOpType"
+        [ Add, add; Subtract, subtract; Intersect, intersect ]
+        ~unexpected:(fun _ -> assert false)
+  end
+
+  module Manifold = struct
+    type t = [ `Manifold ] structure
+
+    let t : t typ = structure "ManifoldManifold"
+  end
+
+  module ManifoldVec = struct
+    type t = [ `ManifoldVec ] structure
+
+    let t : t typ = structure "ManifoldManifoldVec"
+  end
+
   module CrossSection = struct
     type t = [ `CrossSection ] structure
 
     let t : t typ = structure "ManifoldCrossSection"
+  end
+
+  module CrossSectionVec = struct
+    type t = [ `CrossSectionVec ] structure
+
+    let t : t typ = structure "ManifoldCrossSectionVec"
   end
 
   module SimplePolygon = struct
@@ -124,12 +153,6 @@ module Types (F : Cstubs.Types.TYPE) = struct
     type t = [ `Curvature ] structure
 
     let t : t typ = structure "ManifoldCurvature"
-  end
-
-  module Components = struct
-    type t = [ `Components ] structure
-
-    let t : t typ = structure "ManifoldComponents"
   end
 
   module Properties = struct

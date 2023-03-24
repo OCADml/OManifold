@@ -10,10 +10,29 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_simple_polygon"
       (ptr void @-> ptr Vec2.t @-> size_t @-> returning (ptr SimplePolygon.t))
 
+  let simple_polygon_length =
+    foreign "manifold_simple_polygon_length" (ptr SimplePolygon.t @-> returning size_t)
+
+  let simple_polygon_get_point =
+    foreign
+      "manifold_simple_polygon_get_point"
+      (ptr SimplePolygon.t @-> int @-> returning Vec2.t)
+
   let polygons =
     foreign
       "manifold_polygons"
       (ptr void @-> ptr (ptr SimplePolygon.t) @-> size_t @-> returning (ptr Polygons.t))
+
+  let polygons_length =
+    foreign "manifold_polygons_length" (ptr Polygons.t @-> returning size_t)
+
+  let polygons_simple_length =
+    foreign "manifold_polygons_simple_length" (ptr Polygons.t @-> int @-> returning size_t)
+
+  let polygons_get_point =
+    foreign
+      "manifold_polygons_get_point"
+      (ptr Polygons.t @-> int @-> int @-> returning Vec2.t)
 
   (* Mesh Construction *)
 
@@ -21,24 +40,24 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_meshgl"
       ( ptr void
-      @-> ptr float
-      @-> size_t
-      @-> size_t
-      @-> ptr uint32_t
-      @-> size_t
-      @-> returning (ptr MeshGL.t) )
+        @-> ptr float
+        @-> size_t
+        @-> size_t
+        @-> ptr uint32_t
+        @-> size_t
+        @-> returning (ptr MeshGL.t) )
 
   let meshgl_w_tangents =
     foreign
       "manifold_meshgl_w_tangents"
       ( ptr void
-      @-> ptr float
-      @-> size_t
-      @-> size_t
-      @-> ptr uint32_t
-      @-> size_t
-      @-> ptr float
-      @-> returning (ptr MeshGL.t) )
+        @-> ptr float
+        @-> size_t
+        @-> size_t
+        @-> ptr uint32_t
+        @-> size_t
+        @-> ptr float
+        @-> returning (ptr MeshGL.t) )
 
   let manifold_get_meshgl =
     foreign
@@ -142,12 +161,12 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_cylinder"
       ( ptr void
-      @-> float
-      @-> float
-      @-> float
-      @-> int
-      @-> int
-      @-> returning (ptr Manifold.t) )
+        @-> float
+        @-> float
+        @-> float
+        @-> int
+        @-> int
+        @-> returning (ptr Manifold.t) )
 
   let manifold_sphere =
     foreign "manifold_sphere" (ptr void @-> float @-> int @-> returning (ptr Manifold.t))
@@ -159,23 +178,23 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_smooth"
       ( ptr void
-      @-> ptr MeshGL.t
-      @-> ptr int
-      @-> ptr float
-      @-> size_t
-      @-> returning (ptr Manifold.t) )
+        @-> ptr MeshGL.t
+        @-> ptr int
+        @-> ptr float
+        @-> size_t
+        @-> returning (ptr Manifold.t) )
 
   let manifold_extrude =
     foreign
       "manifold_extrude"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> float
-      @-> int
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Manifold.t) )
+        @-> ptr CrossSection.t
+        @-> float
+        @-> int
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Manifold.t) )
 
   let manifold_revolve =
     foreign
@@ -185,30 +204,64 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_compose =
     foreign
       "manifold_compose"
-      (ptr void @-> ptr (ptr Manifold.t) @-> size_t @-> returning (ptr Manifold.t))
-
-  let manifold_get_components =
-    foreign
-      "manifold_get_components"
-      (ptr void @-> ptr Manifold.t @-> returning (ptr Components.t))
-
-  let manifold_components_length =
-    foreign "manifold_components_length" (ptr Components.t @-> returning size_t)
+      (ptr void @-> ptr ManifoldVec.t @-> returning (ptr Manifold.t))
 
   let manifold_decompose =
     foreign
       "manifold_decompose"
-      ( ptr (ptr void)
-      @-> ptr Manifold.t
-      @-> ptr Components.t
-      @-> returning (ptr (ptr Manifold.t)) )
+      (ptr void @-> ptr Manifold.t @-> returning (ptr ManifoldVec.t))
 
   let manifold_as_original =
     foreign
       "manifold_as_original"
       (ptr void @-> ptr Manifold.t @-> returning (ptr Manifold.t))
 
-  (* Booleans *)
+  (* Manifold Vectors *)
+
+  let manifold_empty_vec =
+    foreign "manifold_manifold_empty_vec" (ptr void @-> returning (ptr ManifoldVec.t))
+
+  let manifold_vec =
+    foreign "manifold_manifold_vec" (ptr void @-> size_t @-> returning (ptr ManifoldVec.t))
+
+  let manifold_vec_reserve =
+    foreign
+      "manifold_manifold_vec_reserve"
+      (ptr ManifoldVec.t @-> size_t @-> returning void)
+
+  let manifold_vec_length =
+    foreign "manifold_manifold_vec_length" (ptr ManifoldVec.t @-> returning size_t)
+
+  let manifold_vec_get =
+    foreign
+      "manifold_manifold_vec_get"
+      (ptr void @-> ptr ManifoldVec.t @-> int @-> returning (ptr ManifoldVec.t))
+
+  let manifold_vec_set =
+    foreign
+      "manifold_manifold_vec_set"
+      (ptr ManifoldVec.t @-> int @-> ptr Manifold.t @-> returning void)
+
+  let manifold_vec_push_back =
+    foreign
+      "manifold_manifold_vec_push_back"
+      (ptr ManifoldVec.t @-> ptr Manifold.t @-> returning void)
+
+  (* Manifold Booleans *)
+
+  let manifold_boolean =
+    foreign
+      "manifold_boolean"
+      ( ptr void
+        @-> ptr Manifold.t
+        @-> ptr Manifold.t
+        @-> OpType.t
+        @-> returning (ptr Manifold.t) )
+
+  let manifold_batch_boolean =
+    foreign
+      "manifold_batch_boolean"
+      (ptr void @-> ptr ManifoldVec.t @-> OpType.t @-> returning (ptr Manifold.t))
 
   let manifold_union =
     foreign
@@ -229,33 +282,33 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_split"
       ( ptr void
-      @-> ptr void
-      @-> ptr Manifold.t
-      @-> ptr Manifold.t
-      @-> returning ManifoldPair.t )
+        @-> ptr void
+        @-> ptr Manifold.t
+        @-> ptr Manifold.t
+        @-> returning ManifoldPair.t )
 
   let manifold_split_by_plane =
     foreign
       "manifold_split_by_plane"
       ( ptr void
-      @-> ptr void
-      @-> ptr Manifold.t
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> returning ManifoldPair.t )
+        @-> ptr void
+        @-> ptr Manifold.t
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> returning ManifoldPair.t )
 
   let manifold_trim_by_plane =
     foreign
       "manifold_trim_by_plane"
       ( ptr void
-      @-> ptr Manifold.t
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Manifold.t) )
+        @-> ptr Manifold.t
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Manifold.t) )
 
   (* Transformations *)
 
@@ -263,57 +316,60 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_translate"
       ( ptr void
-      @-> ptr Manifold.t
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Manifold.t) )
+        @-> ptr Manifold.t
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Manifold.t) )
 
   let manifold_rotate =
     foreign
       "manifold_rotate"
       ( ptr void
-      @-> ptr Manifold.t
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Manifold.t) )
+        @-> ptr Manifold.t
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Manifold.t) )
 
   let manifold_scale =
     foreign
       "manifold_scale"
       ( ptr void
-      @-> ptr Manifold.t
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Manifold.t) )
+        @-> ptr Manifold.t
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Manifold.t) )
 
   let manifold_transform =
     foreign
       "manifold_transform"
       ( ptr void
-      @-> ptr Manifold.t
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Manifold.t) )
+        @-> ptr Manifold.t
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Manifold.t) )
 
-  let warp_t = Ctypes.(float @-> float @-> float @-> returning Vec3.t)
+  let warp3_t = Ctypes.(float @-> float @-> float @-> returning Vec3.t)
 
   let manifold_warp =
     foreign
       "manifold_warp"
-      (ptr void @-> ptr Manifold.t @-> static_funptr warp_t @-> returning (ptr Manifold.t))
+      ( ptr void
+        @-> ptr Manifold.t
+        @-> static_funptr warp3_t
+        @-> returning (ptr Manifold.t) )
 
   let manifold_refine =
     foreign
@@ -377,7 +433,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_original_id =
     foreign "manifold_original_id" (ptr Manifold.t @-> returning int)
 
-  (* Cross Section *)
+  (* CrossSection Constructors *)
 
   let cross_section_empty =
     foreign "manifold_cross_section_empty" (ptr void @-> returning (ptr CrossSection.t))
@@ -407,29 +463,92 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_cross_section_circle"
       (ptr void @-> float @-> int @-> returning (ptr CrossSection.t))
 
+  let cross_section_compose =
+    foreign
+      "manifold_cross_section_compose"
+      (ptr void @-> ptr CrossSectionVec.t @-> returning (ptr CrossSection.t))
+
+  let cross_section_decompose =
+    foreign
+      "manifold_cross_section_decompose"
+      (ptr void @-> ptr CrossSection.t @-> returning (ptr CrossSectionVec.t))
+
+  (* CrossSection Vectors *)
+
+  let cross_section_empty_vec =
+    foreign
+      "manifold_cross_section_empty_vec"
+      (ptr void @-> returning (ptr CrossSectionVec.t))
+
+  let cross_section_vec =
+    foreign
+      "manifold_cross_section_vec"
+      (ptr void @-> size_t @-> returning (ptr CrossSectionVec.t))
+
+  let cross_section_vec_reserve =
+    foreign
+      "manifold_cross_section_vec_reserve"
+      (ptr CrossSectionVec.t @-> size_t @-> returning void)
+
+  let cross_section_vec_length =
+    foreign
+      "manifold_cross_section_vec_length"
+      (ptr CrossSectionVec.t @-> returning size_t)
+
+  let cross_section_vec_get =
+    foreign
+      "manifold_cross_section_vec_get"
+      (ptr void @-> ptr CrossSectionVec.t @-> int @-> returning (ptr CrossSectionVec.t))
+
+  let cross_section_vec_set =
+    foreign
+      "manifold_cross_section_vec_set"
+      (ptr CrossSectionVec.t @-> int @-> ptr CrossSection.t @-> returning void)
+
+  let cross_section_vec_push_back =
+    foreign
+      "manifold_cross_section_vec_push_back"
+      (ptr CrossSectionVec.t @-> ptr CrossSection.t @-> returning void)
+
+  (* CrossSection Booleans *)
+
+  let cross_section_boolean =
+    foreign
+      "manifold_cross_section_boolean"
+      ( ptr void
+        @-> ptr CrossSection.t
+        @-> ptr CrossSection.t
+        @-> OpType.t
+        @-> returning (ptr CrossSection.t) )
+
+  let cross_section_batch_boolean =
+    foreign
+      "manifold_cross_section_batch_boolean"
+      (ptr void @-> ptr CrossSectionVec.t @-> OpType.t @-> returning (ptr CrossSection.t))
+
   let cross_section_union =
     foreign
       "manifold_cross_section_union"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> ptr CrossSection.t
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> ptr CrossSection.t
+        @-> returning (ptr CrossSection.t) )
 
   let cross_section_difference =
     foreign
       "manifold_cross_section_difference"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> ptr CrossSection.t
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> ptr CrossSection.t
+        @-> returning (ptr CrossSection.t) )
 
   let cross_section_intersection =
     foreign
       "manifold_cross_section_intersection"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> ptr CrossSection.t
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> ptr CrossSection.t
+        @-> returning (ptr CrossSection.t) )
 
   let cross_section_rect_clip =
     foreign
@@ -440,10 +559,10 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_cross_section_translate"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> float
-      @-> float
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> float
+        @-> float
+        @-> returning (ptr CrossSection.t) )
 
   let cross_section_rotate =
     foreign
@@ -454,32 +573,42 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_cross_section_scale"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> float
-      @-> float
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> float
+        @-> float
+        @-> returning (ptr CrossSection.t) )
 
   let cross_section_mirror =
     foreign
       "manifold_cross_section_mirror"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> float
-      @-> float
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> float
+        @-> float
+        @-> returning (ptr CrossSection.t) )
 
   let cross_section_transform =
     foreign
       "manifold_cross_section_transform"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr CrossSection.t) )
+
+  let warp2_t = Ctypes.(float @-> float @-> returning Vec3.t)
+
+  let cross_section_warp =
+    foreign
+      "manifold_cross_section_warp"
+      ( ptr void
+        @-> ptr CrossSection.t
+        @-> static_funptr warp2_t
+        @-> returning (ptr CrossSection.t) )
 
   let cross_section_simplify =
     foreign
@@ -490,15 +619,23 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_cross_section_offset"
       ( ptr void
-      @-> ptr CrossSection.t
-      @-> double
-      @-> JoinType.t
-      @-> double
-      @-> double
-      @-> returning (ptr CrossSection.t) )
+        @-> ptr CrossSection.t
+        @-> double
+        @-> JoinType.t
+        @-> double
+        @-> double
+        @-> returning (ptr CrossSection.t) )
+
+  (* CrossSection Info *)
 
   let cross_section_area =
     foreign "manifold_cross_section_area" (ptr CrossSection.t @-> returning double)
+
+  let cross_section_num_vert =
+    foreign "manifold_cross_section_num_vert" (ptr CrossSection.t @-> returning int)
+
+  let cross_section_num_contour =
+    foreign "manifold_cross_section_num_contour" (ptr CrossSection.t @-> returning int)
 
   let cross_section_is_empty =
     foreign "manifold_cross_section_is_empty" (ptr CrossSection.t @-> returning bool)
@@ -547,14 +684,14 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_rect_transform"
       ( ptr void
-      @-> ptr Rect.t
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Rect.t) )
+        @-> ptr Rect.t
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Rect.t) )
 
   let rect_translate =
     foreign
@@ -585,13 +722,13 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_box"
       ( ptr void
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Box.t) )
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Box.t) )
 
   let box_min = foreign "manifold_box_min" (ptr Box.t @-> returning Vec3.t)
   let box_max = foreign "manifold_box_max" (ptr Box.t @-> returning Vec3.t)
@@ -621,20 +758,20 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_box_transform"
       ( ptr void
-      @-> ptr Box.t
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> float
-      @-> returning (ptr Box.t) )
+        @-> ptr Box.t
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Box.t) )
 
   let box_translate =
     foreign
@@ -664,11 +801,11 @@ module Functions (F : Ctypes.FOREIGN) = struct
     foreign
       "manifold_level_set_seq"
       ( ptr void
-      @-> static_funptr sdf_t
-      @-> ptr Box.t
-      @-> float
-      @-> float
-      @-> returning (ptr MeshGL.t) )
+        @-> static_funptr sdf_t
+        @-> ptr Box.t
+        @-> float
+        @-> float
+        @-> returning (ptr MeshGL.t) )
 
   (* Export *)
   let material = foreign "manifold_material" (ptr void @-> returning (ptr Material.t))
@@ -708,9 +845,13 @@ module Functions (F : Ctypes.FOREIGN) = struct
   (* Sizes for allocation *)
 
   let manifold_size = foreign "manifold_manifold_size" (void @-> returning size_t)
+  let manifold_vec_size = foreign "manifold_manifold_vec_size" (void @-> returning size_t)
 
   let cross_section_size =
     foreign "manifold_cross_section_size" (void @-> returning size_t)
+
+  let cross_section_vec_size_vec =
+    foreign "manifold_cross_section_vec_size" (void @-> returning size_t)
 
   let simple_polygon_size =
     foreign "manifold_simple_polygon_size" (void @-> returning size_t)
@@ -721,7 +862,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let rect_size = foreign "manifold_rect_size" (void @-> returning size_t)
   let box_size = foreign "manifold_box_size" (void @-> returning size_t)
   let curvature_size = foreign "manifold_curvature_size" (void @-> returning size_t)
-  let components_size = foreign "manifold_components_size" (void @-> returning size_t)
   let material_size = foreign "manifold_material_size" (void @-> returning size_t)
 
   let export_options_size =
@@ -732,8 +872,16 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let destruct_manifold =
     foreign "manifold_destruct_manifold" (ptr Manifold.t @-> returning void)
 
+  let destruct_manifold_vec =
+    foreign "manifold_destruct_manifold_vec" (ptr ManifoldVec.t @-> returning void)
+
   let destruct_cross_section =
     foreign "manifold_destruct_cross_section" (ptr CrossSection.t @-> returning void)
+
+  let destruct_cross_section_vec =
+    foreign
+      "manifold_destruct_cross_section_vec"
+      (ptr CrossSectionVec.t @-> returning void)
 
   let destruct_simple_polygon =
     foreign "manifold_destruct_simple_polygon" (ptr SimplePolygon.t @-> returning void)
@@ -750,9 +898,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let destruct_curvature =
     foreign "manifold_destruct_curvature" (ptr Curvature.t @-> returning void)
 
-  let destruct_components =
-    foreign "manifold_destruct_components" (ptr Components.t @-> returning void)
-
   let destruct_material =
     foreign "manifold_destruct_material" (ptr Material.t @-> returning void)
 
@@ -764,8 +909,14 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let delete_manifold =
     foreign "manifold_delete_manifold" (ptr Manifold.t @-> returning void)
 
+  let delete_manifold_vec =
+    foreign "manifold_delete_manifold_vec" (ptr ManifoldVec.t @-> returning void)
+
   let delete_cross_section =
     foreign "manifold_delete_cross_section" (ptr CrossSection.t @-> returning void)
+
+  let delete_cross_section_vec =
+    foreign "manifold_delete_cross_section_vec" (ptr CrossSectionVec.t @-> returning void)
 
   let delete_simple_polygon =
     foreign "manifold_delete_simple_polygon" (ptr SimplePolygon.t @-> returning void)
@@ -779,9 +930,6 @@ module Functions (F : Ctypes.FOREIGN) = struct
 
   let delete_curvature =
     foreign "manifold_delete_curvature" (ptr Curvature.t @-> returning void)
-
-  let delete_components =
-    foreign "manifold_delete_components" (ptr Components.t @-> returning void)
 
   let delete_material =
     foreign "manifold_delete_material" (ptr Material.t @-> returning void)

@@ -20,6 +20,38 @@ let alloc () =
   , Ctypes.coerce Ctypes_static.(ptr void) Ctypes_static.(ptr C.Types.CrossSection.t) buf
   )
 
+module CrossSectionVec = struct
+  let size = C.Funcs.cross_section_size () |> size_to_int
+  let destruct t = C.Funcs.destruct_cross_section_vec t
+
+  let alloc' () =
+    let finalise = Mem.finaliser C.Types.CrossSectionVec.t destruct in
+    let buf = Mem.allocate_buf ~finalise size in
+    buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.CrossSectionVec.t) buf)
+
+  let empty () =
+    let buf, t = alloc' () in
+    let _ = C.Funcs.cross_section_empty_vec buf in
+    t
+
+  let reserve t n = C.Funcs.cross_section_vec_reserve t n
+
+  let make n =
+    let buf, t = alloc' () in
+    let _ = C.Funcs.cross_section_vec buf (size_of_int n) in
+    t
+
+  let length t = size_to_int @@ C.Funcs.cross_section_vec_length t
+
+  let get t i =
+    let buf, m = alloc () in
+    let _ = C.Funcs.cross_section_vec_get buf t i in
+    m
+
+  let set t i m = C.Funcs.cross_section_vec_set t i m
+  let push_back t m = C.Funcs.cross_section_vec_push_back t m
+end
+
 let empty () =
   let buf, t = alloc () in
   let _ = C.Funcs.cross_section_empty buf in
@@ -63,6 +95,22 @@ let square ?(center = false) d =
   let _ = V2.(C.Funcs.cross_section_square buf (x d) (y d) center) in
   t
 
+(* Booleans *)
+
+let boolean ~op a b =
+  let buf, t = alloc ()
+  and op = OpType.make op in
+  let _ = C.Funcs.cross_section_boolean buf a b op in
+  t
+
+let batch_boolean ~op ts =
+  let buf, t = alloc ()
+  and op = OpType.make op
+  and csv = CrossSectionVec.empty () in
+  List.iter (fun m -> CrossSectionVec.push_back csv m) ts;
+  let _ = C.Funcs.cross_section_batch_boolean buf csv op in
+  t
+
 let add a b =
   let buf, t = alloc () in
   let _ = C.Funcs.cross_section_union buf a b in
@@ -82,22 +130,23 @@ let union = function
   | [] -> empty ()
   | [ a ] -> copy a
   | [ a; b ] -> add a b
-  | a :: ts -> List.fold_left (fun t e -> add t e) a ts
+  | ts -> batch_boolean ~op:`Add ts
 
 let difference t = function
   | [] -> copy t
-  | ts -> List.fold_left (fun t e -> sub t e) t ts
+  | ts -> batch_boolean ~op:`Subtract ts
 
 let intersection = function
   | [] -> empty ()
   | [ a ] -> copy a
-  | a :: ts -> List.fold_left (fun t e -> intersect t e) a ts
+  | ts -> batch_boolean ~op:`Intersect ts
 
 let rect_clip t rect =
   let buf, clipped = alloc () in
   let _ = C.Funcs.cross_section_rect_clip buf t rect in
   clipped
 
+(* Transforms *)
 let translate p t =
   let buf, translated = alloc () in
   let _ = V2.(C.Funcs.cross_section_translate buf t (x p) (y p)) in
@@ -140,6 +189,17 @@ let scale s t =
 let[@inline] xscale x t = scale (v2 x 1.) t
 let[@inline] yscale y t = scale (v2 1. y) t
 
+let warp f t =
+  let buf, warped = alloc () in
+  let f x y = Conv.vec3_of_v3 (f (v2 x y)) in
+  let f =
+    Ctypes.(coerce (Foreign.funptr C.Funcs.warp2_t) (static_funptr C.Funcs.warp2_t) f)
+  in
+  let _ = C.Funcs.cross_section_warp buf t f in
+  warped
+
+(* Simplification and Offsetting *)
+
 let simplify ?(eps = 1e-6) t =
   let buf, simplified = alloc () in
   let _ = C.Funcs.cross_section_simplify buf t eps in
@@ -151,7 +211,11 @@ let offset ?(join_type = `Square) ?(miter_limit = 2.0) ?(arc_tolerance = 0.) ~de
   let _ = C.Funcs.cross_section_offset buf t delta join_type miter_limit arc_tolerance in
   off
 
+(* Information *)
+
 let area t = C.Funcs.cross_section_area t
+let num_vert t = C.Funcs.cross_section_num_vert t
+let num_contour t = C.Funcs.cross_section_num_contour t
 let is_empty t = C.Funcs.cross_section_is_empty t
 
 (* TODO: getting points out of a Polygons point vector. Needs functions to be

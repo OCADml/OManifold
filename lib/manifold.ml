@@ -39,16 +39,6 @@ module Id = struct
     | Product -> -1
 end
 
-module Components = struct
-  let size = C.Funcs.components_size () |> size_to_int
-  let destruct t = C.Funcs.destruct_components t
-
-  let alloc () =
-    let finalise = Mem.finaliser C.Types.Components.t destruct in
-    let buf = Mem.allocate_buf ~finalise size in
-    buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.Components.t) buf)
-end
-
 type size =
   { surface_area : float
   ; volume : float
@@ -63,6 +53,38 @@ let alloc () =
   let finalise = Mem.finaliser C.Types.Manifold.t destruct in
   let buf = Mem.allocate_buf ~finalise size in
   buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.Manifold.t) buf)
+
+module ManifoldVec = struct
+  let size = C.Funcs.manifold_vec_size () |> size_to_int
+  let destruct t = C.Funcs.destruct_manifold_vec t
+
+  let alloc' () =
+    let finalise = Mem.finaliser C.Types.ManifoldVec.t destruct in
+    let buf = Mem.allocate_buf ~finalise size in
+    buf, Ctypes_static.(Ctypes.coerce (ptr void) (ptr C.Types.ManifoldVec.t) buf)
+
+  let empty () =
+    let buf, t = alloc' () in
+    let _ = C.Funcs.manifold_empty_vec buf in
+    t
+
+  let reserve t n = C.Funcs.manifold_vec_reserve t n
+
+  let make n =
+    let buf, t = alloc' () in
+    let _ = C.Funcs.manifold_vec buf (size_of_int n) in
+    t
+
+  let length t = size_to_int @@ C.Funcs.manifold_vec_length t
+
+  let get t i =
+    let buf, m = alloc () in
+    let _ = C.Funcs.manifold_vec_get buf t i in
+    m
+
+  let set t i m = C.Funcs.manifold_vec_set t i m
+  let push_back t m = C.Funcs.manifold_vec_push_back t m
+end
 
 let empty () =
   let buf, t = alloc () in
@@ -173,27 +195,37 @@ let smooth_exn ?smoothness m =
 
 let compose ts =
   let buf, t = alloc () in
-  let len = List.length ts in
-  let ms = Ctypes.(CArray.make (ptr C.Types.Manifold.t) len) in
-  List.iteri (fun i t -> Ctypes.CArray.set ms i t) ts;
-  let _ = C.Funcs.manifold_compose buf (Ctypes.CArray.start ms) (size_of_int len) in
+  let ms = ManifoldVec.empty () in
+  List.iter (fun t -> ManifoldVec.push_back ms t) ts;
+  let _ = C.Funcs.manifold_compose buf ms in
   t
 
 let decompose t =
-  let comps_buf, comps = Components.alloc () in
-  let _ = C.Funcs.manifold_get_components comps_buf t in
-  let len = size_to_int @@ C.Funcs.manifold_components_length comps in
-  let bufs = Ctypes.(CArray.make (ptr void) len)
+  let buf, mv = ManifoldVec.alloc' () in
+  let _ = C.Funcs.manifold_decompose buf t
   and ts = ref [] in
-  for i = 0 to len - 1 do
+  for i = ManifoldVec.length mv - 1 downto 0 do
     let buf, man = alloc () in
-    Ctypes.CArray.set bufs i buf;
+    let _ = C.Funcs.manifold_vec_get buf mv i in
     ts := man :: !ts
   done;
-  let _ = C.Funcs.manifold_decompose (Ctypes.CArray.start bufs) t comps in
   !ts
 
 (* Booleans *)
+
+let boolean ~op a b =
+  let buf, t = alloc ()
+  and op = OpType.make op in
+  let _ = C.Funcs.manifold_boolean buf a b op in
+  t
+
+let batch_boolean ~op ts =
+  let buf, t = alloc ()
+  and op = OpType.make op
+  and mv = ManifoldVec.empty () in
+  List.iter (fun m -> ManifoldVec.push_back mv m) ts;
+  let _ = C.Funcs.manifold_batch_boolean buf mv op in
+  t
 
 let add a b =
   let buf, t = alloc () in
@@ -214,16 +246,16 @@ let union = function
   | [] -> empty ()
   | [ a ] -> copy a
   | [ a; b ] -> add a b
-  | a :: ts -> List.fold_left (fun t e -> add t e) a ts
+  | ts -> batch_boolean ~op:`Add ts
 
 let difference t = function
   | [] -> copy t
-  | ts -> List.fold_left (fun t e -> sub t e) t ts
+  | ts -> batch_boolean ~op:`Subtract ts
 
 let intersection = function
   | [] -> empty ()
   | [ a ] -> copy a
-  | a :: ts -> List.fold_left (fun t e -> intersect t e) a ts
+  | ts -> batch_boolean ~op:`Intersect ts
 
 let split a b =
   let buf1, first = alloc ()
@@ -250,7 +282,7 @@ let warp f t =
   let buf, warped = alloc () in
   let f x y z = Conv.vec3_of_v3 (f (v3 x y z)) in
   let f =
-    Ctypes.(coerce (Foreign.funptr C.Funcs.warp_t) (static_funptr C.Funcs.warp_t) f)
+    Ctypes.(coerce (Foreign.funptr C.Funcs.warp3_t) (static_funptr C.Funcs.warp3_t) f)
   in
   let _ = C.Funcs.manifold_warp buf t f in
   warped
