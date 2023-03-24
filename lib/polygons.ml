@@ -57,3 +57,14 @@ let of_poly2s polys =
 
 let of_path p = make [ p ]
 let of_paths p = make p
+
+let to_paths t =
+  let ps = ref [] in
+  for i = length t - 1 downto 0 do
+    let p = ref [] in
+    for j = simple_length t i - 1 downto 0 do
+      p := get t i j :: !p
+    done;
+    ps := !p :: !ps
+  done;
+  !ps

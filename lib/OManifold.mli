@@ -28,51 +28,6 @@ module Curvature : sig
     }
 end
 
-module Polygons : sig
-  module Simple : sig
-    type t
-
-    val make : Path2.t -> t
-  end
-
-  type t
-
-  (** {1 Constructors}*)
-
-  (** [make paths]
-
-       Create a set of polygons from a set of 2d paths. These can vary from
-       arbitrarily nested to completely separate, describing one or more complex
-       polygons with holes. *)
-  val make : Path2.t list -> t
-
-  (** {1 OCADml Conversion}
-
-       These are nothing special, but are provided for convenience (prepending
-       the outer path onto the list of holes before applying {!make}). *)
-
-  (** [of_path path]
-
-      Lift a 2d {!OCADml.Path2.t} into a manifold polygon set. *)
-  val of_path : Path2.t -> t
-
-  (** [of_paths paths]
-
-       Lump together a set of 2d {!OCADml.Path2.t}s into a manifold polygon
-       set. Equivalent to {!make}. *)
-  val of_paths : Path2.t list -> t
-
-  (** [of_poly2 poly]
-
-       Lift a 2d {!OCADml.Poly2.t} into a manifold polygon set. *)
-  val of_poly2 : Poly2.t -> t
-
-  (** [of_poly2s polys]
-
-       Lump together a set of 2d {!OCADml.Poly2.t}s into a manifold polygon set. *)
-  val of_poly2s : Poly2.t list -> t
-end
-
 module MMeshGL : sig
   (** A graphics library friendly representation of manifold's {!MMesh.t}.
        Obtained solely via {!Manifold.to_mmeshgl} *)
@@ -163,8 +118,6 @@ module CrossSection : sig
 
   val empty : unit -> t
   val copy : t -> t
-  val of_simple_polygon : ?fill_rule:fill_rule -> Polygons.Simple.t -> t
-  val of_polygons : ?fill_rule:fill_rule -> Polygons.t -> t
   val of_path : ?fill_rule:fill_rule -> Path2.t -> t
   val of_paths : ?fill_rule:fill_rule -> Path2.t list -> t
   val of_poly2 : ?fill_rule:fill_rule -> Poly2.t -> t
@@ -234,7 +187,7 @@ module CrossSection : sig
 
   (** {1 Conversion} *)
 
-  val to_polygons : t -> Polygons.t
+  val to_paths : t -> Path2.t list
 end
 
 module MRect : sig

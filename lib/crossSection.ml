@@ -248,3 +248,5 @@ let to_polygons t =
   let buf, ps = Polygons.alloc () in
   let _ = C.Funcs.cross_section_to_polygons buf t in
   ps
+
+let to_paths t = Polygons.to_paths @@ to_polygons t
