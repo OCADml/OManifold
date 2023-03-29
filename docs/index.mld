@@ -16,13 +16,12 @@ library provides a means to verify, smooth, and perform boolean operations
 {!module-OManifold} -- top level library interface
 
 {2 2d subsystem}
-- {{!OManifold.CrossSection} [CrossSection]} -- non-overlapping polygons (extrudable)
+- {{!OManifold.Cross} [Cross]} -- non-overlapping polygonal cross-sections (extrudable)
 - {{!OManifold.MRect} [MRect]} -- 2d bounding recangle type and operations
 
 {2 Manifold}
 - {{!OManifold.Manifold} [Manifold]} -- manifold 3d solids (set of meshes)
 - {{!OManifold.MBox} [MBox]} -- 3d bounding box type and operations
-- {{!OManifold.MeshRelation} [MeshRelation]} -- relationship of current to previous meshes
 - {{!OManifold.Quality} [Quality]} -- global quality params (à la OpenSCAD's
     [$fn $fa $fs])
 

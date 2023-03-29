@@ -9,7 +9,7 @@ type op_type =
 
 module Quality = Quality
 module Manifold = Manifold
-module CrossSection = CrossSection
+module Cross = CrossSection
 module Sdf2 = Sdf2
 module Sdf3 = Sdf3
 module MMeshGL = MMeshGL

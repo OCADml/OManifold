@@ -4,8 +4,8 @@ type mrect
 type cross_section
 
 module MMeshGL : sig
-  (** A graphics library friendly representation of manifold's {!MMesh.t}.
-       Obtained solely via {!Manifold.to_mmeshgl} *)
+  (** A graphics library friendly representation of manifold's internal mesh.
+       Obtained via {!Manifold.to_mmeshgl}, or constructed here by {!make}. *)
   type t
 
   (** {1 Constructor} *)
@@ -79,7 +79,7 @@ type op_type =
   | `Intersect
   ]
 
-module CrossSection : sig
+module Cross : sig
   type t = cross_section
 
   type fill_rule =
@@ -448,14 +448,14 @@ module Manifold : sig
 
        If you copy a manifold, but you want this new copy to have new properties
        (e.g. a different UV mapping), you can reset its relational ids (as found
-       in {!MeshGl.t} to new originals, meaning it will now be referenced by its
+       in {!MMeshGL.t} to new originals, meaning it will now be referenced by its
        descendents instead of the meshes it was built from, allowing you to
        differentiate the copies when applying your properties to the final result.
 
        This function also condenses all coplanar faces in the relation, and
        collapses those edges. If you want to have inconsistent properties across
        these faces, meaning you want to preserve some of these edges, you should
-       instead use {!to_meshgl}, calculate your properties and use these to construct
+       instead use {!to_mmeshgl}, calculate your properties and use these to construct
        a new manifold. *)
   val as_original : t -> t
 
@@ -486,7 +486,7 @@ module Manifold : sig
 
        Create a sphere with given [radius] at the origin of the coordinate
        system. The number of segments along the diameter can be explicitly set by
-       [fn], otherwise it is determined by the {{!section-quality} quality globals}. *)
+       [fn], otherwise it is determined by the {{!OManifold.Quality} quality globals}. *)
   val sphere : ?fn:int -> float -> t
 
   (** [cube ?center dimensions]
@@ -500,7 +500,7 @@ module Manifold : sig
      Creates a cylinder centered about the z-axis. When [center] is true, it will
      also be centered vertically, otherwise the base will sit upon the XY
      plane. The number of segments along the diameter can be explicitly set by
-     [fn], otherwise it is determined by the {{!section-quality} quality globals}. *)
+     [fn], otherwise it is determined by the {{!OManifold.Quality} quality globals}. *)
   val cylinder : ?center:bool -> ?fn:int -> height:float -> float -> t
 
   (** [cone ?center ?fn ~height r1 r2 ]
@@ -508,7 +508,7 @@ module Manifold : sig
      Create cone with bottom radius [r1] and top radius [r2]. When [center] is
      true, it will also be centered vertically, otherwise the base will sit upon
      the XY plane. The number of segments along the diameter can be explicitly set by
-     [fn], otherwise it is determined by the {{!section-quality} quality globals}.*)
+     [fn], otherwise it is determined by the {{!OManifold.Quality} quality globals}.*)
   val cone : ?center:bool -> ?fn:int -> height:float -> float -> float -> t
 
   (** {1 Mesh Conversions} *)
@@ -522,7 +522,7 @@ module Manifold : sig
 
   (** [of_mmeshgl_exn ?properties m]
 
-       Same as {!of_mmesh}, but raising a [Failure] rather than returning an
+       Same as {!of_mmeshgl}, but raising a [Failure] rather than returning an
        [Error]. *)
   val of_mmeshgl_exn : MMeshGL.t -> t
 
@@ -615,7 +615,7 @@ module Manifold : sig
        the part on the positive x side is used. Geometrically valid input will result
        in geometrically valid output. The number of segments in the revolution
        can be set explicitly with [fn], otherwise it is determined by the
-       {{!section-quality} quality globals}. *)
+       {{!OManifold.Quality} quality globals}. *)
   val revolve : ?fn:int -> CrossSection.t -> t
 
   (** {1 Booleans} *)
@@ -937,7 +937,7 @@ module Sdf3 : sig
        exceeds the given bounds, you will see a kind of egg-crate shape closing off
        the manifold, which is due to the underlying grid. The output is
        guaranteed to be manifold, thus should always be an appropriate input to
-       {!Manifold.of_mmesh}.
+       {!Manifold.of_mmeshgl}.
 
       - [box] is and axis-aligned bounding box defining the extent of the grid
         overwhich [t] is evaluated

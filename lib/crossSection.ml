@@ -236,17 +236,11 @@ let num_vert t = C.Funcs.cross_section_num_vert t
 let num_contour t = C.Funcs.cross_section_num_contour t
 let is_empty t = C.Funcs.cross_section_is_empty t
 
-(* TODO: getting points out of a Polygons point vector. Needs functions to be
-    added to manifoldc. Might be a good time to re-evaluate the API and whether
-    they should be re-written with opaque vector types with get/reserve/add
-    functions for each relevant vector in the interface. Float and uint64 for
-    sure, possibly 2d and 3d points. Manifold vectors as well for
-    compose/decompose. Would allow for the removal of the components type and
-    function breakdown of Decompose that was forced by the array interface. *)
-
 let to_polygons t =
   let buf, ps = Polygons.alloc () in
   let _ = C.Funcs.cross_section_to_polygons buf t in
   ps
 
 let to_paths t = Polygons.to_paths @@ to_polygons t
+
+(* TODO: to_polys (using decompose) *)
