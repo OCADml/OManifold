@@ -605,7 +605,7 @@ module Manifold : sig
     -> ?scale:v2
     -> ?center:bool
     -> height:float
-    -> CrossSection.t
+    -> Cross.t
     -> t
 
   (** [revolve ?fn cross_section]
@@ -616,7 +616,7 @@ module Manifold : sig
        in geometrically valid output. The number of segments in the revolution
        can be set explicitly with [fn], otherwise it is determined by the
        {{!OManifold.Quality} quality globals}. *)
-  val revolve : ?fn:int -> CrossSection.t -> t
+  val revolve : ?fn:int -> Cross.t -> t
 
   (** {1 Booleans} *)
 

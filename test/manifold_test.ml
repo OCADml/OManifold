@@ -40,14 +40,14 @@ let%test "decompose_compose" =
   List.length decomp = 4
 
 let%test "rect_clipping" =
-  let cs = CrossSection.square (v2 10. 10.) in
-  let r = MRect.translate (v2 0. (-5.)) @@ CrossSection.bounds cs in
-  CrossSection.(area cs /. 2. = area @@ rect_clip cs r)
+  let cs = Cross.square (v2 10. 10.) in
+  let r = MRect.translate (v2 0. (-5.)) @@ Cross.bounds cs in
+  Cross.(area cs /. 2. = area @@ rect_clip cs r)
 
 let%test "cross_transform" =
-  let sq = CrossSection.square (v2 10. 10.)
+  let sq = Cross.square (v2 10. 10.)
   and rot = Float.pi /. 4.
   and trans = v2 4. 6. in
-  let a = CrossSection.(rotate rot (translate trans sq))
-  and b = CrossSection.affine Affine2.(translate trans %> rotate rot) sq in
-  CrossSection.(MRect.contains_rect (bounds a) (bounds b))
+  let a = Cross.(rotate rot (translate trans sq))
+  and b = Cross.affine Affine2.(translate trans %> rotate rot) sq in
+  Cross.(MRect.contains_rect (bounds a) (bounds b))

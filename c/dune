@@ -56,7 +56,8 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
-        -DMANIFOLD_PAR=OMP
+        ; -DMANIFOLD_PAR=OMP
+        -DMANIFOLD_PAR=TBB
         ..)
        (run make -j))))
     (copy
@@ -93,7 +94,8 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
-        -DMANIFOLD_PAR=OMP
+        ; -DMANIFOLD_PAR=OMP
+        -DMANIFOLD_PAR=TBB
         ..)
        (run make -j))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
