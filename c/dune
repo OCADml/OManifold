@@ -1,3 +1,5 @@
+(data_only_dirs vendor)
+
 (library
  (name OManifold_c)
  (public_name OManifold.c)
