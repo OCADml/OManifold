@@ -43,6 +43,7 @@ jobs:
           opam exec -- dune build @doc
 
       - uses: actions/upload-artifact@v3
+        if: failure()
         with:
           name: manifold-vendor-logs
           path: |
