@@ -42,6 +42,13 @@ jobs:
         run: |
           opam exec -- dune build @doc
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: manifold-vendor-logs
+          path: |
+            _build/default/c/cmake_static.log
+            _build/default/c/cmake_shared.log
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

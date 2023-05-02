@@ -48,6 +48,7 @@
   (file vendor/manifold/CMakeLists.txt)
   (source_tree vendor/manifold/bindings)
   (source_tree vendor/manifold/meshIO)
+  (file vendor/manifold/src/CMakeLists.txt)
   (source_tree vendor/manifold/src/collider)
   (source_tree vendor/manifold/src/cross_section)
   (source_tree vendor/manifold/src/manifold)
@@ -58,7 +59,13 @@
   (source_tree vendor/manifold/src/third_party/clipper2)
   (source_tree vendor/manifold/src/third_party/glm)
   (source_tree vendor/manifold/src/third_party/graphlite)
+  (source_tree vendor/manifold/src/third_party/thrust/thrust)
+  (source_tree vendor/manifold/src/third_party/thrust/cmake)
   (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/cmake)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/codegen)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/include)
   (source_tree
@@ -73,12 +80,16 @@
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/src)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/utils)
+  (file
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/CMakeLists.txt)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxxabi)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libunwind)
   (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils))
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils)
+  (file
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/CMakeLists.txt))
  (action
   (no-infer
    (progn
@@ -124,6 +135,7 @@
   (file vendor/manifold/CMakeLists.txt)
   (source_tree vendor/manifold/bindings)
   (source_tree vendor/manifold/meshIO)
+  (file vendor/manifold/src/CMakeLists.txt)
   (source_tree vendor/manifold/src/collider)
   (source_tree vendor/manifold/src/cross_section)
   (source_tree vendor/manifold/src/manifold)
@@ -134,11 +146,19 @@
   (source_tree vendor/manifold/src/third_party/clipper2)
   (source_tree vendor/manifold/src/third_party/glm)
   (source_tree vendor/manifold/src/third_party/graphlite)
+  (source_tree vendor/manifold/src/third_party/thrust/thrust)
+  (source_tree vendor/manifold/src/third_party/thrust/cmake)
   (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/cmake)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/codegen)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/include)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/lib)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/cmake)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/include)
   (source_tree
@@ -147,12 +167,16 @@
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/src)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/utils)
+  (file
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/CMakeLists.txt)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxxabi)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libunwind)
   (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils))
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils)
+  (file
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/CMakeLists.txt))
  (action
   (no-infer
    (progn
