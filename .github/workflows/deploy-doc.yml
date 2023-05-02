@@ -30,22 +30,14 @@ jobs:
       - name: Pull in submodules (manifold and dependencies)
         run: git submodule update --init --recursive
 
-      - name: Build manifold (outside of dune)
-        run: |
-          cd c/vendor/manifold
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DMANIFOLD_EXPORT=ON -DMANIFOLD_TEST=OFF -DMANIFOLD_CBIND=ON -DMANIFOLD_USE_CUDA=OFF -DMANIFOLD_PAR=TBB -DMANIFOLD_PYBIND=OFF ..
-          make
-
       - name: Build docs
         run: |
           opam exec -- dune build @doc
 
-      - uses: actions/upload-artifact@v3
-        if: failure()
+      - name: Upload vendored manifold build logs as artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: manifold-vendor-logs
+          name: vendored-manifold-logs
           path: |
             _build/default/c/cmake_static.log
             _build/default/c/cmake_shared.log
