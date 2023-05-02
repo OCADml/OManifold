@@ -52,7 +52,7 @@ module MMeshGL : sig
 
        Retrieve the triangular faces of the mesh [t] as triples of indices into
        its {!points}. *)
-  val faces : t -> int list list
+  val faces : t -> Mesh.tri list
 
   (** {1 OCADml conversion}
 

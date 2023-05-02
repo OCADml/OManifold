@@ -155,21 +155,17 @@ let faces t =
   let tris = C.Funcs.meshgl_tri_verts buf t in
   let f i =
     Ctypes.(
-      Unsigned.UInt32.
-        [ to_int !@(tris +@ (i * 3))
-        ; to_int !@(tris +@ ((i * 3) + 1))
-        ; to_int !@(tris +@ ((i * 3) + 2))
-        ] )
+      ( Unsigned.UInt32.to_int !@(tris +@ (i * 3))
+      , Unsigned.UInt32.to_int !@(tris +@ ((i * 3) + 1))
+      , Unsigned.UInt32.to_int !@(tris +@ ((i * 3) + 2)) ) )
   in
   List.init (len / 3) f
 
 let of_mesh ?(rev = true) (m : Mesh.t) =
   (* OCADml follows OpenSCAD winding convention, opposite to Manifold *)
-  let[@warning "-partial-match"] rev_tri [ a; b; c ] = c, b, a
-  and[@warning "-partial-match"] tri [ a; b; c ] = a, b, c
-  and m = Mesh.triangulate m in
+  let rev_tri (a, b, c) = c, b, a in
   if rev
   then make (Mesh.points m) (List.rev_map rev_tri (Mesh.faces m))
-  else make (Mesh.points m) (List.rev_map tri (Mesh.faces m))
+  else make (Mesh.points m) (Mesh.faces m)
 
 let to_mesh t = Mesh.make ~points:(points t) ~faces:(faces t)

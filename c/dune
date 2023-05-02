@@ -39,8 +39,46 @@
   dllmanifold%{ext_dll}
   dllmeshIO%{ext_dll}
   dllclipper2%{ext_dll})
+ ; (deps
+ ;  (source_tree vendor/manifold))
+ ;  HACK: dune breaks when encountering the intentionally broken symlinks in the
+ ;  test directories of thrust's libcxx dependency, so until that is fixed I'm dodging those
+ ;  files with this mess
  (deps
-  (source_tree vendor/manifold))
+  (file vendor/manifold/CMakeLists.txt)
+  (source_tree vendor/manifold/bindings)
+  (source_tree vendor/manifold/meshIO)
+  (source_tree vendor/manifold/src/collider)
+  (source_tree vendor/manifold/src/cross_section)
+  (source_tree vendor/manifold/src/manifold)
+  (source_tree vendor/manifold/src/polygon)
+  (source_tree vendor/manifold/src/sdf)
+  (source_tree vendor/manifold/src/utilities)
+  (file vendor/manifold/src/third_party/CMakeLists.txt)
+  (source_tree vendor/manifold/src/third_party/clipper2)
+  (source_tree vendor/manifold/src/third_party/glm)
+  (source_tree vendor/manifold/src/third_party/graphlite)
+  (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/include)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/lib)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/cmake)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/include)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/lib)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/src)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/utils)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxxabi)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libunwind)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils))
  (action
   (no-infer
    (progn
@@ -77,8 +115,44 @@
 
 (rule
  (targets libmanifoldc.a libmanifold.a libmeshIO.a libclipper2.a)
+ ; (deps
+ ;  (source_tree vendor/manifold))
+ ;  HACK: dune breaks when encountering the intentionally broken symlinks in the
+ ;  test directories of thrust's libcxx dependency, so until that is fixed I'm dodging those
+ ;  files with this mess
  (deps
-  (source_tree vendor/manifold))
+  (file vendor/manifold/CMakeLists.txt)
+  (source_tree vendor/manifold/bindings)
+  (source_tree vendor/manifold/meshIO)
+  (source_tree vendor/manifold/src/collider)
+  (source_tree vendor/manifold/src/cross_section)
+  (source_tree vendor/manifold/src/manifold)
+  (source_tree vendor/manifold/src/polygon)
+  (source_tree vendor/manifold/src/sdf)
+  (source_tree vendor/manifold/src/utilities)
+  (file vendor/manifold/src/third_party/CMakeLists.txt)
+  (source_tree vendor/manifold/src/third_party/clipper2)
+  (source_tree vendor/manifold/src/third_party/glm)
+  (source_tree vendor/manifold/src/third_party/graphlite)
+  (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/include)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/lib)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/include)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/lib)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/src)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/utils)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxxabi)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libunwind)
+  (source_tree
+   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils))
  (action
   (no-infer
    (progn
