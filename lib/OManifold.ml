@@ -1,3 +1,6 @@
+type manifold = C.Types.Manifold.t Ctypes_static.ptr
+type mmeshgl = C.Types.MeshGL.t Ctypes_static.ptr
+type mbox = C.Types.Box.t Ctypes_static.ptr
 type mrect = C.Types.Rect.t Ctypes_static.ptr
 type cross_section = C.Types.CrossSection.t Ctypes_static.ptr
 
