@@ -940,7 +940,7 @@ module Sdf3 : sig
   val to_mmeshgl : ?level:float -> ?edge_length:float -> box:MBox.t -> t -> MMeshGL.t
 end
 
-(** {1 Output} *)
+(** {1 IO} *)
 
 module MMeshGL : sig
   (** A graphics library friendly representation of manifold's internal mesh.
