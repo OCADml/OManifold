@@ -15,12 +15,6 @@ let%test "uncollected" =
   let _ = Manifold.add (f b) a in
   true (* no segfaults due to early free / double free *)
 
-let%test "box" =
-  let a = v3 0. 0. 0.
-  and b = v3 2. 2. 2. in
-  let box = MBox.make a b in
-  V3.(equal (MBox.min box) a && equal (MBox.max box) b)
-
 let%test "warp" =
   let s = Manifold.sphere 10. in
   let _ = Manifold.warp (V3.translate (v3 1. 1. 1.)) s in
@@ -41,7 +35,7 @@ let%test "decompose_compose" =
 
 let%test "rect_clipping" =
   let cs = Cross.square (v2 10. 10.) in
-  let r = MRect.translate (v2 0. (-5.)) @@ Cross.bounds cs in
+  let r = Box2.move (v2 0. (-5.)) @@ Cross.bounds cs in
   Cross.(area cs /. 2. = area @@ rect_clip cs r)
 
 let%test "cross_transform" =
@@ -50,4 +44,4 @@ let%test "cross_transform" =
   and trans = v2 4. 6. in
   let a = Cross.(rotate rot (translate trans sq))
   and b = Cross.affine Affine2.(translate trans %> rotate rot) sq in
-  Cross.(MRect.contains_rect (bounds a) (bounds b))
+  Cross.(Box2.subset (bounds b) (bounds a))

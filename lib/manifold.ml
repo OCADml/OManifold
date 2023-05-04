@@ -117,7 +117,7 @@ let num_tri t = C.Funcs.manifold_num_tri t
 let bounding_box t =
   let buf, box = MBox.alloc () in
   let _ = C.Funcs.manifold_bounding_box buf t in
-  box
+  MBox.to_box box
 
 let precision t = C.Funcs.manifold_precision t
 let genus t = C.Funcs.manifold_genus t

@@ -16,7 +16,7 @@ let cube ?round (dims : v3) =
         v
           (Float.abs (x p) -. x dims)
           (Float.abs (y p) -. y dims)
-          (Float.abs (z p) -. z dims))
+          (Float.abs (z p) -. z dims) )
     in
     let len =
       Float.(V3.norm (v3 (max (V3.x q) 0.) (max (V3.y q) 0.) (max (V3.z q) 0.)))
@@ -45,8 +45,7 @@ let cylinder ?round ~height r =
     fun p ->
       let d = V3.(v2 (Float.abs (z p) -. h) (V2.norm (v2 (x p) (y p)) -. (r -. rnd))) in
       Float.(
-        neg
-          V2.(min (max (x d) (y d)) 0. +. norm (v2 (max (x d) 0.) (max (y d) 0.)) -. rnd))
+        neg V2.(min (max (x d) (y d)) 0. +. norm (v2 (max (x d) 0.) (max (y d) 0.)) -. rnd) )
 
 let round r (t : t) p = t p +. r
 let onion r (t : t) p = r -. Float.abs (t p)
@@ -121,9 +120,8 @@ let intersection ?smooth a b =
 let to_mmeshgl ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
   let sdf x y z = sdf (v3 x y z) in
   let buf, mesh = MMeshGL.alloc ()
-  and f =
-    Ctypes.(coerce (Foreign.funptr C.Funcs.sdf_t) (static_funptr C.Funcs.sdf_t) sdf)
-  in
+  and f = Ctypes.(coerce (Foreign.funptr C.Funcs.sdf_t) (static_funptr C.Funcs.sdf_t) sdf)
+  and box = MBox.of_box box in
   let _ = C.Funcs.level_set_seq buf f box edge_length level in
   mesh
 

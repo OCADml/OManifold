@@ -65,7 +65,7 @@ let copy t =
 let bounds t =
   let buf, rect = MRect.alloc () in
   let _ = C.Funcs.cross_section_bounds buf t in
-  rect
+  MRect.to_box rect
 
 let of_simple_polygon ?(fill_rule = `Positive) sp =
   let buf, t = alloc ()
@@ -160,7 +160,8 @@ let intersection = function
   | ts -> batch_boolean ~op:`Intersect ts
 
 let rect_clip t rect =
-  let buf, clipped = alloc () in
+  let buf, clipped = alloc ()
+  and rect = MRect.of_box rect in
   let _ = C.Funcs.cross_section_rect_clip buf t rect in
   clipped
 
