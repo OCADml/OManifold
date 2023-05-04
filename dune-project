@@ -36,4 +36,5 @@
    (>= 1.0.0))
   (OCADml
    (>= 0.6.0))
-  conf-assimp))
+  conf-assimp
+  conf-pkg-config))

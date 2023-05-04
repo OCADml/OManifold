@@ -3,6 +3,16 @@ let maybe_arch_cuda = "/opt/cuda/lib64"
 let base_flags = [ "-lstdc++"; "-lassimp" ]
 let cuda dir = [ Printf.sprintf "-L%s" dir; "-lcuda"; "-lcudart" ]
 
+(* TODO:
+   - use pkg-config generate the flags for tbb and cuda (as well as checking for
+   them)
+   check:
+   pkg-config --exists cuda cudart (exits with non-zero exit if they don't exist)
+   get flags:
+   pkg-config --libs --cflags cuda cudart
+   returns:
+   -I/opt/cuda/targets/x86_64-linux/include -L/opt/cuda/targets/x86_64-linux/lib -lcuda -lcudart
+*)
 let par_flags =
   match Option.map String.lowercase_ascii @@ Sys.getenv_opt "OMANIFOLD_PAR" with
   | Some "omp" -> [ "-fopenmp" ]
