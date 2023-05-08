@@ -5,6 +5,7 @@
 #include <caml/alloc.h>
 #include <caml/bigarray.h>
 #include <caml/callback.h>
+#include <caml/domain.h>
 #include <caml/mlvalues.h>
 #include <manifoldc.h>
 
@@ -25,6 +26,13 @@
 /*   CAMLreturn(vcontext); */
 /* } */
 
+// TODO:
+// - find out whether it is possible to have the funptr given to manifoldc be
+// one that actually gives the work to different ocaml domains so that some
+// amount of parallel execution is still possible
+// - the function sent has to be C, so that it can be called concurrently (can't
+// coordinate handing off the calls to domains in ocaml code since then /that/
+// ocaml code would be in violation of the runtime/domain lock.)
 value test_level_set_seq(value x1361, value x1360, value x1359, value x1358,
                          value x1357) {
   void *x1362 = CTYPES_ADDR_OF_FATPTR(x1361);
