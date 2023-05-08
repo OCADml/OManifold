@@ -125,5 +125,23 @@ let to_mmeshgl ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
   let _ = C.Funcs.level_set_seq buf f box edge_length level in
   mesh
 
+external test_level_set_seq
+  :  unit Ctypes.ptr
+  -> (float -> float -> float -> float) Ctypes_static.static_funptr
+  -> C.Types.Box.t Ctypes.ptr
+  -> float
+  -> float
+  -> C.Types.MeshGL.t Ctypes.ptr
+  = "test_level_set_seq"
+
+let _to_mmeshgl ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
+  let sdf x y z = sdf (v3 x y z) in
+  let buf, mesh = MMeshGL.alloc ()
+  and f = Ctypes.(coerce (Foreign.funptr C.Funcs.sdf_t) (static_funptr C.Funcs.sdf_t) sdf)
+  and box = MBox.of_box box in
+  let _ = test_level_set_seq buf f box edge_length level in
+  (* let _ = test_level_set_seq buf sdf box edge_length level in *)
+  mesh
+
 let to_mesh ?level ?edge_length ~box sdf =
   MMeshGL.to_mesh @@ to_mmeshgl ?level ?edge_length ~box sdf

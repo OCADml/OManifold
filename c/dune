@@ -29,6 +29,11 @@
    (functor Manifold_c_function_descriptions))
   (generated_types Manifold_c_types)
   (generated_entry_point C))
+ (foreign_stubs
+  (language c)
+  (names helpers)
+  (include_dirs "vendor/manifold/bindings/c/include")
+  (flags %{read-lines:config/c_library_flags}))
  (foreign_archives manifoldc manifold meshIO clipper2))
 
 ; Build Manifold vendor
