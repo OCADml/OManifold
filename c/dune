@@ -15,8 +15,10 @@
     ; https://github.com/ocaml/dune/issues/5325
     (c_flags
      "-Ic/vendor/manifold/bindings/c/include"
-     "-Ivendor/manifold/bindings/c/include")
-    (c_library_flags %{read-lines:config/c_library_flags})))
+     "-Ivendor/manifold/bindings/c/include"
+     (:include config/c_flags.sexp))
+    (c_library_flags
+     (:include config/c_library_flags.sexp))))
   (headers
    (include "manifoldc.h"))
   (external_library_name libmanifoldc)
@@ -61,6 +63,10 @@
   (source_tree vendor/manifold/src/third_party/graphlite)
   (source_tree vendor/manifold/src/third_party/thrust/thrust)
   (source_tree vendor/manifold/src/third_party/thrust/cmake)
+  (source_tree vendor/manifold/src/third_party/thrust/internal)
+  (source_tree vendor/manifold/src/third_party/thrust/scripts)
+  (file vendor/manifold/src/third_party/thrust/CMakeLists.txt)
+  (file vendor/manifold/src/third_party/thrust/Makefile)
   (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/cmake)
@@ -107,8 +113,7 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
-        ; -DMANIFOLD_PAR=OMP
-        -DMANIFOLD_PAR=TBB
+        -DMANIFOLD_PAR=%{read:config/par_flag}
         ..)
        (run make -j))))
     (copy
@@ -148,6 +153,10 @@
   (source_tree vendor/manifold/src/third_party/graphlite)
   (source_tree vendor/manifold/src/third_party/thrust/thrust)
   (source_tree vendor/manifold/src/third_party/thrust/cmake)
+  (source_tree vendor/manifold/src/third_party/thrust/internal)
+  (source_tree vendor/manifold/src/third_party/thrust/scripts)
+  (file vendor/manifold/src/third_party/thrust/CMakeLists.txt)
+  (file vendor/manifold/src/third_party/thrust/Makefile)
   (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
   (source_tree
    vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/cmake)
@@ -194,8 +203,7 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
-        ; -DMANIFOLD_PAR=OMP
-        -DMANIFOLD_PAR=TBB
+        -DMANIFOLD_PAR=%{read:config/par_flag}
         ..)
        (run make -j))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)

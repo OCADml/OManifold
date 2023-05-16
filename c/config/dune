@@ -1,9 +1,10 @@
 (executable
- (name discover))
+ (name discover)
+ (libraries dune-configurator))
 
 (rule
  (deps discover.exe)
- (targets "use_cuda" "c_library_flags")
+ (targets "use_cuda" "par_flag" "c_flags.sexp" "c_library_flags.sexp")
  (action
   (no-infer
    (run ./discover.exe))))

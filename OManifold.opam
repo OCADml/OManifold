@@ -18,6 +18,7 @@ depends: [
   "gg" {>= "1.0.0"}
   "OCADml" {>= "0.6.0"}
   "conf-assimp"
+  "conf-pkg-config"
   "odoc" {with-doc}
 ]
 build: [
