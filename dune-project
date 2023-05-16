@@ -28,6 +28,8 @@
  (depends
   (ocaml
    (>= 4.14.0))
+  dune
+  dune-configurator
   ctypes
   ctypes-foreign
   integers

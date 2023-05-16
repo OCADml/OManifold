@@ -35,7 +35,6 @@ module Cross : sig
   (** {1 Constructors}*)
 
   val empty : unit -> t
-  val copy : t -> t
   val of_path : ?fill_rule:fill_rule -> Path2.t -> t
   val of_paths : ?fill_rule:fill_rule -> Path2.t list -> t
   val of_poly2 : ?fill_rule:fill_rule -> Poly2.t -> t
