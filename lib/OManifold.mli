@@ -25,41 +25,141 @@ module Cross : sig
 
   type t = cross_section
 
+  (** Filling rules used by the clipping algorithm for boolean operations. See
+       Clipper2's docs for a detailed
+       {{:http://www.angusj.com/clipper2/Docs/Units/Clipper/Types/FillRule.htm}
+       explanation} of how they differ). *)
   type fill_rule =
-    [ `EvenOdd
-    | `Negative
-    | `NonZero
-    | `Positive
+    [ `EvenOdd (** only odd numbered sub-regions are filled *)
+    | `NonZero (** non-zero sub-regions are filled *)
+    | `Positive (** only sub-regions with winding counts [> 0] are filled *)
+    | `Negative (** only sub-regions with winding counts [< 0] are filled *)
     ]
 
   (** {1 Constructors}*)
 
+  (** [empty ()]
+
+      Create an empty cross-section containing no contours. *)
   val empty : unit -> t
+
+  (** [of_path ?fill_rule path]
+
+       Create a 2d cross-section from a single outline [path]. A boolean union
+       operation (with [`Positive] filling rule by default) is performed to ensure
+       the resulting cross-section is free of self-intersections. *)
   val of_path : ?fill_rule:fill_rule -> Path2.t -> t
+
+  (** [of_paths ?fill_rule paths]
+
+       Create a 2d cross-section from a set of closed [paths] (zero or more
+       complex polygons). A boolean union operation (with [`Positive] filling rule
+       by default) is performed to combine overlapping polygons and ensure the
+       resulting cross-section is free of intersections. *)
   val of_paths : ?fill_rule:fill_rule -> Path2.t list -> t
+
+  (** [of_poly2 ?fill_rule poly]
+
+      Create a 2d cross-section from an OCADml polygon. A boolean union
+      operation (with [`Positive] filling rule by default) is performed to combine
+      overlapping polygons and ensure the resulting cross-section is free of
+      intersections. *)
   val of_poly2 : ?fill_rule:fill_rule -> Poly2.t -> t
+
+  (** [of_poly2 ?fill_rule poly]
+
+      Create a 2d cross-section from a list of OCADml polygons. A boolean union
+      operation (with [`Positive] filling rule by default) is performed to combine
+      overlapping polygons and ensure the resulting cross-section is free of
+      intersections. *)
   val of_poly2s : ?fill_rule:fill_rule -> Poly2.t list -> t
 
   (** {1 Shapes} *)
 
+  (** [circle ?fn r]
+
+      Create a circular cross-section with radius [r]. [fn] can be provided to
+      set the number of segments that it should be drawn with, otherwise it will
+      be determined according to the globals governed by {!OManifold.Quality}. *)
   val circle : ?fn:int -> float -> t
+
+  (** [square ?center dims]
+
+       Create a square with the given XY [dims]. By default it is
+       positioned in the first quadrant, touching the origin. Setting
+       [~center:true] will instead centre the shape on the origin. If any
+       dimensions in size are negative, or if all are zero, an empty {!Manifold.t}
+       will be returned. *)
   val square : ?center:bool -> v2 -> t
 
   (** {1 Booleans} *)
 
+  (** [boolean ~op a b]
+
+      Compute the boolean operation [op] between the cross-sections [a] and
+      [b]. *)
   val boolean : op:op_type -> t -> t -> t
+
+  (** [batch_boolean ~op cs]
+
+      Compute the boolean operation [op] on the list of cross-sections [cs]. In
+      the case of [~op:`Subtract], the tail is differenced from the head. *)
   val batch_boolean : op:op_type -> t list -> t
+
+  (** [add a b]
+
+       Union (logical {b or}) the cross-sections [a] and [b]. *)
   val add : t -> t -> t
-  val sub : t -> t -> t
-  val intersect : t -> t -> t
+
+  (** [union ts]
+
+       Union (logical {b or}) the list of cross-sections [ts]. *)
   val union : t list -> t
+
+  (** [sub a b]
+
+       Subtract (logical {b and not}) the cross-section [b] from the cross-section [a]. *)
+  val sub : t -> t -> t
+
+  (** [difference t d]
+
+       Subtract (logical {b and not}) the list of cross-sections [d] from the cross-section [t]. *)
   val difference : t -> t list -> t
+
+  (** [intersect a b]
+
+       Compute the intersection (logical {b and}) of the cross-sections [a] and [b]. *)
+  val intersect : t -> t -> t
+
+  (** [intersection ts]
+
+       Compute the intersection (logical {b and}) of the cross-sections [ts]. Only
+       the area which is common or shared by {b all } shapes are retained. If
+       [ts] is empty, an empty cross-section {!t} will result. *)
   val intersection : t list -> t
+
+  (** [rect_clip t rect]
+
+       Compute the intersection between the cross-section [t] and an axis-aligned
+       bounding box [rect]. This operation has much higher performance ({b O(n)} vs
+       {b O(n{^ 3})} than the general purpose intersection algorithm
+       used for sets of cross-sections. *)
   val rect_clip : t -> Box2.t -> t
 
   (** {1 Topology} *)
 
+  (** [compose ts]
+
+      Create a cross-section from a list of cross-sections [ts] (see {!union}).
+      Unlike {!Manifold.compose}, it isn't necessary that the input shapes are
+      non-overlapping as a clipping operation is performed here. *)
   val compose : t list -> t
+
+  (** [decompose t]
+
+       Break the cross-section [t] into a list of topologically disconnected
+       cross-sections, each containing one outline contour with zero or more
+       holes. *)
   val decompose : t -> t list
 
   (** {1 Transformations} *)
@@ -367,6 +467,11 @@ module Manifold : sig
 
        Subtract (logical {b and not}) the list of manifolds [d] from the manifold [t]. *)
   val difference : t -> t list -> t
+
+  (** [intersect a b]
+
+       Compute the intersection (logical {b and}) of the manifolds [a] and [b]. *)
+  val intersect : t -> t -> t
 
   (** [intersection ts]
 
