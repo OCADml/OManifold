@@ -10,6 +10,12 @@ type fill_rule =
   | `Positive
   ]
 
+type join_type =
+  [ `Square
+  | `Round
+  | `Miter
+  ]
+
 let size = C.Funcs.cross_section_size () |> size_to_int
 let destruct t = C.Funcs.destruct_cross_section t
 

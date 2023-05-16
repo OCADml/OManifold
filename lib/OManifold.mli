@@ -36,6 +36,27 @@ module Cross : sig
     | `Negative (** only sub-regions with winding counts [< 0] are filled *)
     ]
 
+  (** Defines the treatment of corners when offsetting paths. Visual examples
+       are available in the Clipper2
+       {{:http://www.angusj.com/clipper2/Docs/Units/Clipper/Types/JoinType.htm}
+       docs}. *)
+  type join_type =
+    [ `Square
+      (** squaring applied uniformally at all joins where the {i internal}
+             join angle is less than 90 degrees. The squared edg will be at
+             exactly the offset distance from the join vertex *)
+    | `Round
+      (** rounding is appliedto all joins that have convex external
+             angles, and it maintains the exact offset distance from the join vertex *)
+    | `Miter
+      (** there's a necessary limit to mitered joins (to avoid narrow angled
+              joins producing excessively long and narrow
+              {{:http://www.angusj.com/clipper2/Docs/Units/Clipper.Offset/Classes/ClipperOffset/Properties/MiterLimit.htm}
+              spikes})). The limit sets the maximum distance in multiples of
+              the [delta] specified for the offsetting operation (default is
+              [2.], which is the minimum allowed). *)
+    ]
+
   (** {1 Constructors}*)
 
   (** [empty ()]
@@ -164,15 +185,58 @@ module Cross : sig
 
   (** {1 Transformations} *)
 
+  (** [translate p t]
+
+       Move [t] along the vector [p]. *)
   val translate : v2 -> t -> t
+
+  (** [xtrans x t]
+
+    Move [t] by the distance [x] along the x-axis. *)
   val xtrans : float -> t -> t
+
+  (** [ytrans y t]
+
+    Move [t] by the distance [y] along the y-axis. *)
   val ytrans : float -> t -> t
+
+  (** [rotate ?about r t]
+
+    Rotate the cross-section [t] around the z-axis through the origin (or the point
+    [about] if provided) by [r] (in radians). *)
   val rotate : ?about:v2 -> float -> t -> t
+
+  (** [zrot ?about r t]
+
+    Rotate the cross-section [t] around the z-axis through the origin (or the point
+    [about] if provided) by [r] (in radians). *)
   val zrot : ?about:v2 -> float -> t -> t
+
+  (** [mirror ax t]
+
+       Mirror the cross-seciton [t] over the arbitrary axis described by the
+       unit form of the vector [ax]. If the length of [ax] is zero, an empty
+       cross-section is returned. *)
   val mirror : v2 -> t -> t
+
+  (** [affine m t]
+
+    Transform the cross-section [t] with the affine transformation matrix [m]. *)
   val affine : Affine2.t -> t -> t
+
+  (** [scale factors t]
+
+    Scales [t] by the given [factors] in xy. *)
   val scale : v2 -> t -> t
+
+  (** [xscale s t]
+
+    Scales [t] by the factor [s] in the x-dimension. *)
   val xscale : float -> t -> t
+
+  (** [yscale s t]
+
+    Scales [t] by the factor [s] in the y-dimension. *)
   val yscale : float -> t -> t
 
   (** [warp f t]
@@ -184,10 +248,39 @@ module Cross : sig
 
   (** {1 Path simplification and offsetting} *)
 
+  (** [simplify ?eps t]
+
+       Remove vertices from the contours in [t] that are less than
+       the specified distance [eps] from an imaginary line that passes through
+       its two adjacent vertices. Near duplicate vertices and collinear points
+       will be removed at lower [eps]ilons, with elimination of line segments
+       becoming increasingly aggressive with larger [eps]ilons.
+
+       It is recommended to apply this function following {!offset}, in order to
+       clean up any spurious tiny line segments introduced that do not improve
+       quality in any meaningful way. This is particularly important if further
+       offseting operations are to be performed, which would compound the
+       issue. *)
   val simplify : ?eps:float -> t -> t
 
+  (** [offset ?join_type ?miter_limit ?arc_tolerance ~delta t]
+
+       Inflate the contours in the cross-section [t] by the [delta], handling
+       corners according to [join_type] (default = [`Square]). Positive [delta]
+       will cause the expansion of outlining contours to expand, and retraction of
+       inner (hole) contours. Negative deltas will have the opposite effect.
+
+       - [miter_limit] sets maximum distance in multiples of delta that vertices
+         can be offset from their original positions with before squaring is
+         applied, {b when the join type is [`Miter]} (default is [2.], which is the
+         minimum allowed). See the {{:http://www.angusj.com/clipper2/Docs/Units/Clipper.Offset/Classes/ClipperOffset/Properties/MiterLimit.htm}Clipper2
+         MiterLimit} page for a visual example.
+       - [arc_tolerance] sets the maximum acceptable imperfection for curves
+         drawn (approximated with line segments) for [`Round] joins (not relevant for
+         other [join_type]s). By default the allowable imprecision is scaled in
+         inverse proportion to the offset delta. *)
   val offset
-    :  ?join_type:[< `Miter | `Round | `Square > `Square ]
+    :  ?join_type:join_type
     -> ?miter_limit:float
     -> ?arc_tolerance:float
     -> delta:float
@@ -196,14 +289,41 @@ module Cross : sig
 
   (** {1 Geometry} *)
 
+  (** [bounds t]
+
+       Compute the axis-aligned bounding rectangle of all of the cross-section
+       [t]'s vertices. *)
   val bounds : t -> Box2.t
+
+  (** [area t]
+
+       Compute the total area covered by complex polygons making up the
+       cross-section [t]. *)
   val area : t -> float
+
+  (** [num_vert t]
+
+      The number of vertices in the cross-section [t]. *)
   val num_vert : t -> int
+
+  (** [num_contour t]
+
+      The number of contours in the cross-section [t]. *)
   val num_contour : t -> int
+
+  (** [is_empty t]
+
+      Does the cross-section [t] contain zero contours? *)
   val is_empty : t -> bool
 
   (** {1 Conversion} *)
 
+  (** [to_paths t]
+
+      Extract the contours (closed paths) from [t], describing zero or more
+      complex polygons. If a list describing a single complex polygon with the
+      its outline at the head, and inner/hole paths in the tail, one should first
+      apply {!decompose}. *)
   val to_paths : t -> Path2.t list
 end
 
@@ -542,6 +662,13 @@ module Manifold : sig
     Rotate the manifold [t] around the z-axis through the origin (or the point
     [about] if provided) by [r] (in radians). *)
   val zrot : ?about:v3 -> float -> t -> t
+
+  (** [mirror n t]
+
+       Mirror the manifold [t] over the plane described by the unit form of the
+       normal vector [n]. If the length of [n] is zero, an empty manifold is
+       returned. *)
+  val mirror : v3 -> t -> t
 
   (** [affine m t]
 

@@ -313,6 +313,11 @@ let[@inline] xrot ?about x t = rotate ?about (v3 x 0. 0.) t
 let[@inline] yrot ?about y t = rotate ?about (v3 0. y 0.) t
 let[@inline] zrot ?about z t = rotate ?about (v3 0. 0. z) t
 
+let mirror p t =
+  let buf, mirrored = alloc () in
+  let _ = V3.(C.Funcs.manifold_mirror buf t (x p) (y p) (z p)) in
+  mirrored
+
 let affine (a : Affine3.t) t =
   let buf, transformed = alloc () in
   let _ =

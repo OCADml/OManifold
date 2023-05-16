@@ -342,6 +342,16 @@ module Functions (F : Ctypes.FOREIGN) = struct
         @-> float
         @-> returning (ptr Manifold.t) )
 
+  let manifold_mirror =
+    foreign
+      "manifold_mirror"
+      ( ptr void
+        @-> ptr Manifold.t
+        @-> float
+        @-> float
+        @-> float
+        @-> returning (ptr Manifold.t) )
+
   let manifold_transform =
     foreign
       "manifold_transform"
