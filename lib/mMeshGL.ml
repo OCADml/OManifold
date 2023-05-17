@@ -169,3 +169,9 @@ let of_mesh ?(rev = true) (m : Mesh.t) =
   else make (Mesh.points m) (Mesh.faces m)
 
 let to_mesh t = Mesh.make ~points:(points t) ~faces:(faces t)
+
+let import ?(cleanup = false) path =
+  let buf, t = alloc ()
+  and path = Conv.string_to_ptr Ctypes_static.char path in
+  let _ = C.Funcs.import_meshgl buf path cleanup in
+  t

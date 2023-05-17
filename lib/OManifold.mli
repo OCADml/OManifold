@@ -1030,6 +1030,15 @@ module MMeshGL : sig
 
        Create an [OCADml.Mesh.t] from the manifold mesh [t].  *)
   val to_mesh : t -> Mesh.t
+
+  (** {1 Import} *)
+
+  (** [import ?force_cleanup path]
+
+      Load a mesh from disk at the given [path] using Manifold's MeshIO wrapper
+      over assimp. If [cleanup] is [true] (defaults to [false]), identical
+      vertices in the input will be merged to promote manifoldness. *)
+  val import : ?cleanup:bool -> string -> t
 end
 
 module Export : sig

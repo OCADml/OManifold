@@ -853,6 +853,11 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_export_meshgl"
       (ptr char @-> ptr MeshGL.t @-> ptr ExportOptions.t @-> returning void)
 
+  let import_meshgl =
+    foreign
+      "manifold_import_meshgl"
+      (ptr void @-> ptr char @-> bool @-> returning (ptr MeshGL.t))
+
   (* Sizes for allocation *)
 
   let manifold_size = foreign "manifold_manifold_size" (void @-> returning size_t)
