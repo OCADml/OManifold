@@ -31,71 +31,23 @@
    (functor Manifold_c_function_descriptions))
   (generated_types Manifold_c_types)
   (generated_entry_point C))
- (foreign_archives manifoldc manifold meshIO clipper2))
+ (foreign_archives manifoldc manifold clipper2))
+
+; (foreign_archives manifoldc manifold)) ; without clipper2 (it fails)
 
 ; Build Manifold vendor
 
 (rule
- (targets
-  dllmanifoldc%{ext_dll}
-  dllmanifold%{ext_dll}
-  dllmeshIO%{ext_dll}
-  dllclipper2%{ext_dll})
- ; (deps
- ;  (source_tree vendor/manifold))
- ;  HACK: dune breaks when encountering the intentionally broken symlinks in the
- ;  test directories of thrust's libcxx dependency, so until that is fixed I'm dodging those
- ;  files with this mess
+ (targets dllmanifoldc%{ext_dll} dllmanifold%{ext_dll} dllclipper2%{ext_dll})
+ ; (targets dllmanifoldc%{ext_dll} dllmanifold%{ext_dll})
+ ; without clipper2.so, is it required?
+ ; it seems like it is, dropping the target causes a "No rule found for dllclipper2.so" error.
+ ; I think that the clipper2 foreign_archives entry is looking for it.
+ ; TODO: is the separate foreign_archive for clipper2 required anymore, or does
+ ; manifold incorporate it such that ocaml doesn't need to know?
+ ; NOTE: yes, the compilation fails without it (when trying to include <manifoldc.h>)
  (deps
-  (file vendor/manifold/CMakeLists.txt)
-  (source_tree vendor/manifold/bindings)
-  (source_tree vendor/manifold/meshIO)
-  (file vendor/manifold/src/CMakeLists.txt)
-  (source_tree vendor/manifold/src/collider)
-  (source_tree vendor/manifold/src/cross_section)
-  (source_tree vendor/manifold/src/manifold)
-  (source_tree vendor/manifold/src/polygon)
-  (source_tree vendor/manifold/src/sdf)
-  (source_tree vendor/manifold/src/utilities)
-  (file vendor/manifold/src/third_party/CMakeLists.txt)
-  (source_tree vendor/manifold/src/third_party/clipper2)
-  (source_tree vendor/manifold/src/third_party/glm)
-  (source_tree vendor/manifold/src/third_party/graphlite)
-  (source_tree vendor/manifold/src/third_party/thrust/thrust)
-  (source_tree vendor/manifold/src/third_party/thrust/cmake)
-  (source_tree vendor/manifold/src/third_party/thrust/internal)
-  (source_tree vendor/manifold/src/third_party/thrust/scripts)
-  (file vendor/manifold/src/third_party/thrust/CMakeLists.txt)
-  (file vendor/manifold/src/third_party/thrust/Makefile)
-  (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/cmake)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/codegen)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/include)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/lib)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/cmake)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/include)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/lib)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/src)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/utils)
-  (file
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/CMakeLists.txt)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxxabi)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libunwind)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils)
-  (file
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/CMakeLists.txt))
+  (source_tree vendor/manifold))
  (action
   (no-infer
    (progn
@@ -112,7 +64,6 @@
         -DMANIFOLD_TEST=OFF
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
-        -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
         -DMANIFOLD_PAR=%{read:config/par_flag}
         ..)
        (run make -j))))
@@ -120,72 +71,23 @@
      vendor/manifold/build_so/bindings/c/libmanifoldc%{ext_dll}
      dllmanifoldc%{ext_dll})
     (copy
-     vendor/manifold/build_so/src/manifold/libmanifold%{ext_dll}
+     vendor/manifold/build_so/src/libmanifold%{ext_dll}
      dllmanifold%{ext_dll})
-    (copy
-     vendor/manifold/build_so/meshIO/libmeshIO%{ext_dll}
-     dllmeshIO%{ext_dll})
-    (copy
-     vendor/manifold/build_so/src/third_party/clipper2/CPP/libClipper2%{ext_dll}
-     dllclipper2%{ext_dll})))))
+    ; (copy
+    ;  vendor/manifold/build_so/meshIO/libmeshIO%{ext_dll}
+    ;  dllmeshIO%{ext_dll})
+    ;  FIXME: manifold builds a static libClipper2.a even when in shared libraries mode,
+    ;  this *might* be a problem for ctypes which I belive always wanted dll and static
+    ;  for a static build.
+    ; (copy
+    ;  vendor/manifold/build_so/src/third_party/clipper2/CPP/libClipper2%{ext_dll}
+    ;  dllclipper2%{ext_dll})
+    ))))
 
 (rule
- (targets libmanifoldc.a libmanifold.a libmeshIO.a libclipper2.a)
- ; (deps
- ;  (source_tree vendor/manifold))
- ;  HACK: dune breaks when encountering the intentionally broken symlinks in the
- ;  test directories of thrust's libcxx dependency, so until that is fixed I'm dodging those
- ;  files with this mess
+ (targets libmanifoldc.a libmanifold.a libclipper2.a)
  (deps
-  (file vendor/manifold/CMakeLists.txt)
-  (source_tree vendor/manifold/bindings)
-  (source_tree vendor/manifold/meshIO)
-  (file vendor/manifold/src/CMakeLists.txt)
-  (source_tree vendor/manifold/src/collider)
-  (source_tree vendor/manifold/src/cross_section)
-  (source_tree vendor/manifold/src/manifold)
-  (source_tree vendor/manifold/src/polygon)
-  (source_tree vendor/manifold/src/sdf)
-  (source_tree vendor/manifold/src/utilities)
-  (file vendor/manifold/src/third_party/CMakeLists.txt)
-  (source_tree vendor/manifold/src/third_party/clipper2)
-  (source_tree vendor/manifold/src/third_party/glm)
-  (source_tree vendor/manifold/src/third_party/graphlite)
-  (source_tree vendor/manifold/src/third_party/thrust/thrust)
-  (source_tree vendor/manifold/src/third_party/thrust/cmake)
-  (source_tree vendor/manifold/src/third_party/thrust/internal)
-  (source_tree vendor/manifold/src/third_party/thrust/scripts)
-  (file vendor/manifold/src/third_party/thrust/CMakeLists.txt)
-  (file vendor/manifold/src/third_party/thrust/Makefile)
-  (source_tree vendor/manifold/src/third_party/thrust/dependencies/cub)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/cmake)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/codegen)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/include)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/lib)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/cmake)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/include)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/lib)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/src)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/utils)
-  (file
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxx/CMakeLists.txt)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libcxxabi)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/libunwind)
-  (source_tree
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/utils)
-  (file
-   vendor/manifold/src/third_party/thrust/dependencies/libcudacxx/CMakeLists.txt))
+  (source_tree vendor/manifold))
  (action
   (no-infer
    (progn
@@ -202,13 +104,12 @@
         -DMANIFOLD_TEST=OFF
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
-        -DMANIFOLD_USE_CUDA=%{read:config/use_cuda}
         -DMANIFOLD_PAR=%{read:config/par_flag}
         ..)
        (run make -j))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
-    (copy vendor/manifold/build_a/src/manifold/libmanifold.a libmanifold.a)
-    (copy vendor/manifold/build_a/meshIO/libmeshIO.a libmeshIO.a)
+    (copy vendor/manifold/build_a/src/libmanifold.a libmanifold.a)
+    ; (copy vendor/manifold/build_a/meshIO/libmeshIO.a libmeshIO.a)
     (copy
-     vendor/manifold/build_a/src/third_party/clipper2/CPP/libClipper2.a
+     vendor/manifold/build_a/_deps/clipper2-build/libClipper2.a
      libclipper2.a)))))

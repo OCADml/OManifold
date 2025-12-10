@@ -4,7 +4,7 @@
 
 (rule
  (deps discover.exe)
- (targets "use_cuda" "par_flag" "c_flags.sexp" "c_library_flags.sexp")
+ (targets "par_flag" "c_flags.sexp" "c_library_flags.sexp")
  (action
   (no-infer
    (run ./discover.exe))))

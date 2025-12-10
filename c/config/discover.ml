@@ -2,50 +2,32 @@ module Conf = Configurator.V1
 module Pkg = Conf.Pkg_config
 
 let base_libs = [ "-lstdc++"; "-lassimp" ]
-let unix_usual_cuda = "/usr/local/cuda/lib64"
-let maybe_arch_cuda = "/opt/cuda/lib64"
-
-let default_cuda dir =
-  Pkg.{ cflags = []; libs = [ Printf.sprintf "-L%s" dir; "-lcuda"; "-lcudart" ] }
 
 let query_tbb pkg =
   let pc = Pkg.query pkg ~package:"tbb" in
   pc, if Option.is_some pc then "TBB" else "NONE"
 
-let query_omp pkg =
-  let pc = Pkg.query pkg ~package:"openmp" in
-  pc, if Option.is_some pc then "OMP" else "NONE"
-
+(* TODO: some of this could be further simplified now that the only external library
+    for paralellism is TBB*)
+  (* TODO: since I am using EXPORT, I need to also look for assimp and fail
+    with a helpful error message if it is not found (manifold is no longer
+    vendoring). TBB was never vendored, but the same should be done if the user
+    wants TBB and they do not have it installed (otherwise the manifold build
+    will fail) *)
 let discover c =
   let pc =
     match Pkg.get c with
     | Some p ->
-      let cuda =
-        match
-          Option.map String.lowercase_ascii @@ Sys.getenv_opt "OMANIFOLD_USE_CUDA"
-        with
-        | Some ("on" | "true" | "yes") ->
-          (* TODO: can probably remove these and trust pkg-config, it isn't
-                  working due to messing with GPU packages recently *)
-          if Sys.file_exists unix_usual_cuda && Sys.is_directory unix_usual_cuda
-          then Some (default_cuda unix_usual_cuda)
-          else if Sys.file_exists maybe_arch_cuda && Sys.is_directory maybe_arch_cuda
-          then Some (default_cuda maybe_arch_cuda)
-          else Pkg.query p ~package:"cuda cudart"
-        | _ -> None
-      and par, par_flag =
+      let par, par_flag =
         match Option.map String.lowercase_ascii @@ Sys.getenv_opt "OMANIFOLD_PAR" with
-        | Some "omp" -> query_omp p
         | Some "none" -> None, "NONE"
         | Some "tbb" -> query_tbb p
         | _ ->
           let pc = Pkg.query p ~package:"tbb" in
-          if Option.is_some pc then pc, "TBB" else query_omp p
+          if Option.is_some pc then pc, "TBB" else None, "NONE"
       in
-      Out_channel.with_open_bin "use_cuda" (fun oc ->
-        Printf.fprintf oc "%s" (if Option.is_some cuda then "ON" else "OFF") );
       Out_channel.with_open_bin "par_flag" (fun oc -> Printf.fprintf oc "%s" par_flag);
-      List.filter_map Fun.id [ cuda; par ]
+      List.filter_map Fun.id [ par ]
       |> List.fold_left
            (fun (cs, ls) Pkg.{ cflags; libs } -> cflags :: cs, libs :: ls)
            ([], [ base_libs ])

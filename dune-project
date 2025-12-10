@@ -4,7 +4,7 @@
 
 (using directory-targets 0.1)
 
-(using ctypes 0.1)
+(using ctypes 0.3)
 
 (cram disable)
 
