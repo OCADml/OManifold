@@ -165,12 +165,6 @@ let intersection = function
   | [ a ] -> copy a
   | ts -> batch_boolean ~op:`Intersect ts
 
-let rect_clip t rect =
-  let buf, clipped = alloc ()
-  and rect = MRect.of_box rect in
-  let _ = C.Funcs.cross_section_rect_clip buf t rect in
-  clipped
-
 (* Transforms *)
 let translate p t =
   let buf, translated = alloc () in

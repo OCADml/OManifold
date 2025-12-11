@@ -149,18 +149,12 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let t : t typ = structure "ManifoldMeshGL"
   end
 
-  module Curvature = struct
-    type t = [ `Curvature ] structure
-
-    let t : t typ = structure "ManifoldCurvature"
-  end
-
   module Properties = struct
     type t = [ `Properties ] structure
 
     let t : t typ = structure "ManifoldProperties"
-    let surface_area = field t "surface_area" float
-    let volume = field t "volume" float
+    let surface_area = field t "surface_area" double
+    let volume = field t "volume" double
     let () = seal t
   end
 
@@ -201,8 +195,8 @@ module Types (F : Cstubs.Types.TYPE) = struct
     type t = [ `Vec2 ] structure
 
     let t : t typ = structure "ManifoldVec2"
-    let x = field t "x" float
-    let y = field t "y" float
+    let x = field t "x" double
+    let y = field t "y" double
     let () = seal t
   end
 
@@ -210,9 +204,9 @@ module Types (F : Cstubs.Types.TYPE) = struct
     type t = [ `Vec3 ] structure
 
     let t : t typ = structure "ManifoldVec3"
-    let x = field t "x" float
-    let y = field t "y" float
-    let z = field t "z" float
+    let x = field t "x" double
+    let y = field t "y" double
+    let z = field t "z" double
     let () = seal t
   end
 
@@ -230,21 +224,10 @@ module Types (F : Cstubs.Types.TYPE) = struct
     type t = [ `Vec4 ] structure
 
     let t : t typ = structure "ManifoldVec4"
-    let x = field t "x" float
-    let y = field t "y" float
-    let z = field t "z" float
-    let w = field t "w" float
-    let () = seal t
-  end
-
-  module CurvatureBounds = struct
-    type t = [ `CurvatureBounds ] structure
-
-    let t : t typ = structure "ManifoldCurvatureBounds"
-    let max_mean_curvature = field t "max_mean_curvature" float
-    let min_mean_curvature = field t "min_mean_curvature" float
-    let max_gaussian_curvature = field t "max_gaussian_curvature" float
-    let min_gaussian_curvature = field t "min_gaussian_curvature" float
+    let x = field t "x" double
+    let y = field t "y" double
+    let z = field t "z" double
+    let w = field t "w" double
     let () = seal t
   end
 end

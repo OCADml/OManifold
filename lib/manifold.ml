@@ -39,8 +39,6 @@ module Id = struct
     | Product -> -1
 end
 
-module Curvature = Curvature
-
 type size =
   { surface_area : float
   ; volume : float
@@ -121,17 +119,8 @@ let bounding_box t =
 
 let precision t = C.Funcs.manifold_precision t
 let genus t = C.Funcs.manifold_genus t
-
-let size t =
-  let s = C.Funcs.manifold_get_properties t in
-  let surface_area = Ctypes.getf s C.Types.Properties.surface_area
-  and volume = Ctypes.getf s C.Types.Properties.volume in
-  { surface_area; volume }
-
-let curvature t =
-  let buf, curv = Curvature.alloc () in
-  let _ = C.Funcs.manifold_get_curvature buf t in
-  Curvature.of_ptr curv
+let surface_area t = C.Funcs.manifold_surface_area t
+let volume t = C.Funcs.manifold_volume t
 
 (* Shapes *)
 
@@ -180,8 +169,8 @@ let smooth ?(smoothness = []) m =
   and edge_ks = CArray.make float len in
   List.iteri
     (fun i (idx, s) ->
-      CArray.set edge_idxs i idx;
-      CArray.set edge_ks i s )
+       CArray.set edge_idxs i idx;
+       CArray.set edge_ks i s )
     smoothness;
   let idx_ptr = CArray.start edge_idxs
   and k_ptr = CArray.start edge_ks in
@@ -365,13 +354,13 @@ let refine n t =
 (* 2D to 3D *)
 
 let extrude
-  ?slices
-  ?fa
-  ?(twist = 0.)
-  ?(scale = v2 1. 1.)
-  ?(center = false)
-  ~height:h
-  cross
+      ?slices
+      ?fa
+      ?(twist = 0.)
+      ?(scale = v2 1. 1.)
+      ?(center = false)
+      ~height:h
+      cross
   =
   let buf, t = alloc ()
   and tw = Math.deg_of_rad twist in
@@ -380,12 +369,21 @@ let extrude
     | Some s, tw when Float.(abs tw /. (2. *. pi) < 1.) -> s
     | fn, tw -> Util.helical_slices ?fa ?fn tw
   in
-  let _ = C.Funcs.manifold_extrude buf cross h slices tw (V2.x scale) (V2.y scale) in
+  let _ =
+    C.Funcs.manifold_extrude
+      buf
+      (CrossSection.to_polygons cross)
+      h
+      slices
+      tw
+      (V2.x scale)
+      (V2.y scale)
+  in
   if center then ztrans (h /. -2.) t else t
 
 let revolve ?(fn = 0) polys =
   let buf, t = alloc () in
-  let _ = C.Funcs.manifold_revolve buf polys fn in
+  let _ = C.Funcs.manifold_revolve buf (CrossSection.to_polygons polys) fn in
   t
 
 (* Mesh Conversion *)

@@ -6,6 +6,8 @@
 
 (using ctypes 0.3)
 
+(using mode_specific_stubs 0.1)
+
 (cram disable)
 
 (generate_opam_files true)

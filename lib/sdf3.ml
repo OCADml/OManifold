@@ -117,13 +117,13 @@ let intersection ?smooth a b =
       let h = Math.clamp ~min:0. ~max:1. ((0.5 +. (0.5 *. (da -. db))) /. k) in
       Math.lerp da db h -. (k *. h *. (1. -. h))
 
-let to_mmeshgl ?(level = 0.) ?(edge_length = 0.5) ~box sdf =
-  let sdf x y z = sdf (v3 x y z) in
-  let buf, mesh = MMeshGL.alloc ()
+let to_manifold ?(level = 0.) ?(edge_length = 0.5) ?(tolerance = 1e-3) ~box sdf =
+  let sdf x y z _ = sdf (v3 x y z) in
+  let buf, man = Manifold.alloc ()
   and f = Ctypes.(coerce (Foreign.funptr C.Funcs.sdf_t) (static_funptr C.Funcs.sdf_t) sdf)
   and box = MBox.of_box box in
-  let _ = C.Funcs.level_set_seq buf f box edge_length level in
-  mesh
+  let _ = C.Funcs.level_set_seq buf f box edge_length level tolerance Ctypes.null in
+  man
 
 let to_mesh ?level ?edge_length ~box sdf =
-  MMeshGL.to_mesh @@ to_mmeshgl ?level ?edge_length ~box sdf
+  Manifold.to_mesh @@ to_manifold ?level ?edge_length ~box sdf

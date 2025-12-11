@@ -33,11 +33,6 @@ let%test "decompose_compose" =
   Gc.full_major ();
   List.length decomp = 4
 
-let%test "rect_clipping" =
-  let cs = Cross.square (v2 10. 10.) in
-  let r = Box2.move (v2 0. (-5.)) @@ Cross.bounds cs in
-  Cross.(area cs /. 2. = area @@ rect_clip cs r)
-
 let%test "cross_transform" =
   let sq = Cross.square (v2 10. 10.)
   and rot = Float.pi /. 4.

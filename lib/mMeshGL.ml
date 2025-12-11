@@ -28,9 +28,9 @@ let make ?normals ?tangents points triangles =
       let ps = Ctypes.(CArray.make float (len_ps * 3)) in
       List.iteri
         (fun i n ->
-          Ctypes.CArray.set ps (i * 3) (V3.x n);
-          Ctypes.CArray.set ps ((i * 3) + 1) (V3.y n);
-          Ctypes.CArray.set ps ((i * 3) + 2) (V3.z n) )
+           Ctypes.CArray.set ps (i * 3) (V3.x n);
+           Ctypes.CArray.set ps ((i * 3) + 1) (V3.y n);
+           Ctypes.CArray.set ps ((i * 3) + 2) (V3.z n) )
         points;
       size_of_int 3, ps
     | Some norms ->
@@ -38,12 +38,12 @@ let make ?normals ?tangents points triangles =
       ( try
           Util.iter2i
             (fun i p n ->
-              Ctypes.CArray.set ps (i * 6) (V3.x p);
-              Ctypes.CArray.set ps ((i * 6) + 1) (V3.y p);
-              Ctypes.CArray.set ps ((i * 6) + 2) (V3.z p);
-              Ctypes.CArray.set ps ((i * 6) + 3) (V3.x n);
-              Ctypes.CArray.set ps ((i * 6) + 4) (V3.y n);
-              Ctypes.CArray.set ps ((i * 6) + 5) (V3.z n) )
+               Ctypes.CArray.set ps (i * 6) (V3.x p);
+               Ctypes.CArray.set ps ((i * 6) + 1) (V3.y p);
+               Ctypes.CArray.set ps ((i * 6) + 2) (V3.z p);
+               Ctypes.CArray.set ps ((i * 6) + 3) (V3.x n);
+               Ctypes.CArray.set ps ((i * 6) + 4) (V3.y n);
+               Ctypes.CArray.set ps ((i * 6) + 5) (V3.z n) )
             points
             norms
         with
@@ -55,9 +55,9 @@ let make ?normals ?tangents points triangles =
   let tris = Ctypes.(CArray.make uint32_t (len_tris * 3)) in
   List.iteri
     (fun i (a, b, c) ->
-      Ctypes.CArray.set tris (i * 3) (Unsigned.UInt32.of_int a);
-      Ctypes.CArray.set tris ((i * 3) + 1) (Unsigned.UInt32.of_int b);
-      Ctypes.CArray.set tris ((i * 3) + 2) (Unsigned.UInt32.of_int c) )
+       Ctypes.CArray.set tris (i * 3) (Unsigned.UInt32.of_int a);
+       Ctypes.CArray.set tris ((i * 3) + 1) (Unsigned.UInt32.of_int b);
+       Ctypes.CArray.set tris ((i * 3) + 2) (Unsigned.UInt32.of_int c) )
     triangles;
   let ps = Ctypes.CArray.start ps
   and tris = Ctypes.CArray.start tris in
@@ -75,10 +75,10 @@ let make ?normals ?tangents points triangles =
         let ts = Ctypes.(CArray.make float (len * 4)) in
         List.iteri
           (fun i n ->
-            Ctypes.CArray.set ts (i * 4) (Gg.V4.x n);
-            Ctypes.CArray.set ts ((i * 4) + 1) (Gg.V4.y n);
-            Ctypes.CArray.set ts ((i * 4) + 2) (Gg.V4.z n);
-            Ctypes.CArray.set ts ((i * 4) + 3) (Gg.V4.w n) )
+             Ctypes.CArray.set ts (i * 4) (Gg.V4.x n);
+             Ctypes.CArray.set ts ((i * 4) + 1) (Gg.V4.y n);
+             Ctypes.CArray.set ts ((i * 4) + 2) (Gg.V4.z n);
+             Ctypes.CArray.set ts ((i * 4) + 3) (Gg.V4.w n) )
           tans;
         let ts = Ctypes.CArray.start ts in
         C.Funcs.meshgl_w_tangents buf ps n_verts n_props tris n_tris ts )
@@ -173,5 +173,5 @@ let to_mesh t = Mesh.make ~points:(points t) ~faces:(faces t)
 let import ?(cleanup = false) path =
   let buf, t = alloc ()
   and path = Conv.string_to_ptr Ctypes_static.char path in
-  let _ = C.Funcs.import_meshgl buf path cleanup in
+  let _ = C.Funcs.import_meshgl buf path (Bool.to_int cleanup) in
   t

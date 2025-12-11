@@ -159,14 +159,6 @@ module Cross : sig
        [ts] is empty, an empty cross-section {!t} will result. *)
   val intersection : t list -> t
 
-  (** [rect_clip t rect]
-
-       Compute the intersection between the cross-section [t] and an axis-aligned
-       bounding box [rect]. This operation has much higher performance ({b O(n)} vs
-       {b O(n{^ 3})} than the general purpose intersection algorithm
-       used for sets of cross-sections. *)
-  val rect_clip : t -> Box2.t -> t
-
   (** {1 Topology} *)
 
   (** [compose ts]
@@ -342,37 +334,6 @@ module Manifold : sig
           Return the plain integer ID. If the corresponding manifold was a
           product, rather than an original, this returns [-1]. *)
     val to_int : t -> int
-  end
-
-  (** Spatial properties of a {!Manifold.t}, returned by {!val:size} *)
-  type size =
-    { surface_area : float
-    ; volume : float
-    }
-
-  module Curvature : sig
-    module Bounds : sig
-      type t =
-        { min_mean : float
-        ; max_mean : float
-        ; min_gaussian : float
-        ; max_gaussian : float
-        }
-    end
-
-    (** Computed vertex curvatures of a {!Manifold.t}
-
-     The inverse of the radius of curvature, and signed such that
-     positive is convex and negative is concave. There are two orthogonal
-     principal curvatures at any point on a manifold, with one maximum and the
-     other minimum. Gaussian curvature is their product, while mean curvature is
-     their sum. This approximates them for every vertex (returned as vectors in
-     the structure) and also returns their minimum and maximum values. *)
-    type t =
-      { bounds : Bounds.t
-      ; vert_mean : float list
-      ; vert_gaussian : float list
-      }
   end
 
   type t = manifold
@@ -786,20 +747,15 @@ module Manifold : sig
        for a single mesh, so it is best use {!decompose} first. *)
   val genus : t -> int
 
-  (** [size t]
+  (** [surface_area t]
 
-       The physical size (surface area and volume) of the manifold [t]. *)
-  val size : t -> size
+       The surface area of the manifold [t]. *)
+  val surface_area : t -> float
 
-  (** [curvature t]
+  (** [volume t]
 
-       The inverse of the radius of curvature, and signed such that
-       positive is convex and negative is concave. There are two orthogonal
-       principal curvatures at any point on a manifold, with one maximum and the
-       other minimum. Gaussian curvature is their product, while mean curvature is
-       their sum. This approximates them for every vertex (returned as vectors in
-       the structure) and also returns their minimum and maximum values. *)
-  val curvature : t -> Curvature.t
+       The volume of the manifold [t]. *)
+  val volume : t -> float
 
   (** [points t]
 
@@ -955,8 +911,15 @@ module Sdf3 : sig
       - [edge_length] is the the approximate maximum edge length of the triangles
         in the final result. This affects grid spacing, thus strongly impacting performance.
       - [level] can be provided with a positive value to inset the mesh, or a
-        negative value to outset it (default is [0.] -- no offset) *)
-  val to_mmeshgl : ?level:float -> ?edge_length:float -> box:Box3.t -> t -> mmeshgl
+        negative value to outset it (default is [0.] -- no offset)
+      - [tolerance] TODO: description *)
+  val to_manifold
+    :  ?level:float
+    -> ?edge_length:float
+    -> ?tolerance:float
+    -> box:Box3.t
+    -> t
+    -> manifold
 end
 
 (** {1 IO} *)
@@ -1048,13 +1011,14 @@ module Export : sig
   module Material : sig
     type t
 
-    val make
-      :  ?roughness:float
-      -> ?metalness:float
-      -> ?color:v4
-      -> ?vert_color:v4 list
-      -> unit
-      -> t
+    (* TODO: reimpl, vert_color is gone *)
+    (* val make *)
+    (*   :  ?roughness:float *)
+    (*   -> ?metalness:float *)
+    (*   -> ?color:v4 *)
+    (*   -> ?vert_color:v4 list *)
+    (*   -> unit *)
+    (*   -> t *)
   end
 
   module Opts : sig
