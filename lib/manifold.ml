@@ -252,7 +252,7 @@ let union = function
 
 let difference t = function
   | [] -> copy t
-  | ts -> batch_boolean ~op:`Subtract ts
+  | ts -> batch_boolean ~op:`Subtract (t :: ts)
 
 let intersection = function
   | [] -> empty ()
