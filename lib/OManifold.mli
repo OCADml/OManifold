@@ -514,15 +514,16 @@ module Manifold : sig
     -> Cross.t
     -> t
 
-  (** [revolve ?fn cross_section]
+  (** [revolve ?fn ?angle cross_section]
 
        Revolve a 2d [cross_section] around the y-axis and then set this
        as the z-axis of the resulting manifold. If the polygons cross the y-axis, only
        the part on the positive x side is used. Geometrically valid input will result
        in geometrically valid output. The number of segments in the revolution
        can be set explicitly with [fn], otherwise it is determined by the
-       {{!OManifold.Quality} quality globals}. *)
-  val revolve : ?fn:int -> Cross.t -> t
+       {{!OManifold.Quality} quality globals}. A full revolution is performed
+       by default, but it can be made partial by providing an [angle] in radians. *)
+  val revolve : ?fn:int -> ?angle:float -> Cross.t -> t
 
   (** {1 Booleans} *)
 
@@ -730,7 +731,7 @@ module Manifold : sig
        vertices. *)
   val bounding_box : t -> Box3.t
 
-  (** [precision t]
+  (** [epsilon t]
 
        Returns the precision of this manifold's vertices, which tracks the
        approximate rounding error over all the transforms and operations that have
@@ -738,7 +739,7 @@ module Manifold : sig
        considered degenerate and removed. This is the value of &epsilon; defining
        {{:https://github.com/elalish/manifold/wiki/manifold-Library#definition-of-%CE%B5-valid}
        &epsilon;-valid}. *)
-  val precision : t -> float
+  val epsilon : t -> float
 
   (** [genus t]
 

@@ -149,6 +149,12 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let t : t typ = structure "ManifoldMeshGL"
   end
 
+  module MeshGL64 = struct
+    type t = [ `MeshGL64 ] structure
+
+    let t : t typ = structure "ManifoldMeshGL64"
+  end
+
   module Properties = struct
     type t = [ `Properties ] structure
 

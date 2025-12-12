@@ -1,5 +1,8 @@
 (data_only_dirs vendor)
 
+; TODO: Using system installed clipper2 seems to enable a successful build.
+; Still need to test interactively to be sure but is tests are executing it's promising
+
 (library
  (name OManifold_c)
  (public_name OManifold.c)
@@ -25,7 +28,7 @@
      (:include config/c_flags.sexp))
     (c_library_flags
      (:include config/c_library_flags.sexp)
-     "-lclipper2")))
+     "-lClipper2")))
   ; NOTE: trying to use system clipper2, so far no luck
   (headers
    (include "manifoldc.h" "manifold/manifoldc.h" "manifold/types.h"))
@@ -79,6 +82,7 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_PAR=%{read:config/par_flag}
+        ; -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
         ..)
        (run make -j))))
     ; (cat cmake_shared.log)
@@ -121,6 +125,7 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_PAR=%{read:config/par_flag}
+        ; -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
         ..)
        (run make -j))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
@@ -128,5 +133,5 @@
     ; (copy vendor/manifold/build_a/meshIO/libmeshIO.a libmeshIO.a)
     ; (copy
     ;  vendor/manifold/build_a/_deps/clipper2-build/libClipper2.a
-    ;  libclipper2.a)
+    ;  libclipper2.a))))
     ))))

@@ -179,10 +179,27 @@ module Functions (F : Ctypes.FOREIGN) = struct
       "manifold_smooth"
       ( ptr void
         @-> ptr MeshGL.t
-        @-> ptr int
+        @-> ptr size_t
         @-> ptr double
         @-> size_t
         @-> returning (ptr Manifold.t) )
+
+  let manifold_smooth64 =
+    foreign
+      "manifold_smooth64"
+      ( ptr void
+        @-> ptr MeshGL64.t
+        @-> ptr size_t
+        @-> ptr double
+        @-> size_t
+        @-> returning (ptr Manifold.t) )
+
+  (* TODO: smoothing Manifold functions *)
+  (* ManifoldManifold* manifold_smooth_by_normals(void* mem, ManifoldManifold* m, *)
+  (*                                              int normalIdx); *)
+  (* ManifoldManifold* manifold_smooth_out(void* mem, ManifoldManifold* m, *)
+  (*                                       double minSharpAngle, *)
+  (*                                       double minSmoothness); *)
 
   let manifold_extrude =
     foreign
@@ -199,7 +216,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_revolve =
     foreign
       "manifold_revolve"
-      (ptr void @-> ptr Polygons.t @-> int @-> returning (ptr Manifold.t))
+      (ptr void @-> ptr Polygons.t @-> int @-> double @-> returning (ptr Manifold.t))
 
   let manifold_compose =
     foreign
@@ -371,7 +388,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
         @-> double
         @-> returning (ptr Manifold.t) )
 
-  let warp3_t = Ctypes.(double @-> double @-> double @-> returning Vec3.t)
+  let warp3_t = Ctypes.(double @-> double @-> double @-> ptr void @-> returning Vec3.t)
 
   let manifold_warp =
     foreign
@@ -379,6 +396,7 @@ module Functions (F : Ctypes.FOREIGN) = struct
       ( ptr void
         @-> ptr Manifold.t
         @-> static_funptr warp3_t
+        @-> ptr void
         @-> returning (ptr Manifold.t) )
 
   let manifold_refine =
@@ -408,12 +426,10 @@ module Functions (F : Ctypes.FOREIGN) = struct
   let manifold_bounding_box =
     foreign "manifold_bounding_box" (ptr void @-> ptr Manifold.t @-> returning (ptr Box.t))
 
-  let manifold_precision =
-    foreign "manifold_precision" (ptr Manifold.t @-> returning double)
-
+  let manifold_epsilon = foreign "manifold_epsilon" (ptr Manifold.t @-> returning double)
   let manifold_genus = foreign "manifold_genus" (ptr Manifold.t @-> returning int)
 
-  (* TODO manifold_set_properties *)
+  (* TODO add manifold_set_properties *)
 
   let manifold_surface_area =
     foreign "manifold_surface_area" (ptr Manifold.t @-> returning double)

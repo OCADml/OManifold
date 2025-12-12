@@ -117,7 +117,7 @@ let bounding_box t =
   let _ = C.Funcs.manifold_bounding_box buf t in
   MBox.to_box box
 
-let precision t = C.Funcs.manifold_precision t
+let epsilon t = C.Funcs.manifold_epsilon t
 let genus t = C.Funcs.manifold_genus t
 let surface_area t = C.Funcs.manifold_surface_area t
 let volume t = C.Funcs.manifold_volume t
@@ -165,11 +165,11 @@ let smooth ?(smoothness = []) m =
   let open Ctypes in
   let buf, t = alloc () in
   let len = List.length smoothness in
-  let edge_idxs = CArray.make int len
-  and edge_ks = CArray.make float len in
+  let edge_idxs = CArray.make size_t len
+  and edge_ks = CArray.make double len in
   List.iteri
     (fun i (idx, s) ->
-       CArray.set edge_idxs i idx;
+       CArray.set edge_idxs i (size_of_int idx);
        CArray.set edge_ks i s )
     smoothness;
   let idx_ptr = CArray.start edge_idxs
@@ -271,11 +271,11 @@ let trim_by_plane plane t =
 
 let warp f t =
   let buf, warped = alloc () in
-  let f x y z = Conv.vec3_of_v3 (f (v3 x y z)) in
+  let f x y z _ = Conv.vec3_of_v3 (f (v3 x y z)) in
   let f =
     Ctypes.(coerce (Foreign.funptr C.Funcs.warp3_t) (static_funptr C.Funcs.warp3_t) f)
   in
-  let _ = C.Funcs.manifold_warp buf t f in
+  let _ = C.Funcs.manifold_warp buf t f Ctypes.null in
   warped
 
 let translate p t =
@@ -381,9 +381,10 @@ let extrude
   in
   if center then ztrans (h /. -2.) t else t
 
-let revolve ?(fn = 0) polys =
-  let buf, t = alloc () in
-  let _ = C.Funcs.manifold_revolve buf (CrossSection.to_polygons polys) fn in
+let revolve ?(fn = 0) ?(angle = Float.pi *. 2.) polys =
+  let buf, t = alloc ()
+  and deg = Math.deg_of_rad angle in
+  let _ = C.Funcs.manifold_revolve buf (CrossSection.to_polygons polys) fn deg in
   t
 
 (* Mesh Conversion *)
