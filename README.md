@@ -57,3 +57,7 @@ git clone --recurse-submodules https://github.com/geoffder/OManifold
 cd OManifold
 dune build
 ```
+
+Manifold is built with `MANIFOLD_PAR=ON` by default (as recommended), so long as
+the parallel execution library TBB is found by `pkg-config`. If you would like
+to build without it set `OMANIFOLD_PAR=OFF` in your environment.
