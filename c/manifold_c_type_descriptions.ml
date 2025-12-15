@@ -176,6 +176,12 @@ module Types (F : Cstubs.Types.TYPE) = struct
     let t : t typ = structure "ManifoldRect"
   end
 
+  module Triangulation = struct
+    type t = [ `Triangulation ] structure
+
+    let t : t typ = structure "ManifoldTriangulation"
+  end
+
   module Material = struct
     type t = [ `Material ] structure
 

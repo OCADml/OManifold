@@ -274,7 +274,7 @@ module Cross : sig
   val offset
     :  ?join_type:join_type
     -> ?miter_limit:float
-    -> ?arc_tolerance:float
+    -> ?arc_tolerance:int
     -> delta:float
     -> t
     -> t

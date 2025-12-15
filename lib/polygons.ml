@@ -47,8 +47,11 @@ let make paths =
   t
 
 let length t = size_to_int @@ C.Funcs.polygons_length t
-let simple_length t i = size_to_int @@ C.Funcs.polygons_simple_length t i
-let get t i j = Conv.vec2_to_v2 @@ C.Funcs.polygons_get_point t i j
+let simple_length t i = size_to_int @@ C.Funcs.polygons_simple_length t (size_of_int i)
+
+let get t i j =
+  Conv.vec2_to_v2 @@ C.Funcs.polygons_get_point t (size_of_int i) (size_of_int j)
+
 let of_poly2 p = make @@ Poly2.to_list p
 
 let of_poly2s polys =

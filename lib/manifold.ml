@@ -108,9 +108,9 @@ let original_id t =
   | -1 -> Id.Product
   | id -> Original id
 
-let num_vert t = C.Funcs.manifold_num_vert t
-let num_edge t = C.Funcs.manifold_num_edge t
-let num_tri t = C.Funcs.manifold_num_tri t
+let num_vert t = size_to_int @@ C.Funcs.manifold_num_vert t
+let num_edge t = size_to_int @@ C.Funcs.manifold_num_edge t
+let num_tri t = size_to_int @@ C.Funcs.manifold_num_tri t
 
 let bounding_box t =
   let buf, box = MBox.alloc () in
@@ -197,7 +197,7 @@ let decompose t =
   and ts = ref [] in
   for i = Vec.length mv - 1 downto 0 do
     let buf, man = alloc () in
-    let _ = C.Funcs.manifold_vec_get buf mv i in
+    let _ = C.Funcs.manifold_vec_get buf mv (size_of_int i) in
     ts := man :: !ts
   done;
   !ts

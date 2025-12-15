@@ -98,7 +98,7 @@ let circle ?(fn = 0) rad =
 
 let square ?(center = false) d =
   let buf, t = alloc () in
-  let _ = V2.(C.Funcs.cross_section_square buf (x d) (y d) center) in
+  let _ = V2.(C.Funcs.cross_section_square buf (x d) (y d) (Bool.to_int center)) in
   t
 
 let compose ts =
@@ -224,7 +224,7 @@ let simplify ?(eps = 1e-6) t =
   let _ = C.Funcs.cross_section_simplify buf t eps in
   simplified
 
-let offset ?(join_type = `Square) ?(miter_limit = 2.0) ?(arc_tolerance = 0.) ~delta t =
+let offset ?(join_type = `Square) ?(miter_limit = 2.0) ?(arc_tolerance = 0) ~delta t =
   let buf, off = alloc ()
   and join_type = JoinType.make join_type in
   let _ = C.Funcs.cross_section_offset buf t delta join_type miter_limit arc_tolerance in
@@ -233,8 +233,8 @@ let offset ?(join_type = `Square) ?(miter_limit = 2.0) ?(arc_tolerance = 0.) ~de
 (* Information *)
 
 let area t = C.Funcs.cross_section_area t
-let num_vert t = C.Funcs.cross_section_num_vert t
-let num_contour t = C.Funcs.cross_section_num_contour t
+let num_vert t = size_to_int @@ C.Funcs.cross_section_num_vert t
+let num_contour t = size_to_int @@ C.Funcs.cross_section_num_contour t
 let is_empty t = C.Funcs.cross_section_is_empty t
 
 let to_polygons t =
