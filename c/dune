@@ -24,7 +24,7 @@
      (:include config/c_library_flags.sexp)
      "-lClipper2")))
   (headers
-   (include "manifoldc.h" "manifold/manifoldc.h" "manifold/types.h"))
+   (include "manifold/manifoldc.h" "manifold/types.h"))
   (external_library_name libmanifoldc)
   (type_description
    (instance Types)
@@ -55,11 +55,13 @@
         cmake
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=ON
-        -DMANIFOLD_EXPORT=ON
-        -DMANIFOLD_TEST=OFF
-        -DMANIFOLD_PYBIND=OFF
-        -DMANIFOLD_CBIND=ON
         -DMANIFOLD_PAR=%{read:config/par_flag}
+        -DMANIFOLD_CROSS_SECTION=ON
+        -DMANIFOLD_EXPORT=ON
+        -DMANIFOLD_CBIND=ON
+        -DMANIFOLD_PYBIND=OFF
+        -DMANIFOLD_JSBIND=OFF
+        -DMANIFOLD_TEST=OFF
         -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
         ..)
        (run make -j))))
@@ -86,11 +88,13 @@
         cmake
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=OFF
-        -DMANIFOLD_EXPORT=ON
-        -DMANIFOLD_TEST=OFF
-        -DMANIFOLD_PYBIND=OFF
-        -DMANIFOLD_CBIND=ON
         -DMANIFOLD_PAR=%{read:config/par_flag}
+        -DMANIFOLD_CROSS_SECTION=ON
+        -DMANIFOLD_EXPORT=ON
+        -DMANIFOLD_CBIND=ON
+        -DMANIFOLD_PYBIND=OFF
+        -DMANIFOLD_JSBIND=OFF
+        -DMANIFOLD_TEST=OFF
         -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
         ..)
        (run make -j))))
