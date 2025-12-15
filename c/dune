@@ -1,16 +1,10 @@
 (data_only_dirs vendor)
 
-; TODO: Using system installed clipper2 seems to enable a successful build.
-; Still need to test interactively to be sure but is tests are executing it's promising
-
 (library
  (name OManifold_c)
  (public_name OManifold.c)
  (wrapped false)
- ; (libraries ctypes ctypes.foreign)
  (libraries ctypes)
- ; (modes native)
- ; (no_dynlink)
  (flags
   (:standard -w -9-16-27))
  (ctypes
@@ -29,7 +23,6 @@
     (c_library_flags
      (:include config/c_library_flags.sexp)
      "-lClipper2")))
-  ; NOTE: trying to use system clipper2, so far no luck
   (headers
    (include "manifoldc.h" "manifold/manifoldc.h" "manifold/types.h"))
   (external_library_name libmanifoldc)
@@ -42,27 +35,12 @@
    (functor Manifold_c_function_descriptions))
   (generated_types Manifold_c_types)
   (generated_entry_point C))
- ; (foreign_archives manifoldc manifold clipper2))
  (foreign_archives manifoldc manifold))
-
-; without clipper2 (it fails)
 
 ; Build Manifold vendor
 
-; NOTE: trying to comment out in combination with removing the need for .so by disabling
-; bytecode and dynlinking, no luck so far.
-
 (rule
- ; (targets dllmanifoldc%{ext_dll} dllmanifold%{ext_dll} dllclipper2%{ext_dll})
  (targets dllmanifoldc%{ext_dll} dllmanifold%{ext_dll})
- ; without clipper2.so, is it required?
- ; it seems like it is, dropping the target causes a "No rule found for dllclipper2.so" error.
- ; I think that the clipper2 foreign_archives entry is looking for it.
- ; TODO: is the separate foreign_archive for clipper2 required anymore, or does
- ; manifold incorporate it such that ocaml doesn't need to know?
- ; NOTE: yes, the compilation fails without it (when trying to include <manifoldc.h>)
- ; FIXME: ok, so maybe it was doing ok using the local clipper2 (need to test after), and it is just
- ; failing on the include of manifoldc.h because the paths have changed. Fix that and circle back
  (deps
   (source_tree vendor/manifold))
  (action
@@ -82,29 +60,17 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_PAR=%{read:config/par_flag}
-        ; -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
+        -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
         ..)
        (run make -j))))
-    ; (cat cmake_shared.log)
     (copy
      vendor/manifold/build_so/bindings/c/libmanifoldc%{ext_dll}
      dllmanifoldc%{ext_dll})
     (copy
      vendor/manifold/build_so/src/libmanifold%{ext_dll}
-     dllmanifold%{ext_dll})
-    ; (copy
-    ;  vendor/manifold/build_so/meshIO/libmeshIO%{ext_dll}
-    ;  dllmeshIO%{ext_dll})
-    ;  FIXME: manifold builds a static libClipper2.a even when in shared libraries mode,
-    ;  this *might* be a problem for ctypes which I belive always wanted dll and static
-    ;  for a static build.
-    ; (copy
-    ;  vendor/manifold/build_so/src/third_party/clipper2/CPP/libClipper2%{ext_dll}
-    ;  dllclipper2%{ext_dll})
-    ))))
+     dllmanifold%{ext_dll})))))
 
 (rule
- ; (targets libmanifoldc.a libmanifold.a libclipper2.a)
  (targets libmanifoldc.a libmanifold.a)
  (deps
   (source_tree vendor/manifold))
@@ -125,13 +91,8 @@
         -DMANIFOLD_PYBIND=OFF
         -DMANIFOLD_CBIND=ON
         -DMANIFOLD_PAR=%{read:config/par_flag}
-        ; -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
+        -DMANIFOLD_USE_BUILTIN_CLIPPER2=ON
         ..)
        (run make -j))))
     (copy vendor/manifold/build_a/bindings/c/libmanifoldc.a libmanifoldc.a)
-    (copy vendor/manifold/build_a/src/libmanifold.a libmanifold.a)
-    ; (copy vendor/manifold/build_a/meshIO/libmeshIO.a libmeshIO.a)
-    ; (copy
-    ;  vendor/manifold/build_a/_deps/clipper2-build/libClipper2.a
-    ;  libclipper2.a))))
-    ))))
+    (copy vendor/manifold/build_a/src/libmanifold.a libmanifold.a)))))
